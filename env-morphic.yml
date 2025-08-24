@@ -1,0 +1,4 @@
+name: morphic
+channels: [conda-forge]
+dependencies:
+  - numba=0.57.1
