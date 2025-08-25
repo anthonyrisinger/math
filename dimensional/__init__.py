@@ -25,6 +25,9 @@ from .phase import *
 # Import everything from morphic module
 from .morphic import *
 
+# Import CLI for programmatic access
+from . import cli
+
 # Package metadata
 __version__ = "1.0.0"
 __author__ = "Dimensional Mathematics Project"
