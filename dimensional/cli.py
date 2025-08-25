@@ -26,9 +26,15 @@ from rich.progress import track
 from pydantic import BaseModel, Field, validator
 import json
 import sys
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+import webbrowser
+import tempfile
 
 # Import our core modules
-from .gamma import lab, live, demo, explore, peaks, instant, qplot, v, s, c
+from .gamma import lab, live, demo, explore, peaks, instant, qplot, v, s, c, gamma_safe
 from .measures import DimensionalMeasures
 from .phase import PhaseDynamicsEngine
 from .morphic import MorphicAnalyzer
@@ -385,6 +391,328 @@ def cli_config(
 
     if reset:
         console.print("🔄 [green]Configuration reset to defaults[/green]")
+
+# ============================================================================
+# VISUALIZATION COMMANDS
+# ============================================================================
+
+@app.command("visualize")
+def cli_visualize():
+    """🎨 Access visualization command family (use subcommands)."""
+    console.print(Panel.fit(
+        "🎨 [bold blue]Visualization Commands[/bold blue]\n\n"
+        "📊 Available visualizations:\n"
+        "  • [cyan]emergence[/cyan] - Dimensional emergence animation\n"
+        "  • [yellow]complexity-peak[/yellow] - Complexity peak around d≈6\n"
+        "  • [purple]phase-dynamics[/purple] - Phase evolution visualization\n"
+        "  • [green]gamma-landscape[/green] - 3D gamma function landscape\n\n"
+        "🚀 [bold]Quick start:[/bold]\n"
+        "  dimensional visualize emergence --interactive\n"
+        "  dimensional visualize complexity-peak --export plot.html",
+        border_style="blue"
+    ))
+
+# Create visualization subcommand group
+viz_app = typer.Typer(name="visualize", help="🎨 Visualization command family")
+app.add_typer(viz_app, name="visualize")
+
+@viz_app.command("emergence")
+def cli_visualize_emergence(
+    dim_start: float = typer.Option(
+        0.1, "--start", "-s",
+        help="🌱 Starting dimension for emergence",
+        min=0.1, max=2.0
+    ),
+    dim_end: float = typer.Option(
+        10.0, "--end", "-e",
+        help="🌟 Ending dimension for emergence",
+        min=2.0, max=20.0
+    ),
+    steps: int = typer.Option(
+        1000, "--steps", "-n",
+        help="📊 Number of evolution steps",
+        min=100, max=5000
+    ),
+    interactive: bool = typer.Option(
+        True, "--interactive/--static",
+        help="🎮 Create interactive plot"
+    ),
+    export_file: Optional[str] = typer.Option(
+        None, "--export", "-o",
+        help="💾 Export to HTML file"
+    ),
+    show_annotations: bool = typer.Option(
+        True, "--annotations/--no-annotations",
+        help="📝 Show critical point annotations"
+    )
+):
+    """🌱 Visualize dimensional emergence from 0D to higher dimensions."""
+    console.print(Panel.fit(
+        f"🌱 [bold green]Dimensional Emergence Visualization[/bold green]\n"
+        f"Range: [yellow]{dim_start} → {dim_end}[/yellow] ({steps} steps)\n"
+        f"Mode: [cyan]{'Interactive' if interactive else 'Static'}[/cyan]",
+        border_style="green"
+    ))
+
+    # Generate dimensional data
+    dims = np.linspace(dim_start, dim_end, steps)
+
+    with console.status("🔄 Computing emergence data..."):
+        v_vals = [v(d) for d in track(dims, description="Volume")]
+        s_vals = [s(d) for d in track(dims, description="Surface")]
+        c_vals = [c(d) for d in track(dims, description="Complexity")]
+
+    # Create interactive plotly visualization
+    fig = make_subplots(
+        rows=2, cols=2,
+        subplot_titles=("Volume V(d)", "Surface S(d)", "Complexity C(d)", "All Functions"),
+        specs=[[{"secondary_y": False}, {"secondary_y": False}],
+               [{"secondary_y": False}, {"secondary_y": False}]]
+    )
+
+    # Add traces
+    fig.add_trace(go.Scatter(x=dims, y=v_vals, name="V(d)", line=dict(color="blue")), row=1, col=1)
+    fig.add_trace(go.Scatter(x=dims, y=s_vals, name="S(d)", line=dict(color="red")), row=1, col=2)
+    fig.add_trace(go.Scatter(x=dims, y=c_vals, name="C(d)", line=dict(color="green")), row=2, col=1)
+
+    # Combined plot
+    fig.add_trace(go.Scatter(x=dims, y=v_vals, name="Volume", line=dict(color="blue")), row=2, col=2)
+    fig.add_trace(go.Scatter(x=dims, y=s_vals, name="Surface", line=dict(color="red")), row=2, col=2)
+    fig.add_trace(go.Scatter(x=dims, y=c_vals, name="Complexity", line=dict(color="green")), row=2, col=2)
+
+    if show_annotations:
+        # Add critical point annotations
+        critical_points = [
+            (2.0, "2D Critical"),
+            (3.0, "3D Physical"),
+            (4.0, "4D Transition"),
+            (5.26, "Complexity Peak"),
+            (6.0, "6D Maximum")
+        ]
+
+        for d_crit, label in critical_points:
+            if dim_start <= d_crit <= dim_end:
+                fig.add_vline(x=d_crit, line_dash="dash", annotation_text=label)
+
+    fig.update_layout(
+        title="🌱 Dimensional Emergence: From Void to Reality",
+        height=800,
+        showlegend=True
+    )
+
+    # Export or show
+    if export_file:
+        fig.write_html(export_file)
+        console.print(f"💾 [green]Exported to {export_file}[/green]")
+
+    if interactive and not export_file:
+        fig.show()
+
+    console.print("✨ [green]Emergence visualization complete![/green]")
+
+@viz_app.command("complexity-peak")
+def cli_visualize_complexity_peak(
+    focus_range: float = typer.Option(
+        2.0, "--range", "-r",
+        help="🎯 Range around peak to visualize",
+        min=0.5, max=5.0
+    ),
+    resolution: int = typer.Option(
+        500, "--resolution", "-res",
+        help="🔍 Plot resolution",
+        min=100, max=2000
+    ),
+    export_file: Optional[str] = typer.Option(
+        None, "--export", "-o",
+        help="💾 Export to HTML file"
+    ),
+    show_derivatives: bool = typer.Option(
+        False, "--derivatives",
+        help="📈 Show derivative analysis"
+    )
+):
+    """🏔️ Visualize the complexity peak around d≈5.26."""
+    peak_center = 5.26
+
+    console.print(Panel.fit(
+        f"🏔️ [bold magenta]Complexity Peak Analysis[/bold magenta]\n"
+        f"Center: [yellow]{peak_center}[/yellow]\n"
+        f"Range: [cyan]±{focus_range}[/cyan]\n"
+        f"Resolution: [green]{resolution}[/green]",
+        border_style="magenta"
+    ))
+
+    # Generate high-resolution data around the peak
+    dims = np.linspace(peak_center - focus_range, peak_center + focus_range, resolution)
+
+    with console.status("🔄 Computing complexity landscape..."):
+        c_vals = [c(d) for d in track(dims, description="Complexity")]
+
+    # Find actual peak
+    peak_idx = np.argmax(c_vals)
+    actual_peak_d = dims[peak_idx]
+    actual_peak_c = c_vals[peak_idx]
+
+    # Create visualization
+    fig = go.Figure()
+
+    # Main complexity curve
+    fig.add_trace(go.Scatter(
+        x=dims, y=c_vals,
+        mode='lines',
+        name='Complexity C(d)',
+        line=dict(color='purple', width=3)
+    ))
+
+    # Highlight the peak
+    fig.add_trace(go.Scatter(
+        x=[actual_peak_d], y=[actual_peak_c],
+        mode='markers',
+        name=f'Peak at d={actual_peak_d:.3f}',
+        marker=dict(color='red', size=15, symbol='star')
+    ))
+
+    if show_derivatives:
+        # Add derivative analysis (numerical)
+        dc_dd = np.gradient(c_vals, dims)
+        fig.add_trace(go.Scatter(
+            x=dims, y=dc_dd,
+            mode='lines',
+            name="C'(d)",
+            line=dict(color='orange', dash='dash'),
+            yaxis='y2'
+        ))
+
+    fig.update_layout(
+        title=f"🏔️ Complexity Peak: Maximum Reality at d≈{actual_peak_d:.3f}",
+        xaxis_title="Dimension d",
+        yaxis_title="Complexity C(d)",
+        height=600,
+        annotations=[
+            dict(
+                x=actual_peak_d, y=actual_peak_c,
+                text=f"Peak: ({actual_peak_d:.3f}, {actual_peak_c:.1f})",
+                showarrow=True,
+                arrowhead=2
+            )
+        ]
+    )
+
+    if show_derivatives:
+        fig.update_layout(yaxis2=dict(title="Derivative C'(d)", overlaying='y', side='right'))
+
+    # Export or show
+    if export_file:
+        fig.write_html(export_file)
+        console.print(f"💾 [green]Exported to {export_file}[/green]")
+    else:
+        fig.show()
+
+    console.print(f"🎯 [yellow]Peak found at d = {actual_peak_d:.6f}[/yellow]")
+    console.print(f"🏔️ [yellow]Maximum complexity = {actual_peak_c:.6f}[/yellow]")
+
+@viz_app.command("gamma-landscape")
+def cli_visualize_gamma_landscape(
+    dim_range: Tuple[float, float] = typer.Option(
+        (0.1, 8.0), "--range",
+        help="🏞️ Dimension range for landscape"
+    ),
+    complex_range: float = typer.Option(
+        2.0, "--complex", "-c",
+        help="🌊 Complex plane range",
+        min=0.5, max=5.0
+    ),
+    resolution: int = typer.Option(
+        100, "--resolution", "-res",
+        help="🔍 3D surface resolution",
+        min=50, max=200
+    ),
+    export_file: Optional[str] = typer.Option(
+        None, "--export", "-o",
+        help="💾 Export to HTML file"
+    )
+):
+    """🏞️ Create 3D landscape of gamma functions in complex plane."""
+    console.print(Panel.fit(
+        f"🏞️ [bold cyan]3D Gamma Landscape[/bold cyan]\n"
+        f"Real range: [yellow]{dim_range[0]} → {dim_range[1]}[/yellow]\n"
+        f"Complex range: [purple]±{complex_range}i[/purple]\n"
+        f"Resolution: [green]{resolution}×{resolution}[/green]",
+        border_style="cyan"
+    ))
+
+    # Create complex grid
+    real_vals = np.linspace(dim_range[0], dim_range[1], resolution)
+    imag_vals = np.linspace(-complex_range, complex_range, resolution)
+    R, I = np.meshgrid(real_vals, imag_vals)
+    Z = R + 1j * I
+
+    with console.status("🔄 Computing 3D gamma landscape..."):
+        # Compute gamma function over complex plane
+        gamma_vals = np.zeros_like(Z, dtype=complex)
+        for i in track(range(resolution), description="Computing"):
+            for j in range(resolution):
+                try:
+                    gamma_vals[i, j] = gamma_safe(Z[i, j])
+                except:
+                    gamma_vals[i, j] = np.nan
+
+    # Create 3D surface plot
+    fig = go.Figure()
+
+    # Real part surface
+    fig.add_trace(go.Surface(
+        x=R, y=I, z=np.real(gamma_vals),
+        name='Re(Γ(z))',
+        colorscale='Viridis',
+        opacity=0.8
+    ))
+
+    fig.update_layout(
+        title="🏞️ 3D Gamma Function Landscape: Re(Γ(z))",
+        scene=dict(
+            xaxis_title="Real(z)",
+            yaxis_title="Imag(z)",
+            zaxis_title="Re(Γ(z))"
+        ),
+        height=700
+    )
+
+    # Export or show
+    if export_file:
+        fig.write_html(export_file)
+        console.print(f"💾 [green]Exported to {export_file}[/green]")
+    else:
+        fig.show()
+
+    console.print("🌟 [green]3D gamma landscape complete![/green]")
+
+@app.command("dashboard")
+def cli_dashboard(
+    port: int = typer.Option(
+        8080, "--port", "-p",
+        help="🌐 Port for web dashboard",
+        min=1024, max=65535
+    ),
+    host: str = typer.Option(
+        "localhost", "--host",
+        help="🌍 Host address"
+    ),
+    auto_open: bool = typer.Option(
+        True, "--open/--no-open",
+        help="🚀 Auto-open browser"
+    )
+):
+    """🌐 Launch interactive web dashboard."""
+    console.print(Panel.fit(
+        f"🌐 [bold blue]Interactive Web Dashboard[/bold blue]\n"
+        f"Address: [cyan]http://{host}:{port}[/cyan]\n"
+        f"Auto-open: [yellow]{'Yes' if auto_open else 'No'}[/yellow]",
+        border_style="blue"
+    ))
+
+    console.print("🚧 [yellow]Dashboard implementation coming soon![/yellow]")
+    console.print("🎯 [green]Use 'dimensional visualize' commands for now[/green]")
 
 # ============================================================================
 # MAIN ENTRY POINT

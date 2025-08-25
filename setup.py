@@ -42,9 +42,9 @@ CORE_REQUIREMENTS = [
     'pydantic>=2.0.0',
     'rich>=13.0.0',
     'typer>=0.9.0',
-]
-
-# Development requirements
+    'plotly>=5.0.0',
+    'bokeh>=3.0.0',
+]# Development requirements
 DEV_REQUIREMENTS = [
     'pytest>=6.0.0',
     'pytest-cov>=3.0.0',
