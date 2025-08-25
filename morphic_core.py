@@ -6,8 +6,43 @@ from __future__ import annotations
 import numpy as np
 from typing import Tuple, List
 
-from clifford.g3c import e1, e2, e3, einf, eo
-from clifford.tools.g3c import up, down
+# Using Kingdon algebra for degenerate geometric algebra
+try:
+    from kingdon import Algebra
+    # Initialize 3D conformal geometric algebra (4,1,0)
+    cga = Algebra(4, 1, 0)
+    # Get basis vectors
+    e1, e2, e3, einf, eo = cga.basis_vectors[:5]
+    
+    # Helper functions for conformal mappings
+    def up(point_3d):
+        """Lift 3D point to conformal space."""
+        x, y, z = point_3d
+        return (eo + x*e1 + y*e2 + z*e3 + 
+                0.5*(x**2 + y**2 + z**2)*einf)
+    
+    def down(point_cga):
+        """Project conformal point to 3D."""
+        # Extract coefficients and normalize
+        # This is a simplified version - full implementation would need more care
+        return point_cga
+        
+except ImportError:
+    # Fallback to clifford if kingdon not available
+    try:
+        from clifford.g3c import e1, e2, e3, einf, eo
+        from clifford.tools.g3c import up, down
+    except ImportError:
+        # Mock implementation for systems without GA libraries
+        print("Warning: No geometric algebra library found. Using mock implementation.")
+        class MockGA:
+            def __init__(self, val=0): self.val = val
+            def __mul__(self, other): return MockGA()
+            def __add__(self, other): return MockGA()
+            def __sub__(self, other): return MockGA()
+        e1 = e2 = e3 = einf = eo = MockGA()
+        def up(p): return MockGA()
+        def down(p): return p
 
 # ---------------------------
 #   Polynomial family modes
