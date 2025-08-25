@@ -1,0 +1,555 @@
+#!/usr/bin/env python3
+"""
+Core Library Test Suite
+=======================
+
+Comprehensive tests for the core mathematical library.
+Tests mathematical correctness, numerical stability, edge cases,
+and usability of the API.
+"""
+
+import pytest
+import numpy as np
+import sys
+import os
+
+# Add core to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
+
+# Test imports - this will immediately reveal import issues
+try:
+    import core
+    from core import (
+        PHI, PI, PSI, VARPI, CRITICAL_DIMENSIONS,
+        gamma_safe, ball_volume, sphere_surface, complexity_measure,
+        sap_rate, PhaseDynamicsEngine, morphic_polynomial_roots,
+        setup_3d_axis, create_3d_figure
+    )
+    IMPORT_SUCCESS = True
+    IMPORT_ERROR = None
+except Exception as e:
+    IMPORT_SUCCESS = False
+    IMPORT_ERROR = str(e)
+
+class TestImports:
+    """Test that all imports work correctly."""
+
+    def test_basic_import(self):
+        """Test basic core import."""
+        assert IMPORT_SUCCESS, f"Failed to import core: {IMPORT_ERROR}"
+
+    def test_constants_available(self):
+        """Test that fundamental constants are available."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Check constants exist and have reasonable values
+        assert 1.6 < PHI < 1.7, f"PHI = {PHI} (expected ~1.618)"
+        assert 3.1 < PI < 3.2, f"PI = {PI} (expected ~3.14159)"
+        assert 0.6 < PSI < 0.7, f"PSI = {PSI} (expected ~0.618)"
+        assert 1.3 < VARPI < 1.4, f"VARPI = {VARPI} (expected ~1.311)"
+
+    def test_critical_dimensions(self):
+        """Test critical dimensions dictionary."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        assert isinstance(CRITICAL_DIMENSIONS, dict)
+        assert 'pi_boundary' in CRITICAL_DIMENSIONS
+        assert 'complexity_peak' in CRITICAL_DIMENSIONS
+        assert 'leech_limit' in CRITICAL_DIMENSIONS
+
+class TestGammaFunctions:
+    """Test gamma function family."""
+
+    def test_known_values(self):
+        """Test gamma function against known values."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Γ(1) = 1
+        assert abs(gamma_safe(1.0) - 1.0) < 1e-10
+
+        # Γ(2) = 1! = 1
+        assert abs(gamma_safe(2.0) - 1.0) < 1e-10
+
+        # Γ(3) = 2! = 2
+        assert abs(gamma_safe(3.0) - 2.0) < 1e-10
+
+        # Γ(1/2) = √π
+        assert abs(gamma_safe(0.5) - np.sqrt(PI)) < 1e-10
+
+    def test_edge_cases(self):
+        """Test gamma function edge cases."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Γ(0) should be infinite
+        assert np.isinf(gamma_safe(0.0))
+
+        # Γ(-1) should be infinite (pole)
+        assert np.isinf(gamma_safe(-1.0))
+
+        # Γ(-2) should be infinite (pole)
+        assert np.isinf(gamma_safe(-2.0))
+
+    def test_array_input(self):
+        """Test gamma function with array inputs."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        values = np.array([1.0, 2.0, 3.0, 0.5])
+        results = gamma_safe(values)
+
+        assert len(results) == 4
+        assert abs(results[0] - 1.0) < 1e-10  # Γ(1)
+        assert abs(results[1] - 1.0) < 1e-10  # Γ(2)
+        assert abs(results[2] - 2.0) < 1e-10  # Γ(3)
+        assert abs(results[3] - np.sqrt(PI)) < 1e-10  # Γ(1/2)
+
+class TestDimensionalMeasures:
+    """Test dimensional measures."""
+
+    def test_ball_volume_known_values(self):
+        """Test ball volume against known values."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # V_0 = 1 (point)
+        assert abs(ball_volume(0) - 1.0) < 1e-10
+
+        # V_1 = 2 (line segment)
+        assert abs(ball_volume(1) - 2.0) < 1e-10
+
+        # V_2 = π (disk)
+        assert abs(ball_volume(2) - PI) < 1e-10
+
+        # V_3 = 4π/3 (ball)
+        assert abs(ball_volume(3) - 4*PI/3) < 1e-10
+
+    def test_sphere_surface_known_values(self):
+        """Test sphere surface against known values."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # S_1 = 2 (two points)
+        assert abs(sphere_surface(1) - 2.0) < 1e-10
+
+        # S_2 = 2π (circle)
+        assert abs(sphere_surface(2) - 2*PI) < 1e-10
+
+        # S_3 = 4π (sphere)
+        assert abs(sphere_surface(3) - 4*PI) < 1e-10
+
+    def test_complexity_measure(self):
+        """Test complexity measure C = V × S."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Test that C(d) = V(d) × S(d)
+        for d in [1, 2, 3, 4, 5]:
+            v = ball_volume(d)
+            s = sphere_surface(d)
+            c = complexity_measure(d)
+            assert abs(c - v * s) < 1e-10, f"C({d}) ≠ V({d}) × S({d})"
+
+    def test_fractional_dimensions(self):
+        """Test measures work for fractional dimensions."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Should work for fractional dimensions
+        d = 1.5
+        v = ball_volume(d)
+        s = sphere_surface(d)
+        c = complexity_measure(d)
+
+        assert np.isfinite(v) and v > 0
+        assert np.isfinite(s) and s > 0
+        assert np.isfinite(c) and c > 0
+
+    def test_peak_finding(self):
+        """Test that peaks are found correctly."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        from core.measures import find_all_peaks
+        peaks = find_all_peaks()
+
+        # Volume should peak around d ≈ 5.26
+        vol_peak_d, vol_peak_val = peaks['volume_peak']
+        assert 5.0 < vol_peak_d < 6.0, f"Volume peak at d={vol_peak_d} (expected ~5.26)"
+
+        # Surface should peak around d ≈ 7.26
+        surf_peak_d, surf_peak_val = peaks['surface_peak']
+        assert 7.0 < surf_peak_d < 8.0, f"Surface peak at d={surf_peak_d} (expected ~7.26)"
+
+        # Complexity should peak around d ≈ 6
+        comp_peak_d, comp_peak_val = peaks['complexity_peak']
+        assert 5.5 < comp_peak_d < 6.5, f"Complexity peak at d={comp_peak_d} (expected ~6)"
+
+class TestPhaseDynamics:
+    """Test phase dynamics."""
+
+    def test_sap_rate_basic(self):
+        """Test basic sapping rate calculation."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Create phase density array
+        phase_density = np.array([1.0, 0.5, 0.0, 0.0], dtype=complex)
+
+        # Rate from 0 to 1
+        rate = sap_rate(0, 1, phase_density)
+        assert rate >= 0, "Sapping rate should be non-negative"
+
+        # No reverse flow
+        reverse_rate = sap_rate(1, 0, phase_density)
+        assert reverse_rate == 0, "No reverse sapping should occur"
+
+    def test_phase_engine_creation(self):
+        """Test phase dynamics engine creation."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        engine = PhaseDynamicsEngine(max_dimensions=6)
+
+        # Check initial state
+        state = engine.get_state()
+        assert state['time'] == 0.0
+        assert 0 in state['emerged_dimensions']
+        assert state['total_energy'] > 0  # Should have energy at void
+
+    def test_phase_evolution(self):
+        """Test phase evolution step."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        engine = PhaseDynamicsEngine(max_dimensions=4)
+        initial_energy = engine.get_state()['total_energy']
+
+        # Run a few steps
+        for _ in range(10):
+            engine.step(0.1)
+
+        final_state = engine.get_state()
+
+        # Time should have advanced
+        assert final_state['time'] > 0
+
+        # Energy should be conserved (approximately)
+        final_energy = final_state['total_energy']
+        assert abs(final_energy - initial_energy) < 0.1, "Energy not conserved"
+
+    def test_energy_injection(self):
+        """Test energy injection mechanism."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        engine = PhaseDynamicsEngine(max_dimensions=4)
+        initial_energy = engine.get_state()['total_energy']
+
+        # Inject energy into dimension 1
+        engine.inject(1, 0.5)
+
+        # Total energy should increase
+        new_energy = engine.get_state()['total_energy']
+        assert new_energy > initial_energy, "Energy injection should increase total energy"
+
+class TestMorphicMathematics:
+    """Test morphic mathematics."""
+
+    def test_golden_ratio_properties(self):
+        """Test golden ratio mathematical properties."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        from core.morphic import golden_ratio_properties
+        props = golden_ratio_properties()
+
+        # φ² = φ + 1
+        assert props['phi_squared_equals_phi_plus_one'], "φ² ≠ φ + 1"
+
+        # ψ² = 1 - ψ
+        assert props['psi_squared_equals_one_minus_psi'], "ψ² ≠ 1 - ψ"
+
+        # φψ = 1
+        assert props['phi_times_psi_equals_one'], "φψ ≠ 1"
+
+        # φ - ψ = √5
+        assert props['phi_minus_psi_equals_sqrt5'], "φ - ψ ≠ √5"
+
+    def test_polynomial_roots(self):
+        """Test morphic polynomial root finding."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Test at k = 2 (perfect circle case)
+        roots = morphic_polynomial_roots(2.0, "shifted")
+
+        # Should have τ = 1 as a root
+        assert any(abs(r - 1.0) < 1e-10 for r in roots), "τ = 1 should be a root at k = 2"
+
+    def test_discriminant(self):
+        """Test discriminant calculation."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        from core.morphic import discriminant, k_discriminant_zero
+
+        # At critical k, discriminant should be zero
+        k_critical = k_discriminant_zero("shifted")
+        disc = discriminant(k_critical, "shifted")
+        assert abs(disc) < 1e-8, f"Discriminant should be zero at k={k_critical}"
+
+class TestVisualization:
+    """Test visualization functions."""
+
+    def test_3d_setup(self):
+        """Test 3D axis setup (without actually displaying)."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            import matplotlib.pyplot as plt
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+
+            # Test setup function
+            ax = setup_3d_axis(ax, title="Test")
+
+            # Should not raise errors
+            plt.close(fig)
+
+        except ImportError:
+            pytest.skip("Matplotlib not available")
+
+    def test_figure_creation(self):
+        """Test figure creation."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            import matplotlib.pyplot as plt
+            fig, ax = create_3d_figure(figsize=(6, 4))
+
+            # Should return figure and axis
+            assert fig is not None
+            assert ax is not None
+
+            plt.close(fig)
+
+        except ImportError:
+            pytest.skip("Matplotlib not available")
+
+class TestAPIUsability:
+    """Test API usability and common usage patterns."""
+
+    def test_star_import(self):
+        """Test that 'from core import *' works."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # This should work without issues
+        exec("from core import *")
+
+    def test_common_workflow(self):
+        """Test a common mathematical workflow."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Calculate dimensional measures for a range
+        dimensions = np.linspace(0.1, 10, 50)
+
+        volumes = [ball_volume(d) for d in dimensions]
+        surfaces = [sphere_surface(d) for d in dimensions]
+        complexities = [complexity_measure(d) for d in dimensions]
+
+        # All should be finite and positive
+        assert all(np.isfinite(v) and v > 0 for v in volumes)
+        assert all(np.isfinite(s) and s > 0 for s in surfaces)
+        assert all(np.isfinite(c) and c > 0 for c in complexities)
+
+    def test_phase_simulation_workflow(self):
+        """Test phase dynamics simulation workflow."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Create engine
+        engine = PhaseDynamicsEngine(max_dimensions=6)
+
+        # Run simulation
+        dt = 0.05
+        n_steps = 20
+
+        for step in range(n_steps):
+            engine.step(dt)
+
+            # Inject energy occasionally
+            if step % 10 == 0:
+                engine.inject(0, 0.1)
+
+            state = engine.get_state()
+
+            # State should always be valid
+            assert state['time'] >= 0
+            assert state['total_energy'] >= 0
+            assert 0 <= state['coherence'] <= 1
+
+    def test_mathematical_consistency(self):
+        """Test mathematical consistency across modules."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Phase capacity should equal ball volume
+        for d in [1, 2, 3, 4, 5]:
+            from core.measures import phase_capacity
+            capacity = phase_capacity(d)
+            volume = ball_volume(d)
+            assert abs(capacity - volume) < 1e-10, f"Phase capacity ≠ ball volume at d={d}"
+
+class TestNumericalStability:
+    """Test numerical stability and edge cases."""
+
+    def test_large_dimensions(self):
+        """Test behavior with large dimensions."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Should handle moderately large dimensions
+        d_large = 50.0
+
+        v = ball_volume(d_large)
+        s = sphere_surface(d_large)
+
+        # Should be finite (possibly very small)
+        assert np.isfinite(v), f"Ball volume not finite at d={d_large}"
+        assert np.isfinite(s), f"Sphere surface not finite at d={d_large}"
+
+    def test_very_small_values(self):
+        """Test behavior with very small dimensions."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        d_small = 1e-6
+
+        v = ball_volume(d_small)
+        s = sphere_surface(d_small)
+
+        assert np.isfinite(v) and v > 0
+        assert np.isfinite(s) and s > 0
+
+    def test_array_operations(self):
+        """Test operations with numpy arrays."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        # Should handle array inputs smoothly
+        dimensions = np.array([0, 1, 2, 3, 4, 5])
+
+        volumes = ball_volume(dimensions)
+        surfaces = sphere_surface(dimensions)
+
+        assert len(volumes) == len(dimensions)
+        assert len(surfaces) == len(dimensions)
+        assert all(np.isfinite(volumes))
+        assert all(np.isfinite(surfaces))
+
+def test_library_verification():
+    """Test the built-in library verification."""
+    if not IMPORT_SUCCESS:
+        pytest.skip("Import failed")
+
+    # Test verification functions
+    verification = core.verify_mathematical_properties()
+
+    # All tests should pass
+    assert verification['overall']['all_tests_passed'], "Built-in verification failed"
+
+def run_performance_test():
+    """Run performance tests (not part of main test suite)."""
+    if not IMPORT_SUCCESS:
+        print("Cannot run performance tests - import failed")
+        return
+
+    import time
+
+    print("PERFORMANCE TESTS")
+    print("=" * 40)
+
+    # Test ball volume calculation speed
+    dimensions = np.linspace(0.1, 10, 1000)
+
+    start_time = time.time()
+    volumes = [ball_volume(d) for d in dimensions]
+    end_time = time.time()
+
+    print(f"1000 ball volume calculations: {end_time - start_time:.4f}s")
+
+    # Test phase dynamics step
+    engine = PhaseDynamicsEngine(max_dimensions=10)
+
+    start_time = time.time()
+    for _ in range(100):
+        engine.step(0.01)
+    end_time = time.time()
+
+    print(f"100 phase dynamics steps: {end_time - start_time:.4f}s")
+
+if __name__ == "__main__":
+    # Run basic tests
+    print("CORE LIBRARY TEST RESULTS")
+    print("=" * 50)
+
+    if not IMPORT_SUCCESS:
+        print(f"❌ IMPORT FAILED: {IMPORT_ERROR}")
+        sys.exit(1)
+
+    # Run key tests manually
+    try:
+        # Test constants
+        test_const = TestImports()
+        test_const.test_basic_import()
+        test_const.test_constants_available()
+        print("✅ Constants and imports work")
+
+        # Test gamma functions
+        test_gamma = TestGammaFunctions()
+        test_gamma.test_known_values()
+        print("✅ Gamma functions work")
+
+        # Test dimensional measures
+        test_measures = TestDimensionalMeasures()
+        test_measures.test_ball_volume_known_values()
+        test_measures.test_sphere_surface_known_values()
+        print("✅ Dimensional measures work")
+
+        # Test phase dynamics
+        test_phase = TestPhaseDynamics()
+        test_phase.test_phase_engine_creation()
+        print("✅ Phase dynamics work")
+
+        # Test morphic mathematics
+        test_morphic = TestMorphicMathematics()
+        test_morphic.test_golden_ratio_properties()
+        print("✅ Morphic mathematics work")
+
+        # Test verification
+        test_library_verification()
+        print("✅ Built-in verification passes")
+
+        print("\n🎉 ALL BASIC TESTS PASSED")
+
+        # Show library info
+        print("\n" + "=" * 50)
+        core.print_library_info()
+
+        # Performance test
+        print("\n" + "=" * 50)
+        run_performance_test()
+
+    except Exception as e:
+        print(f"❌ TEST FAILED: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)

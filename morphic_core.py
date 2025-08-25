@@ -13,20 +13,20 @@ try:
     cga = Algebra(4, 1, 0)
     # Get basis vectors
     e1, e2, e3, einf, eo = cga.basis_vectors[:5]
-    
+
     # Helper functions for conformal mappings
     def up(point_3d):
         """Lift 3D point to conformal space."""
         x, y, z = point_3d
-        return (eo + x*e1 + y*e2 + z*e3 + 
+        return (eo + x*e1 + y*e2 + z*e3 +
                 0.5*(x**2 + y**2 + z**2)*einf)
-    
+
     def down(point_cga):
         """Project conformal point to 3D."""
         # Extract coefficients and normalize
         # This is a simplified version - full implementation would need more care
         return point_cga
-        
+
 except ImportError:
     # Fallback to clifford if kingdon not available
     try:

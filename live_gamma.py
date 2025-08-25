@@ -36,34 +36,34 @@ from scipy.special import gamma, gammaln, digamma, polygamma
 
 def plot(fig, d=4.0):
     """Your visualization here - edit and save!"""
-    
+
     # Example: V×S complexity around dimension d
     fig.clear()
     ax = fig.add_subplot(111, facecolor='#1a1a1a')
-    
+
     # Define measures
     v = lambda x: π**(x/2) / gamma(x/2 + 1)
     s = lambda x: 2*π**(x/2) / gamma(x/2)
     c = lambda x: v(x) * s(x)
-    
+
     # Plot range around current d
     x = np.linspace(max(0.1, d-3), d+3, 500)
-    
+
     # Plot complexity
     y = [c(xi) for xi in x]
     ax.plot(x, y, 'lime', lw=3, alpha=0.8)
-    
+
     # Mark current point
     ax.axvline(d, color='yellow', lw=2, alpha=0.5)
     ax.plot(d, c(d), 'yo', markersize=10)
     ax.text(d, c(d), f'  d={d:.2f}, C={c(d):.3f}', color='yellow')
-    
+
     # Style
     ax.set_title(f'Complexity C = V×S around d={d:.2f}', color='white', fontsize=14)
     ax.set_xlabel('Dimension', color='white')
     ax.set_ylabel('V×S', color='white')
     ax.grid(True, alpha=0.2)
-    
+
     # Try different things!
     # - Plot gamma directly: y = [gamma(xi) for xi in x]
     # - Show poles: x = np.linspace(-5, 5, 1000)
@@ -76,23 +76,23 @@ class LiveGamma:
         self.d = 4.0  # Current dimension
         self.last_mtime = 0
         self.module = None
-        
+
         # Create expression file if it doesn't exist
         if not os.path.exists(EXPR_FILE):
             with open(EXPR_FILE, 'w') as f:
                 f.write(TEMPLATE)
             print(f"✨ Created {EXPR_FILE} - edit it and save to see live updates!")
-        
+
         # Setup figure
         self.fig = plt.figure(figsize=(12, 8), facecolor='#0a0a0a')
         self.fig.canvas.mpl_connect('key_press_event', self.on_key)
-        
+
         # Initial load
         self.reload_module()
-        
+
         # Start watching
         self.watch()
-    
+
     def on_key(self, event):
         """Handle keyboard input"""
         if event.key == 'up':
@@ -115,7 +115,7 @@ class LiveGamma:
         elif event.key in ['q', 'escape']:
             plt.close('all')
             exit()
-    
+
     def reload_module(self):
         """Reload the expression module"""
         try:
@@ -123,49 +123,49 @@ class LiveGamma:
             spec = importlib.util.spec_from_file_location("gamma_expr", EXPR_FILE)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            
+
             # Check if plot function exists
             if not hasattr(module, 'plot'):
                 self.show_error("No plot() function found in gamma_expr.py")
                 return
-            
+
             self.module = module
             self.update_plot()
-            
+
         except Exception as e:
             self.show_error(f"Error loading module:\n{traceback.format_exc()}")
-    
+
     def update_plot(self):
         """Update the plot with current module"""
         if self.module is None:
             return
-        
+
         try:
             # Clear and set title
             self.fig.clear()
-            self.fig.text(0.5, 0.98, f'LIVE GAMMA | d = {self.d:.3f} | ↑↓←→: change d | SPACE: reload | Q: quit', 
+            self.fig.text(0.5, 0.98, f'LIVE GAMMA | d = {self.d:.3f} | ↑↓←→: change d | SPACE: reload | Q: quit',
                          ha='center', fontsize=12, color='white', weight='bold')
-            
+
             # Call user's plot function
             self.module.plot(self.fig, self.d)
-            
+
             # Refresh
             self.fig.canvas.draw_idle()
-            
+
         except Exception as e:
             self.show_error(f"Error in plot():\n{traceback.format_exc()}")
-    
+
     def show_error(self, msg):
         """Display error message"""
         self.fig.clear()
         ax = self.fig.add_subplot(111, facecolor='#1a1a1a')
-        ax.text(0.5, 0.5, msg, ha='center', va='center', 
+        ax.text(0.5, 0.5, msg, ha='center', va='center',
                 color='red', fontsize=10, family='monospace',
                 transform=ax.transAxes)
         ax.set_xticks([])
         ax.set_yticks([])
         self.fig.canvas.draw_idle()
-    
+
     def watch(self):
         """Watch for file changes"""
         print(f"\n🔥 LIVE MODE ACTIVE")
@@ -177,7 +177,7 @@ class LiveGamma:
         print(f"   R       : Reset to d=4")
         print(f"   SPACE   : Force reload")
         print(f"   Q/ESC   : Quit\n")
-        
+
         while plt.fignum_exists(self.fig.number):
             try:
                 # Check file modification time
@@ -186,10 +186,10 @@ class LiveGamma:
                     self.last_mtime = current_mtime
                     print(f"📝 Detected change, reloading...")
                     self.reload_module()
-                
+
                 # Small pause to not hog CPU
                 plt.pause(0.1)
-                
+
             except KeyboardInterrupt:
                 break
             except Exception as e:
@@ -199,7 +199,7 @@ class LiveGamma:
 def live_snippet(code_str):
     """Quick live evaluation of code snippet"""
     fig = plt.figure(figsize=(10, 6), facecolor='#0a0a0a')
-    
+
     # Create namespace with common imports
     namespace = {
         'np': np,
@@ -212,7 +212,7 @@ def live_snippet(code_str):
         'fig': fig,
         'd': 4.0
     }
-    
+
     # Execute code
     try:
         exec(code_str, namespace)
@@ -223,7 +223,7 @@ def live_snippet(code_str):
 
 if __name__ == "__main__":
     print(__doc__)
-    
+
     # Check if running with snippet
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == '--snippet':

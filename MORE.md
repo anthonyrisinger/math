@@ -153,7 +153,7 @@ This quantization makes quantum mechanics inevitable as dimensions emerge.
 Five fundamental morphic constants govern dimensional transitions:
 
 1. **Λ₀ = φ** (1.618...): Golden ratio, stable recursion
-2. **Λ₁ = ∛(1+∛(1+...))** (1.324...): Plastic number, minimal resistance  
+2. **Λ₁ = ∛(1+∛(1+...))** (1.324...): Plastic number, minimal resistance
 3. **Λ₂ = 1**: Unity, perfect balance
 4. **Λ₃** (0.682...): Inverse golden ratio region
 5. **Λ₄** (0.453...): Collapse threshold

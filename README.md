@@ -418,7 +418,7 @@ t = φ∫dd                        # Time from dimension
 
 Critical Values:
 d_void = 0                      # Pure potential
-d_π = π ≈ 3.14159              # Stability boundary  
+d_π = π ≈ 3.14159              # Stability boundary
 d_v = 5.256...                  # Volume peak
 d_c ≈ 6                         # Complexity peak
 d_s = 7.256...                  # Surface peak

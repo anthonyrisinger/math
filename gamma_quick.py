@@ -17,7 +17,7 @@ e = np.e
 
 # One-liner geometric measures
 v = lambda d: π**(d/2) / gamma(d/2 + 1)                    # Volume of d-ball
-s = lambda d: 2*π**(d/2) / gamma(d/2)                      # Surface of (d-1)-sphere  
+s = lambda d: 2*π**(d/2) / gamma(d/2)                      # Surface of (d-1)-sphere
 c = lambda d: v(d) * s(d)                                  # Complexity V×S
 r = lambda d: s(d) / v(d) if v(d) > 0 else float('inf')   # Ratio S/V
 ρ = lambda d: gamma(d/2 + 1) / π**(d/2)                   # Density 1/V
@@ -53,13 +53,13 @@ def qplot(*funcs, x=None, labels=None, title=""):
     plt.figure(figsize=(10, 6), facecolor='#0a0a0a')
     ax = plt.gca()
     ax.set_facecolor('#1a1a1a')
-    
+
     colors = ['cyan', 'magenta', 'lime', 'yellow', 'orange']
     for i, f in enumerate(funcs):
         y = [f(xi) for xi in x]
         label = labels[i] if labels else f.__name__ if hasattr(f, '__name__') else f"f{i}"
         ax.plot(x, y, colors[i % len(colors)], lw=2, label=label, alpha=0.8)
-    
+
     ax.grid(True, alpha=0.2)
     ax.legend(loc='best')
     ax.set_title(title, color='white', fontsize=14)
@@ -69,12 +69,12 @@ def qsurf(f, x_range=(-3, 3), y_range=(-3, 3), res=100):
     """Quick surface plot of complex function."""
     fig = plt.figure(figsize=(10, 8), facecolor='#0a0a0a')
     ax = fig.add_subplot(111, projection='3d', facecolor='#1a1a1a')
-    
+
     x = np.linspace(*x_range, res)
     y = np.linspace(*y_range, res)
     X, Y = np.meshgrid(x, y)
     Z = X + 1j*Y
-    
+
     W = np.zeros_like(Z, dtype=float)
     for i in range(res):
         for j in range(res):
@@ -82,7 +82,7 @@ def qsurf(f, x_range=(-3, 3), y_range=(-3, 3), res=100):
                 W[i,j] = np.abs(f(Z[i,j]))
             except:
                 W[i,j] = np.nan
-    
+
     surf = ax.plot_surface(X, Y, W, cmap='plasma', alpha=0.8)
     ax.set_xlabel('Re(z)')
     ax.set_ylabel('Im(z)')
@@ -105,7 +105,7 @@ def peaks():
     """Find all peaks."""
     print("\n🎯 CRITICAL PEAKS:")
     print(f"  Volume peak:     d = {v_peak():.6f}")
-    print(f"  Surface peak:    d = {s_peak():.6f}") 
+    print(f"  Surface peak:    d = {s_peak():.6f}")
     print(f"  Complexity peak: d = {c_peak():.6f}")
     print(f"  π boundary:      d = {π:.6f}")
     print(f"  2π boundary:     d = {2*π:.6f}")
@@ -116,30 +116,30 @@ def instant():
     """Instant 4-panel visualization."""
     fig, axes = plt.subplots(2, 2, figsize=(12, 10), facecolor='#0a0a0a')
     fig.suptitle('GAMMA GEOMETRIC MEASURES', color='white', fontsize=16)
-    
+
     d = np.linspace(0.1, 15, 1000)
-    
+
     # Volume
     ax = axes[0,0]
     ax.set_facecolor('#1a1a1a')
     ax.plot(d, [v(x) for x in d], 'cyan', lw=2)
     ax.set_title('Volume V_d', color='cyan')
     ax.grid(True, alpha=0.2)
-    
+
     # Surface
     ax = axes[0,1]
     ax.set_facecolor('#1a1a1a')
     ax.plot(d, [s(x) for x in d], 'magenta', lw=2)
     ax.set_title('Surface S_d', color='magenta')
     ax.grid(True, alpha=0.2)
-    
+
     # Complexity
     ax = axes[1,0]
     ax.set_facecolor('#1a1a1a')
     ax.plot(d, [c(x) for x in d], 'lime', lw=2)
     ax.set_title('Complexity V×S', color='lime')
     ax.grid(True, alpha=0.2)
-    
+
     # Gamma function
     ax = axes[1,1]
     ax.set_facecolor('#1a1a1a')
@@ -148,7 +148,7 @@ def instant():
     ax.set_title('Γ(x)', color='yellow')
     ax.grid(True, alpha=0.2)
     ax.set_ylim(0, 10)
-    
+
     plt.tight_layout()
     plt.show()
 
@@ -164,6 +164,6 @@ if __name__ == "__main__":
     print("\n🚀 One-liners:")
     print(f"  v(4) = {v(4):.4f}    # Volume at d=4")
     print(f"  c_peak() = {c_peak():.4f}  # Find complexity peak")
-    
+
     # Run instant visualization
     instant()
