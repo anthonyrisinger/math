@@ -9,7 +9,7 @@ analysis scattered across dim0-dim5 modules.
 
 Core concepts:
 - Dimension as fundamental parameter
-- Time emergence from dimensional change  
+- Time emergence from dimensional change
 - Phase coherence and emergence
 - Geometric measure optimization
 - Reality framework modeling
