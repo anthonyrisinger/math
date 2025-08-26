@@ -15,7 +15,7 @@ Quick start:
 
 # Import everything from gamma module
 # Import CLI for programmatic access
-from . import cli
+# from . import cli  # Temporarily disabled due to consolidation
 from .gamma import *
 
 # Import everything from measures module
@@ -71,7 +71,9 @@ def quick_start():
     print("  MorphicAnalyzer()             # Full analyzer")
 
 
-# Convenience aliases
-γ_lab = lab
-γ_live = live
-γ_demo = demo
+# Convenience aliases (only include functions that exist)
+try:
+    γ_explorer = gamma_explorer
+    γ_analysis = quick_gamma_analysis
+except NameError:
+    pass

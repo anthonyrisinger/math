@@ -48,7 +48,7 @@ check_untyped_defs = true
 
 # Mathematical precision modules need stricter checking
 [[tool.mypy.overrides]]
-module = ["core.gamma", "core.measures", "core.morphic"]
+module = ["dimensional.gamma", "dimensional.measures", "dimensional.morphic"]
 disallow_untyped_defs = true
 warn_return_any = true
 
@@ -64,7 +64,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 
 [tool.coverage.run]
-source = ["core", "analysis", "visualization"]
+source = ["dimensional", "core"]
 omit = [
     "*/tests/*",
     "*/test_*",

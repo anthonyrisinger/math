@@ -29,9 +29,10 @@ from rich.panel import Panel
 from rich.progress import track
 from rich.table import Table
 
-# Import our core modules
-from .gamma import c, demo, explore, gamma_safe, instant, lab, live, peaks, qplot, s, v
-from .phase import PhaseDynamicsEngine
+# Import our consolidated modules
+from .gamma import gamma_safe, γ, ln_γ, ψ, gamma_explorer, quick_gamma_analysis
+from .phase import PhaseDynamicsEngine, quick_emergence_analysis
+from .measures import ball_volume, sphere_surface, complexity_measure, V, S, C, Λ
 
 # Import visualization modules
 from visualization import PlotlyDashboard, KingdonRenderer
