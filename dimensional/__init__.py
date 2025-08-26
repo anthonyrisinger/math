@@ -18,16 +18,12 @@ Quick start:
 # from . import cli  # Temporarily disabled due to consolidation
 from .gamma import *
 
-# Import core constants through proper package hierarchy  
-# This maintains clean import boundaries: core -> dimensional
+# Import core constants with hybrid imports for flexibility
 try:
     from ..core import PI, PHI, PSI, E, VARPI
     from ..core.constants import SQRT_PI, NUMERICAL_EPSILON
 except ImportError:
-    # Fallback for when package is run without proper installation
-    import sys
-    import os
-    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+    # Fallback for script execution
     from core import PI, PHI, PSI, E, VARPI
     from core.constants import SQRT_PI, NUMERICAL_EPSILON
 

@@ -18,7 +18,7 @@ import numpy as np
 # ARCHITECT MANDATE: ZERO MATPLOTLIB IMPORTS IN MATHEMATICAL MODULES
 # import matplotlib.pyplot as plt  # ⚡ ELIMINATED
 
-# Re-export constants - hybrid import for flexibility
+# Re-export constants with hybrid imports for flexibility
 try:
     from ..core.constants import (
         CRITICAL_DIMENSIONS,
@@ -32,6 +32,7 @@ try:
         sphere_surface,
     )
 except ImportError:
+    # Fallback for script execution
     from core.constants import (
         CRITICAL_DIMENSIONS,
     )

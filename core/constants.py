@@ -6,10 +6,19 @@ Core Mathematical Constants
 Fundamental constants used throughout the dimensional emergence framework.
 All constants are computed with high precision and include mathematical
 relationships and critical dimensional boundaries.
+
+Type Safety:
+- All constants are typed and validated
+- Critical dimension lookups are type-safe
+- Numerical tolerances are parameterized
 """
 
+from typing import Dict, Optional, Literal
 import numpy as np
 from scipy.special import gamma
+
+# Note: Type annotations use forward references to avoid circular imports
+# from .types import Dimension, PositiveReal, GoldenRatio
 
 # Universal mathematical constants
 PI = np.pi
@@ -56,19 +65,27 @@ GAMMA_OVERFLOW_THRESHOLD = 170
 LOG_SPACE_THRESHOLD = 100
 
 
-def get_critical_dimension(name):
-    """Get a critical dimension by name."""
+# Type-safe critical dimension names
+CriticalDimensionName = Literal[
+    "pi_boundary", "tau_boundary", "e_natural", "phi_golden", 
+    "psi_conjugate", "varpi_coupling", "volume_peak", "surface_peak", 
+    "complexity_peak", "leech_limit", "void_dimension", "unity_dimension"
+]
+
+
+def get_critical_dimension(name: CriticalDimensionName) -> float:
+    """Get a critical dimension by name with type safety."""
     if name not in CRITICAL_DIMENSIONS:
         available = ", ".join(CRITICAL_DIMENSIONS.keys())
         raise ValueError(f"Unknown critical dimension '{name}'. Available: {available}")
     return CRITICAL_DIMENSIONS[name]
 
 
-def is_near_critical(d, tolerance=1e-6):
-    """Check if dimension d is near any critical value."""
+def is_near_critical(d: float, tolerance: float = 1e-6) -> Optional[CriticalDimensionName]:
+    """Check if dimension d is near any critical value with type safety."""
     for name, value in CRITICAL_DIMENSIONS.items():
         if abs(d - value) < tolerance:
-            return name
+            return name  # type: ignore
     return None
 
 

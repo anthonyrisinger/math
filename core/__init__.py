@@ -9,6 +9,7 @@ all other modules depend on.
 
 Modules:
 --------
+types      : Type-safe mathematical modeling and validation
 constants  : Fundamental mathematical constants (φ, π, ϖ, critical dimensions)
 gamma      : Safe gamma function family with numerical stability
 measures   : Dimensional measures (ball volume, sphere surface, complexity)
@@ -28,6 +29,19 @@ from core.phase import sap_rate, PhaseDynamicsEngine
 from core.morphic import morphic_polynomial_roots, golden_ratio_properties
 from core.view import setup_3d_axis, create_3d_figure
 """
+
+# Core types for mathematical safety (simplified version)
+from .types_simple import (
+    DimensionalParameter,
+    GammaArgument,
+    MeasureValue,
+    PhaseState,
+    MorphicPolynomial,
+    gamma_func,
+    volume_func,
+    surface_func,
+    complexity_func,
+)
 
 # Core constants - always available
 from .constants import (

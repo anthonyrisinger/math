@@ -22,20 +22,33 @@ import numpy as np
 
 # Import and re-export constants for API compatibility
 
-# Re-export core gamma functions
-from core.gamma import *  # noqa: F401,F403
-from core.gamma import (
-    digamma_safe,
-    factorial_extension,
-    gamma_safe,
-    gammaln_safe,
-)
-
-# Import dimensional measures functions
-from core.measures import ball_volume as v
-from core.measures import complexity_measure as c
-from core.measures import ratio_measure as r
-from core.measures import sphere_surface as s
+# Re-export core gamma functions with hybrid imports for flexibility
+try:
+    from ..core.gamma import *  # noqa: F401,F403
+    from ..core.gamma import (
+        digamma_safe,
+        factorial_extension,
+        gamma_safe,
+        gammaln_safe,
+    )
+    # Import dimensional measures functions
+    from ..core.measures import ball_volume as v
+    from ..core.measures import complexity_measure as c
+    from ..core.measures import ratio_measure as r
+    from ..core.measures import sphere_surface as s
+except ImportError:
+    # Fallback for script execution
+    from core.gamma import *  # noqa: F401,F403
+    from core.gamma import (
+        digamma_safe,
+        factorial_extension,
+        gamma_safe,
+        gammaln_safe,
+    )
+    from core.measures import ball_volume as v
+    from core.measures import complexity_measure as c
+    from core.measures import ratio_measure as r
+    from core.measures import sphere_surface as s
 
 
 # Create density function
@@ -47,21 +60,30 @@ def ρ(d):
 # Import peak finding functions - create shortcuts
 def v_peak():
     """Find volume peak dimension."""
-    from core.measures import ball_volume, find_peak
+    try:
+        from ..core.measures import ball_volume, find_peak
+    except ImportError:
+        from core.measures import ball_volume, find_peak
 
     return find_peak(ball_volume)[0]
 
 
 def s_peak():
     """Find surface peak dimension."""
-    from core.measures import find_peak, sphere_surface
+    try:
+        from ..core.measures import find_peak, sphere_surface
+    except ImportError:
+        from core.measures import find_peak, sphere_surface
 
     return find_peak(sphere_surface)[0]
 
 
 def c_peak():
     """Find complexity peak dimension."""
-    from core.measures import complexity_measure, find_peak
+    try:
+        from ..core.measures import complexity_measure, find_peak
+    except ImportError:
+        from core.measures import complexity_measure, find_peak
 
     return find_peak(complexity_measure)[0]
 

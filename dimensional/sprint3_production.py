@@ -46,12 +46,17 @@ from contextlib import contextmanager
 import threading
 import functools
 
-# Import core mathematical functions
+# Import core mathematical functions with hybrid pattern for both package and direct execution
 try:
+    # Try relative imports first (when used as package)
     from ..core.gamma import gamma_safe, gammaln_safe
     from ..core.measures import ball_volume, sphere_surface, complexity_measure
     from ..core.constants import PI, NUMERICAL_EPSILON
 except ImportError:
+    # Fallback for direct execution or test collection
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
     from core.gamma import gamma_safe, gammaln_safe
     from core.measures import ball_volume, sphere_surface, complexity_measure
     from core.constants import PI, NUMERICAL_EPSILON

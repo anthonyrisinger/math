@@ -14,6 +14,7 @@ to the robust implementations in core.phase.
 
 import numpy as np
 
+# Hybrid imports for flexibility
 try:
     from ..core.phase import *  # noqa: F401,F403
     from ..core.phase import (
@@ -21,6 +22,7 @@ try:
         sap_rate,
     )
 except ImportError:
+    # Fallback for script execution
     from core.phase import *  # noqa: F401,F403
     from core.phase import (
         PhaseDynamicsEngine,
@@ -93,9 +95,15 @@ def quick_phase_analysis(dimension=4.0, time_steps=100):
         Analysis results including phase properties and evolution
     """
     try:
-        from ..core.measures import phase_capacity
+        try:
+            from ..core.measures import phase_capacity
+        except ImportError:
+            from core.measures import phase_capacity
     except ImportError:
-        from core.measures import phase_capacity
+        try:
+            from ..core.measures import phase_capacity
+        except ImportError:
+            from core.measures import phase_capacity
     
     try:
         engine = PhaseDynamicsEngine(max_dimensions=int(dimension) + 3)
@@ -172,12 +180,13 @@ def dimensional_explorer(start_dim=0, end_dim=8, resolution=100):
         "sapping_rates": [],
     }
 
-    for d in dimensions:
-        try:
-            from ..core.measures import phase_capacity
-        except ImportError:
-            from core.measures import phase_capacity
+    # Import phase_capacity with hybrid pattern
+    try:
+        from ..core.measures import phase_capacity
+    except ImportError:
+        from core.measures import phase_capacity
 
+    for d in dimensions:
         try:
             capacity = phase_capacity(d)
             results["capacities"].append(capacity)
