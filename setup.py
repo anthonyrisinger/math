@@ -11,60 +11,65 @@ Install with:
     pip install -e .[all]           # Everything
 """
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
+
 
 # Read requirements
 def read_requirements(filename):
     """Read requirements from file."""
     path = os.path.join(os.path.dirname(__file__), filename)
     if os.path.exists(path):
-        with open(path, 'r') as f:
-            return [line.strip() for line in f
-                   if line.strip() and not line.startswith('#')]
+        with open(path) as f:
+            return [
+                line.strip() for line in f if line.strip() and not line.startswith("#")
+            ]
     return []
+
 
 # Read long description
 def read_long_description():
     """Read long description from README."""
-    readme_path = os.path.join(os.path.dirname(__file__), 'README.md')
+    readme_path = os.path.join(os.path.dirname(__file__), "README.md")
     if os.path.exists(readme_path):
-        with open(readme_path, 'r', encoding='utf-8') as f:
+        with open(readme_path, encoding="utf-8") as f:
             return f.read()
     return "Dimensional Mathematics - unified mathematical modeling framework"
 
+
 # Core requirements
 CORE_REQUIREMENTS = [
-    'numpy>=1.21.0',
-    'scipy>=1.7.0',
-    'matplotlib>=3.5.0',
-    'click>=8.0.0',
-    'pydantic>=2.0.0',
-    'rich>=13.0.0',
-    'typer>=0.9.0',
-    'plotly>=5.0.0',
-    'bokeh>=3.0.0',
-]# Development requirements
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.5.0",
+    "click>=8.0.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+    "plotly>=5.0.0",
+    "bokeh>=3.0.0",
+]  # Development requirements
 DEV_REQUIREMENTS = [
-    'pytest>=6.0.0',
-    'pytest-cov>=3.0.0',
-    'jupyter>=1.0.0',
-    'ipywidgets>=7.6.0',
+    "pytest>=6.0.0",
+    "pytest-cov>=3.0.0",
+    "jupyter>=1.0.0",
+    "ipywidgets>=7.6.0",
 ]
 
 # Documentation requirements
 DOC_REQUIREMENTS = [
-    'sphinx>=4.0.0',
-    'sphinx-rtd-theme>=1.0.0',
-    'myst-parser>=0.17.0',
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.17.0",
 ]
 
 # Advanced/optional requirements
 ADVANCED_REQUIREMENTS = [
-    'sympy>=1.9.0',
-    'plotly>=5.0.0',
-    'panel>=0.13.0',
-    'param>=1.12.0',
+    "sympy>=1.9.0",
+    "plotly>=5.0.0",
+    "panel>=0.13.0",
+    "param>=1.12.0",
 ]
 
 setup(
@@ -77,31 +82,26 @@ setup(
     long_description=read_long_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/dimensional-mathematics/framework",
-
     # Package structure
     packages=find_packages(),
     include_package_data=True,
-
     # Requirements
     install_requires=CORE_REQUIREMENTS,
     extras_require={
-        'dev': DEV_REQUIREMENTS,
-        'docs': DOC_REQUIREMENTS,
-        'advanced': ADVANCED_REQUIREMENTS,
-        'all': DEV_REQUIREMENTS + DOC_REQUIREMENTS + ADVANCED_REQUIREMENTS,
+        "dev": DEV_REQUIREMENTS,
+        "docs": DOC_REQUIREMENTS,
+        "advanced": ADVANCED_REQUIREMENTS,
+        "all": DEV_REQUIREMENTS + DOC_REQUIREMENTS + ADVANCED_REQUIREMENTS,
     },
-
     # Python version
     python_requires=">=3.8",
-
     # Entry points
     entry_points={
-        'console_scripts': [
-            'dimensional=dimensional.cli:main',
-            'dim=dimensional.cli:main',
+        "console_scripts": [
+            "dimensional=dimensional.cli:main",
+            "dim=dimensional.cli:main",
         ],
     },
-
     # Classification
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -118,25 +118,26 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
     ],
-
     # Keywords
     keywords=[
-        "mathematics", "gamma-function", "dimensional-analysis",
-        "phase-dynamics", "topology", "visualization", "interactive"
+        "mathematics",
+        "gamma-function",
+        "dimensional-analysis",
+        "phase-dynamics",
+        "topology",
+        "visualization",
+        "interactive",
     ],
-
     # Project URLs
     project_urls={
         "Documentation": "https://dimensional-mathematics.readthedocs.io/",
         "Source": "https://github.com/dimensional-mathematics/framework",
         "Tracker": "https://github.com/dimensional-mathematics/framework/issues",
     },
-
     # Package data
     package_data={
-        'dimensional': ['*.md', '*.txt', '*.yml'],
+        "dimensional": ["*.md", "*.txt", "*.yml"],
     },
-
     # Zip safety
     zip_safe=False,
 )

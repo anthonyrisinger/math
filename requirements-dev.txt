@@ -1,0 +1,35 @@
+# Development dependencies for dimensional-emergence project
+# These are in addition to the core requirements in requirements.txt
+
+# Code formatting and linting
+black>=22.0.0
+isort>=5.10.0
+flake8>=4.0.0
+mypy>=0.910
+
+# Testing framework
+pytest>=6.0.0
+pytest-cov>=2.12.0
+pytest-benchmark>=3.4.0
+pytest-mock>=3.6.0
+
+# Pre-commit hooks for quality control
+pre-commit>=2.15.0
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=1.0.0
+sphinx-autodoc-typehints>=1.12.0
+myst-parser>=0.17.0
+
+# Development utilities
+ipython>=7.0.0
+jupyter>=1.0.0
+notebook>=6.4.0
+
+# Performance analysis
+memory-profiler>=0.60.0
+line-profiler>=3.5.0
+
+# Type checking stubs
+types-setuptools

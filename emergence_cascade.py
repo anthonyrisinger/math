@@ -11,12 +11,14 @@ Run: python emergence_cascade.py
 Controls: Time evolution, emergence thresholds, dimensional birthing
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button, CheckButtons
-from matplotlib import cm
 import matplotlib.animation as animation
-from core_measures import DimensionalMeasures, setup_3d_axis, PHI, PSI, PI
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+from matplotlib.widgets import Button, CheckButtons, Slider
+
+from core_measures import PHI, PI, PSI, DimensionalMeasures, setup_3d_axis
+
 
 class EmergenceCascade:
     """Model the sequential emergence of dimensions."""
@@ -77,7 +79,9 @@ class EmergenceCascade:
                     print(f"🌟 Dimension {d} EMERGED at time {self.current_time:.2f}!")
 
                     # Normalize and stabilize
-                    self.phase_densities[d] = threshold * phase_rotation / abs(phase_rotation)
+                    self.phase_densities[d] = (
+                        threshold * phase_rotation / abs(phase_rotation)
+                    )
 
                     # Seed higher dimensions
                     for higher_d in range(d + 1, min(d + 3, self.max_dim)):
@@ -87,13 +91,13 @@ class EmergenceCascade:
         """Generate lemniscate surface for a specific dimensional level."""
         # Lemniscate: x = a*cos(t)/(1+sin²(s)), y = a*sin(t)*cos(s)/(1+sin²(s))
         t = np.linspace(0, 2 * PI, self.manifold_resolution)
-        s = np.linspace(0, 2 * PI, self.manifold_resolution//2)
+        s = np.linspace(0, 2 * PI, self.manifold_resolution // 2)
         T, S = np.meshgrid(t, s)
 
         a = self.lemniscate_scale * (1 + dimension_level * 0.3)
 
         # Lemniscate equations
-        denominator = 1 + np.sin(S)**2
+        denominator = 1 + np.sin(S) ** 2
         X = a * np.cos(T) / denominator
         Y = a * np.sin(T) * np.cos(S) / denominator
         Z = np.sqrt(np.abs(T)) * PSI + dimension_level * 0.5
@@ -127,6 +131,7 @@ class EmergenceCascade:
         self.phase_densities[0] = 1.0
         self.emergence_times = {0: 0.0}
 
+
 class EmergenceCascadeVisualizer:
     """Interactive visualizer for dimensional emergence cascade."""
 
@@ -140,11 +145,14 @@ class EmergenceCascadeVisualizer:
     def create_figure(self):
         """Create the interactive figure."""
         self.fig = plt.figure(figsize=(16, 12))
-        self.fig.suptitle('Dimensional Emergence Cascade: The Birth of Reality',
-                         fontsize=14, fontweight='bold')
+        self.fig.suptitle(
+            "Dimensional Emergence Cascade: The Birth of Reality",
+            fontsize=14,
+            fontweight="bold",
+        )
 
         # Main 3D plot
-        self.ax3d = self.fig.add_subplot(111, projection='3d')
+        self.ax3d = self.fig.add_subplot(111, projection="3d")
         setup_3d_axis(self.ax3d, "The Sequential Birth of Dimensions")
 
         # Controls
@@ -176,12 +184,12 @@ class EmergenceCascadeVisualizer:
         """Create interactive controls."""
         # Time slider
         ax_time = plt.axes([0.15, 0.02, 0.35, 0.03])
-        self.time_slider = Slider(ax_time, 'Time', 0, 20, valinit=0)
+        self.time_slider = Slider(ax_time, "Time", 0, 20, valinit=0)
         self.time_slider.on_changed(self.on_time_change)
 
         # Speed slider
         ax_speed = plt.axes([0.55, 0.02, 0.15, 0.03])
-        self.speed_slider = Slider(ax_speed, 'Speed', 0.01, 0.5, valinit=0.1)
+        self.speed_slider = Slider(ax_speed, "Speed", 0.01, 0.5, valinit=0.1)
         self.speed_slider.on_changed(self.on_speed_change)
 
         # Control buttons
@@ -189,9 +197,9 @@ class EmergenceCascadeVisualizer:
         ax_reset = plt.axes([0.78, 0.02, 0.05, 0.03])
         ax_inject = plt.axes([0.84, 0.02, 0.05, 0.03])
 
-        self.btn_auto = Button(ax_auto, 'Auto')
-        self.btn_reset = Button(ax_reset, 'Reset')
-        self.btn_inject = Button(ax_inject, 'Inject')
+        self.btn_auto = Button(ax_auto, "Auto")
+        self.btn_reset = Button(ax_reset, "Reset")
+        self.btn_inject = Button(ax_inject, "Inject")
 
         self.btn_auto.on_clicked(self.toggle_auto)
         self.btn_reset.on_clicked(self.reset_cascade)
@@ -199,9 +207,11 @@ class EmergenceCascadeVisualizer:
 
         # Visualization toggles
         ax_checks = plt.axes([0.02, 0.5, 0.12, 0.15])
-        self.checkboxes = CheckButtons(ax_checks,
-                                     ['Manifolds', 'Trajectories', 'Phase Field'],
-                                     [self.show_manifolds, self.show_trajectories, self.show_phase_field])
+        self.checkboxes = CheckButtons(
+            ax_checks,
+            ["Manifolds", "Trajectories", "Phase Field"],
+            [self.show_manifolds, self.show_trajectories, self.show_phase_field],
+        )
         self.checkboxes.on_clicked(self.on_toggle_display)
 
     def on_time_change(self, val):
@@ -218,11 +228,12 @@ class EmergenceCascadeVisualizer:
     def toggle_auto(self, event):
         """Toggle automatic evolution."""
         self.cascade.auto_evolve = not self.cascade.auto_evolve
-        self.btn_auto.label.set_text('Stop' if self.cascade.auto_evolve else 'Auto')
+        self.btn_auto.label.set_text("Stop" if self.cascade.auto_evolve else "Auto")
 
         if self.cascade.auto_evolve and self.anim is None:
-            self.anim = animation.FuncAnimation(self.fig, self.animate_frame,
-                                               interval=50, blit=False)
+            self.anim = animation.FuncAnimation(
+                self.fig, self.animate_frame, interval=50, blit=False
+            )
         elif not self.cascade.auto_evolve and self.anim is not None:
             self.anim.event_source.stop()
             self.anim = None
@@ -245,18 +256,20 @@ class EmergenceCascadeVisualizer:
         # Find next unemerged dimension
         for d in range(1, self.cascade.max_dim):
             if d not in self.cascade.emergence_times:
-                self.cascade.phase_densities[d] = self.cascade.emergence_thresholds[d] * 1.1
+                self.cascade.phase_densities[d] = (
+                    self.cascade.emergence_thresholds[d] * 1.1
+                )
                 print(f"💉 Forced emergence of dimension {d}")
                 break
         self.update_plot()
 
     def on_toggle_display(self, label):
         """Handle display toggles."""
-        if label == 'Manifolds':
+        if label == "Manifolds":
             self.show_manifolds = not self.show_manifolds
-        elif label == 'Trajectories':
+        elif label == "Trajectories":
             self.show_trajectories = not self.show_trajectories
-        elif label == 'Phase Field':
+        elif label == "Phase Field":
             self.show_phase_field = not self.show_phase_field
         self.update_plot()
 
@@ -293,9 +306,9 @@ class EmergenceCascadeVisualizer:
                     facecolors = np.full(X.shape + (4,), list(surface_color))
                     facecolors[:, :, 3] = alpha
 
-                    self.ax3d.plot_surface(X, Y, Z,
-                                          facecolors=facecolors,
-                                          linewidth=0, antialiased=True)
+                    self.ax3d.plot_surface(
+                        X, Y, Z, facecolors=facecolors, linewidth=0, antialiased=True
+                    )
 
         # Draw emergence trajectories
         if self.show_trajectories:
@@ -311,13 +324,27 @@ class EmergenceCascadeVisualizer:
                         self.ax3d.plot(x, y, z, color=color, linewidth=3, alpha=0.8)
 
                         # Mark emergence point
-                        self.ax3d.scatter([x[-1]], [y[-1]], [z[-1]],
-                                         c=[color], s=150, marker='*',
-                                         edgecolors='black', linewidth=2)
+                        self.ax3d.scatter(
+                            [x[-1]],
+                            [y[-1]],
+                            [z[-1]],
+                            c=[color],
+                            s=150,
+                            marker="*",
+                            edgecolors="black",
+                            linewidth=2,
+                        )
 
                         # Label
-                        self.ax3d.text(x[-1], y[-1], z[-1] + 0.2, f'D{d}',
-                                      fontsize=10, color='black', ha='center')
+                        self.ax3d.text(
+                            x[-1],
+                            y[-1],
+                            z[-1] + 0.2,
+                            f"D{d}",
+                            fontsize=10,
+                            color="black",
+                            ha="center",
+                        )
 
         # Draw phase field
         if self.show_phase_field:
@@ -341,32 +368,65 @@ class EmergenceCascadeVisualizer:
 
                     # Emergence status
                     if d in self.cascade.emergence_times:
-                        marker = 'o'
-                        edge_color = 'gold'
+                        marker = "o"
+                        edge_color = "gold"
                         edge_width = 3
                     else:
-                        marker = 'o'
-                        edge_color = 'gray'
+                        marker = "o"
+                        edge_color = "gray"
                         edge_width = 1
 
-                    self.ax3d.scatter([x], [y], [z], c=[color], s=size,
-                                     marker=marker, alpha=0.7,
-                                     edgecolors=edge_color, linewidth=edge_width)
+                    self.ax3d.scatter(
+                        [x],
+                        [y],
+                        [z],
+                        c=[color],
+                        s=size,
+                        marker=marker,
+                        alpha=0.7,
+                        edgecolors=edge_color,
+                        linewidth=edge_width,
+                    )
 
                     # Phase bar
                     bar_height = min(2, phase_mag * 2)
-                    self.ax3d.plot([x, x], [y, y], [z, z + bar_height],
-                                  color='blue', linewidth=4, alpha=0.5)
+                    self.ax3d.plot(
+                        [x, x],
+                        [y, y],
+                        [z, z + bar_height],
+                        color="blue",
+                        linewidth=4,
+                        alpha=0.5,
+                    )
 
         # Draw the void (d=0) specially
-        self.ax3d.scatter([0], [0], [0], c='white', s=300, marker='o',
-                         edgecolors='black', linewidth=3, alpha=0.9)
-        self.ax3d.text(0, 0, 0.3, 'VOID\n(d=0)', ha='center', va='bottom',
-                      fontsize=12, fontweight='bold')
+        self.ax3d.scatter(
+            [0],
+            [0],
+            [0],
+            c="white",
+            s=300,
+            marker="o",
+            edgecolors="black",
+            linewidth=3,
+            alpha=0.9,
+        )
+        self.ax3d.text(
+            0,
+            0,
+            0.3,
+            "VOID\n(d=0)",
+            ha="center",
+            va="bottom",
+            fontsize=12,
+            fontweight="bold",
+        )
 
         # Draw critical boundaries
-        for d_crit, label, color in [(PI, 'π-boundary', 'red'),
-                                     (2*PI, '2π-boundary', 'orange')]:
+        for d_crit, label, color in [
+            (PI, "π-boundary", "red"),
+            (2 * PI, "2π-boundary", "orange"),
+        ]:
             if d_crit < 8:
                 # Boundary plane
                 xx, yy = np.meshgrid(np.linspace(-3, 3, 10), np.linspace(-3, 3, 10))
@@ -390,18 +450,24 @@ class EmergenceCascadeVisualizer:
             progress_pct = (phase_progress / threshold) * 100
             info_text += f"Next: D{next_dim} ({progress_pct:.1f}%)"
 
-        self.ax3d.text2D(0.02, 0.98, info_text, transform=self.ax3d.transAxes,
-                        fontsize=12, verticalalignment='top',
-                        bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.9))
+        self.ax3d.text2D(
+            0.02,
+            0.98,
+            info_text,
+            transform=self.ax3d.transAxes,
+            fontsize=12,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="lightblue", alpha=0.9),
+        )
 
         # Set limits
         self.ax3d.set_xlim([-4, 4])
         self.ax3d.set_ylim([-4, 4])
         self.ax3d.set_zlim([0, 6])
 
-        self.ax3d.set_xlabel('Spatial X')
-        self.ax3d.set_ylabel('Spatial Y')
-        self.ax3d.set_zlabel('Dimensional Level')
+        self.ax3d.set_xlabel("Spatial X")
+        self.ax3d.set_ylabel("Spatial Y")
+        self.ax3d.set_zlabel("Dimensional Level")
 
         self.fig.canvas.draw_idle()
 
@@ -410,10 +476,12 @@ class EmergenceCascadeVisualizer:
         self.create_figure()
         plt.show()
 
+
 def main():
     """Launch the emergence cascade visualizer."""
     visualizer = EmergenceCascadeVisualizer()
     visualizer.run()
+
 
 if __name__ == "__main__":
     main()

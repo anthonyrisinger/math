@@ -7,13 +7,14 @@ Comprehensive tests for the dimensional analysis package.
 Tests all modules: geometric_measures, emergence_framework, reality_modeling.
 """
 
-import numpy as np
 import sys
 import traceback
-from typing import Dict, Any
+
+import numpy as np
 
 # Import constants from geometric_measures
-from .geometric_measures import PHI, E, PI
+from .geometric_measures import PHI
+
 
 def test_geometric_measures():
     """Test geometric measures module."""
@@ -21,8 +22,12 @@ def test_geometric_measures():
 
     try:
         from .geometric_measures import (
-            GeometricMeasures, DimensionalAnalyzer,
-            V, S, C, analyze, find_peaks, PHI, E, PI
+            PHI,
+            PI,
+            DimensionalAnalyzer,
+            S,
+            V,
+            find_peaks,
         )
 
         # Test basic measures
@@ -31,7 +36,7 @@ def test_geometric_measures():
         assert abs(V(2) - PI) < 1e-10, "V(2) should be π"
 
         # Test sphere surface
-        assert abs(S(2) - 2*PI) < 1e-10, "S(2) should be 2π"
+        assert abs(S(2) - 2 * PI) < 1e-10, "S(2) should be 2π"
 
         # Test array inputs
         dims = np.array([0, 1, 2, 3])
@@ -40,14 +45,14 @@ def test_geometric_measures():
 
         # Test critical dimensions
         peaks = find_peaks()
-        assert 'volume_peak' in peaks, "Should find volume peak"
-        assert 'complexity_peak' in peaks, "Should find complexity peak"
+        assert "volume_peak" in peaks, "Should find volume peak"
+        assert "complexity_peak" in peaks, "Should find complexity peak"
 
         # Test analyzer
         analyzer = DimensionalAnalyzer()
         analysis = analyzer.analyze_dimension(PHI)
-        assert 'ball_volume' in analysis, "Analysis should contain ball_volume"
-        assert 'complexity' in analysis, "Analysis should contain complexity"
+        assert "ball_volume" in analysis, "Analysis should contain ball_volume"
+        assert "complexity" in analysis, "Analysis should contain complexity"
 
         print("  ✅ Geometric measures tests passed")
         return True
@@ -57,13 +62,15 @@ def test_geometric_measures():
         traceback.print_exc()
         return False
 
+
 def test_emergence_framework():
     """Test emergence framework module."""
     print("🌱 Testing emergence framework...")
 
     try:
         from .emergence_framework import (
-            EmergenceFramework, run_emergence, analyze_emergence
+            EmergenceFramework,
+            analyze_emergence,
         )
 
         # Test framework initialization
@@ -73,24 +80,24 @@ def test_emergence_framework():
         assert len(framework.phase_density) > 0, "Should have phase densities"
 
         # Test potential calculation
-        potential_0 = framework.dimensional_potential(0)
+        framework.dimensional_potential(0)
         potential_phi = framework.dimensional_potential(PHI)
         assert potential_phi > 0, "Potential at φ should be positive"
 
         # Test phase evolution
-        initial_phase = framework.phase_density.copy()
+        framework.phase_density.copy()
         framework.evolve_phase(dt=0.001)
         assert framework.time > 0, "Time should advance"
 
         # Test emergence simulation (short)
         results = framework.run_emergence_simulation(steps=10, dt=0.01)
-        assert 'final_dimension' in results, "Should return final dimension"
-        assert 'emerged_dimensions' in results, "Should track emerged dimensions"
+        assert "final_dimension" in results, "Should return final dimension"
+        assert "emerged_dimensions" in results, "Should track emerged dimensions"
 
         # Test convenience functions
         analysis = analyze_emergence(PHI)
-        assert 'potential' in analysis, "Analysis should contain potential"
-        assert 'evolution_rate' in analysis, "Analysis should contain evolution rate"
+        assert "potential" in analysis, "Analysis should contain potential"
+        assert "evolution_rate" in analysis, "Analysis should contain evolution rate"
 
         print("  ✅ Emergence framework tests passed")
         return True
@@ -100,20 +107,25 @@ def test_emergence_framework():
         traceback.print_exc()
         return False
 
+
 def test_reality_modeling():
     """Test reality modeling module."""
     print("🌌 Testing reality modeling...")
 
     try:
         from .reality_modeling import (
-            RealityModeler, analyze_reality, consciousness_at,
-            life_probability_at, reality_stability_at
+            RealityModeler,
+            consciousness_at,
+            life_probability_at,
+            reality_stability_at,
         )
 
         # Test modeler initialization
         modeler = RealityModeler()
-        assert hasattr(modeler, 'physical_constants'), "Should have physical constants"
-        assert hasattr(modeler, 'consciousness_threshold'), "Should have consciousness threshold"
+        assert hasattr(modeler, "physical_constants"), "Should have physical constants"
+        assert hasattr(
+            modeler, "consciousness_threshold"
+        ), "Should have consciousness threshold"
 
         # Test reality measures
         stability_3d = modeler.reality_stability(3.0)
@@ -131,8 +143,8 @@ def test_reality_modeling():
 
         # Test reality map generation (small)
         reality_map = modeler.generate_reality_map(d_range=(1, 4), resolution=10)
-        assert 'dimensions' in reality_map, "Should contain dimensions"
-        assert 'critical_zones' in reality_map, "Should contain critical zones"
+        assert "dimensions" in reality_map, "Should contain dimensions"
+        assert "critical_zones" in reality_map, "Should contain critical zones"
 
         # Test convenience functions
         consciousness_level = consciousness_at(PHI)
@@ -151,13 +163,14 @@ def test_reality_modeling():
         traceback.print_exc()
         return False
 
+
 def test_package_integration():
     """Test integration between modules."""
     print("🔗 Testing package integration...")
 
     try:
-        from .geometric_measures import V, S, C, PHI
         from .emergence_framework import EmergenceFramework
+        from .geometric_measures import PHI, C
         from .reality_modeling import RealityModeler
 
         # Test that modules work together
@@ -185,7 +198,9 @@ def test_package_integration():
         assert geometric_complexity_direct > 0, "Direct complexity should be positive"
 
         # They should be equal since dimensional_potential uses complexity_measure
-        assert abs(potential_from_framework - geometric_complexity_direct) < 1e-10, "Potentials should match complexity"
+        assert (
+            abs(potential_from_framework - geometric_complexity_direct) < 1e-10
+        ), "Potentials should match complexity"
 
         print("  ✅ Package integration tests passed")
         return True
@@ -195,12 +210,13 @@ def test_package_integration():
         traceback.print_exc()
         return False
 
+
 def test_mathematical_consistency():
     """Test mathematical consistency and properties."""
     print("🔢 Testing mathematical consistency...")
 
     try:
-        from .geometric_measures import V, S, C, PHI, E, PI
+        from .geometric_measures import PI, C, S, V
 
         # Test mathematical relationships
 
@@ -214,7 +230,9 @@ def test_mathematical_consistency():
         assert abs(S(test_d) - test_d * V(test_d)) < 1e-10, "S(d) should equal d * V(d)"
 
         # Complexity should equal V * S
-        assert abs(C(test_d) - V(test_d) * S(test_d)) < 1e-10, "C(d) should equal V(d) * S(d)"
+        assert (
+            abs(C(test_d) - V(test_d) * S(test_d)) < 1e-10
+        ), "C(d) should equal V(d) * S(d)"
 
         # Test special values
         assert abs(V(2) - PI) < 1e-10, "V(2) should equal π"
@@ -236,6 +254,7 @@ def test_mathematical_consistency():
         traceback.print_exc()
         return False
 
+
 def run_all_tests():
     """Run complete test suite for analysis package."""
     print("ANALYSIS PACKAGE TEST SUITE")
@@ -246,7 +265,7 @@ def run_all_tests():
         test_emergence_framework,
         test_reality_modeling,
         test_package_integration,
-        test_mathematical_consistency
+        test_mathematical_consistency,
     ]
 
     results = []
@@ -271,6 +290,7 @@ def run_all_tests():
     else:
         print(f"⚠️  {total - passed} tests failed. Please fix issues.")
         return False
+
 
 if __name__ == "__main__":
     success = run_all_tests()

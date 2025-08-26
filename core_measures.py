@@ -12,8 +12,8 @@ from scipy.special import gamma, gammaln
 
 # Fundamental constants
 PHI = (1 + np.sqrt(5)) / 2  # Golden ratio: φ = 1.618...
-PSI = 1 / PHI               # Golden conjugate: ψ = 0.618...
-VARPI = gamma(0.25)**2 / (2 * np.sqrt(2 * np.pi))  # ϖ = 1.311...
+PSI = 1 / PHI  # Golden conjugate: ψ = 0.618...
+VARPI = gamma(0.25) ** 2 / (2 * np.sqrt(2 * np.pi))  # ϖ = 1.311...
 PI = np.pi
 E = np.e
 
@@ -21,6 +21,7 @@ E = np.e
 VIEW_ELEV = np.degrees(PHI - 1)  # ≈ 36.87°
 VIEW_AZIM = -45
 BOX_ASPECT = (1, 1, 1)
+
 
 class DimensionalMeasures:
     """Core geometric measures for any real dimension d."""
@@ -33,10 +34,10 @@ class DimensionalMeasures:
 
         # Use log space for numerical stability
         if d > 170:
-            log_vol = (d/2) * np.log(PI) - gammaln(d/2 + 1)
+            log_vol = (d / 2) * np.log(PI) - gammaln(d / 2 + 1)
             return np.exp(np.real(log_vol))
 
-        return PI**(d/2) / gamma(d/2 + 1)
+        return PI ** (d / 2) / gamma(d / 2 + 1)
 
     @staticmethod
     def sphere_surface(d):
@@ -47,15 +48,17 @@ class DimensionalMeasures:
             return 2.0  # S^0 = two points
 
         if d > 170:
-            log_surf = np.log(2) + (d/2) * np.log(PI) - gammaln(d/2)
+            log_surf = np.log(2) + (d / 2) * np.log(PI) - gammaln(d / 2)
             return np.exp(np.real(log_surf))
 
-        return 2 * PI**(d/2) / gamma(d/2)
+        return 2 * PI ** (d / 2) / gamma(d / 2)
 
     @staticmethod
     def complexity_measure(d):
         """V×S complexity: C_d = V_d × S_d (peaks at d≈6)"""
-        return DimensionalMeasures.ball_volume(d) * DimensionalMeasures.sphere_surface(d)
+        return DimensionalMeasures.ball_volume(d) * DimensionalMeasures.sphere_surface(
+            d
+        )
 
     @staticmethod
     def ratio_measure(d):
@@ -75,25 +78,32 @@ class DimensionalMeasures:
     @staticmethod
     def critical_dimensions():
         """Return dictionary of critical dimensional values."""
-        vol_peak_d, vol_peak_val = DimensionalMeasures.find_peak(DimensionalMeasures.ball_volume)
-        surf_peak_d, surf_peak_val = DimensionalMeasures.find_peak(DimensionalMeasures.sphere_surface)
-        comp_peak_d, comp_peak_val = DimensionalMeasures.find_peak(DimensionalMeasures.complexity_measure)
+        vol_peak_d, vol_peak_val = DimensionalMeasures.find_peak(
+            DimensionalMeasures.ball_volume
+        )
+        surf_peak_d, surf_peak_val = DimensionalMeasures.find_peak(
+            DimensionalMeasures.sphere_surface
+        )
+        comp_peak_d, comp_peak_val = DimensionalMeasures.find_peak(
+            DimensionalMeasures.complexity_measure
+        )
 
         return {
-            'volume_peak': (vol_peak_d, vol_peak_val),
-            'surface_peak': (surf_peak_d, surf_peak_val),
-            'complexity_peak': (comp_peak_d, comp_peak_val),
-            'pi_boundary': PI,
-            'tau_boundary': 2 * PI,
-            'e_natural': E,
-            'phi_golden': PHI,
-            'psi_conjugate': PSI,
-            'varpi_gamma': VARPI
+            "volume_peak": (vol_peak_d, vol_peak_val),
+            "surface_peak": (surf_peak_d, surf_peak_val),
+            "complexity_peak": (comp_peak_d, comp_peak_val),
+            "pi_boundary": PI,
+            "tau_boundary": 2 * PI,
+            "e_natural": E,
+            "phi_golden": PHI,
+            "psi_conjugate": PSI,
+            "varpi_gamma": VARPI,
         }
+
 
 def setup_3d_axis(ax, title="", xlim=None, ylim=None, zlim=None):
     """Standard 3D axis setup with orthographic projection and golden viewing angle."""
-    ax.set_proj_type('ortho')
+    ax.set_proj_type("ortho")
     ax.view_init(elev=VIEW_ELEV, azim=VIEW_AZIM)
     ax.set_box_aspect(BOX_ASPECT)
 
@@ -111,6 +121,7 @@ def setup_3d_axis(ax, title="", xlim=None, ylim=None, zlim=None):
     ax.grid(True, alpha=0.3)
     return ax
 
+
 def print_critical_info():
     """Print the critical dimensional information."""
     measures = DimensionalMeasures()
@@ -126,6 +137,7 @@ def print_critical_info():
     print(f"e natural:        d = {crits['e_natural']:.3f}")
     print(f"φ golden:         d = {crits['phi_golden']:.3f}")
     print("=" * 50)
+
 
 if __name__ == "__main__":
     print_critical_info()

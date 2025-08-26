@@ -7,10 +7,8 @@ Base class for 3D visualizations that preserves view angles during animation.
 Solves the problem of view resetting during updates.
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from core_measures import setup_3d_axis, VIEW_ELEV, VIEW_AZIM
+from core_measures import VIEW_AZIM, VIEW_ELEV
+
 
 class ViewPreserving3D:
     """Base class for 3D visualizations that preserves viewing angles."""
@@ -22,7 +20,7 @@ class ViewPreserving3D:
 
     def setup_3d_axis(self, ax, title=""):
         """Setup 3D axis with view preservation."""
-        ax.set_proj_type('ortho')
+        ax.set_proj_type("ortho")
         ax.view_init(elev=self.current_elev, azim=self.current_azim)
         ax.set_box_aspect((1, 1, 1))
 
@@ -36,9 +34,9 @@ class ViewPreserving3D:
 
     def save_view(self, ax):
         """Save current view angles before clearing."""
-        if hasattr(ax, 'elev'):
+        if hasattr(ax, "elev"):
             self.current_elev = ax.elev
-        if hasattr(ax, 'azim'):
+        if hasattr(ax, "azim"):
             self.current_azim = ax.azim
 
     def restore_view(self, ax):

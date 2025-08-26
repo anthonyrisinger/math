@@ -21,8 +21,8 @@ Quick start:
 """
 
 # Import core functionality
-from .geometric_measures import *
 from .emergence_framework import *
+from .geometric_measures import *
 from .reality_modeling import *
 
 # Import test suite
@@ -33,24 +33,31 @@ __version__ = "1.0.0"
 __author__ = "Dimensional Analysis Project"
 __description__ = "Unified dimensional analysis and emergence theory tools"
 
+
 # Convenience function
 def quick_analysis(dimension):
     """Quick dimensional analysis of a given dimension."""
     from .geometric_measures import DimensionalAnalyzer
+
     analyzer = DimensionalAnalyzer()
     return analyzer.analyze_dimension(dimension)
+
 
 def explore_emergence():
     """Explore dimensional emergence interactively."""
     from .emergence_framework import EmergenceFramework
+
     framework = EmergenceFramework()
     framework.interactive_exploration()
+
 
 def analyze_reality():
     """Analyze reality through dimensional lens."""
     from .reality_modeling import RealityModeler
+
     reality = RealityModeler()
     return reality.complete_analysis()
+
 
 def test_package():
     """Run complete test suite for the package."""

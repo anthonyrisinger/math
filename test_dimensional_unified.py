@@ -7,6 +7,7 @@ Comprehensive test demonstrating the unified dimensional package
 with consolidated gamma functions, measures, and phase dynamics.
 """
 
+
 def test_unified_dimensional_package():
     """Test the complete unified dimensional package."""
 
@@ -15,13 +16,22 @@ def test_unified_dimensional_package():
 
     # Import the unified package
     try:
-        import dimensional
-        from dimensional import (
-            gamma_safe, PHI, PI, V, S, C, find_all_peaks,
-            PhaseDynamicsEngine, total_phase_energy, sap_rate,
-            quick_phase_analysis
-        )
         import numpy as np
+
+        from dimensional import (
+            PHI,
+            PI,
+            C,
+            PhaseDynamicsEngine,
+            S,
+            V,
+            find_all_peaks,
+            gamma_safe,
+            quick_phase_analysis,
+            sap_rate,
+            total_phase_energy,
+        )
+
         print("✅ Import successful - all modules loaded")
     except Exception as e:
         print(f"❌ Import failed: {e}")
@@ -81,7 +91,9 @@ def test_unified_dimensional_package():
         # Run integrated analysis
         analysis = quick_phase_analysis(dimension=4.0, time_steps=500)
         print(f"  Target dimension: {analysis['target_dimension']}")
-        print(f"  Final effective dim: {analysis['final_state']['effective_dimension']:.3f}")
+        print(
+            f"  Final effective dim: {analysis['final_state']['effective_dimension']:.3f}"
+        )
         print(f"  Energy: {analysis['energy_conservation']:.6f}")
         print("  ✅ Integration working")
     except Exception as e:
@@ -117,9 +129,7 @@ def demo_unified_capabilities():
     print("\n\n🌟 UNIFIED PACKAGE DEMONSTRATION")
     print("=" * 60)
 
-    from dimensional import (
-        find_all_peaks, run_emergence_simulation, V, S, C, R, PI
-    )
+    from dimensional import PI, C, R, S, V, find_all_peaks, run_emergence_simulation
 
     print("📈 DIMENSIONAL ANALYSIS WORKFLOW:")
     print("-" * 50)
@@ -135,7 +145,7 @@ def demo_unified_capabilities():
 
     # Run emergence simulation
     sim_results = run_emergence_simulation(max_time=8.0, max_dimensions=7)
-    state = sim_results['final_state']
+    state = sim_results["final_state"]
 
     print(f"Simulation completed at t = {state['time']:.2f}")
     print(f"Emerged dimensions: {state['emerged_dimensions']}")
@@ -144,8 +154,8 @@ def demo_unified_capabilities():
     print(f"Phase coherence: {state['coherence']:.6f}")
 
     # Show emergence timeline
-    engine = sim_results['engine']
-    print(f"\nEmergence Timeline:")
+    engine = sim_results["engine"]
+    print("\nEmergence Timeline:")
     for d, t in sorted(engine.emergence_times.items()):
         print(f"  Dimension {d}: emerged at t = {t:.2f}")
 
@@ -153,7 +163,7 @@ def demo_unified_capabilities():
     print("-" * 50)
 
     # Show relationships at key dimensions
-    key_dims = [1, 2, 3, 4, PI, 6, 2*PI]
+    key_dims = [1, 2, 3, 4, PI, 6, 2 * PI]
     print("d      | V(d)      | S(d)      | C(d)      | R(d)")
     print("-" * 55)
     for d in key_dims:
@@ -168,7 +178,6 @@ def demo_unified_capabilities():
 
 
 if __name__ == "__main__":
-    import numpy as np
 
     # Run comprehensive test
     success = test_unified_dimensional_package()

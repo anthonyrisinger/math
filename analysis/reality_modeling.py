@@ -15,14 +15,14 @@ Core insights:
 - Space is dimensional extension
 """
 
-import numpy as np
-from typing import Dict, List, Tuple, Optional, Any, Callable
+from typing import Any, Optional
+
 import matplotlib.pyplot as plt
-from matplotlib import animation, cm, colors
-from scipy.integrate import odeint
-from scipy.optimize import minimize_scalar
-from .geometric_measures import GeometricMeasures, PHI, PSI, VARPI, PI, E
+import numpy as np
+
 from .emergence_framework import EmergenceFramework
+from .geometric_measures import PHI, PI, VARPI, E, GeometricMeasures
+
 
 class RealityModeler:
     """
@@ -44,7 +44,7 @@ class RealityModeler:
         # Physical constants as dimensional emergents
         self.physical_constants = self._derive_physical_constants()
 
-    def _derive_physical_constants(self) -> Dict[str, float]:
+    def _derive_physical_constants(self) -> dict[str, float]:
         """
         Derive physical constants from dimensional analysis.
 
@@ -60,14 +60,14 @@ class RealityModeler:
         c = PHI * E  # Geometric-exponential coupling
 
         # Gravitational coupling from complexity peak
-        G = 1 / (self.measures.find_complexity_peak()**2)
+        G = 1 / (self.measures.find_complexity_peak() ** 2)
 
         return {
-            'fine_structure': alpha,
-            'planck_reduced': h_bar,
-            'light_speed': c,
-            'gravitational': G,
-            'consciousness_threshold': self.consciousness_threshold
+            "fine_structure": alpha,
+            "planck_reduced": h_bar,
+            "light_speed": c,
+            "gravitational": G,
+            "consciousness_threshold": self.consciousness_threshold,
         }
 
     def reality_stability(self, d: float) -> float:
@@ -86,7 +86,7 @@ class RealityModeler:
 
         for special_d in special_dims:
             # Gaussian resonance peaks
-            resonances += np.exp(-((d - special_d)**2) / 0.1)
+            resonances += np.exp(-((d - special_d) ** 2) / 0.1)
 
         # Consciousness enhancement
         if abs(d - self.consciousness_threshold) < 0.5:
@@ -108,7 +108,9 @@ class RealityModeler:
 
         # Base probability from complexity
         complexity = self.measures.complexity_measure(d)
-        normalized_complexity = complexity / self.measures.complexity_measure(3.0)  # Normalize to 3D
+        normalized_complexity = complexity / self.measures.complexity_measure(
+            3.0
+        )  # Normalize to 3D
 
         # Stability requirement
         stability = self.reality_stability(d)
@@ -117,11 +119,12 @@ class RealityModeler:
         info_capacity = min(d**2, 16)  # Saturates to avoid curse of dimensionality
 
         # Energy availability (peaks in middle dimensions)
-        energy_availability = np.exp(-((d - 3.5)**2) / 2.0)
+        energy_availability = np.exp(-((d - 3.5) ** 2) / 2.0)
 
         # Combine factors
-        probability = (normalized_complexity * stability *
-                      info_capacity * energy_availability)
+        probability = (
+            normalized_complexity * stability * info_capacity * energy_availability
+        )
 
         return min(probability / 1000, 1.0)  # Normalize to [0,1]
 
@@ -139,7 +142,7 @@ class RealityModeler:
         self_ref = d * np.log(d)
 
         # Critical consciousness threshold at φ
-        phi_resonance = np.exp(-((d - PHI)**2) / 0.2)
+        phi_resonance = np.exp(-((d - PHI) ** 2) / 0.2)
 
         # Complexity requirement for awareness
         complexity = self.measures.complexity_measure(d)
@@ -172,8 +175,9 @@ class RealityModeler:
 
         return base_rate * time_dilation
 
-    def generate_reality_map(self, d_range: Tuple[float, float] = (0, 8),
-                           resolution: int = 1000) -> Dict[str, Any]:
+    def generate_reality_map(
+        self, d_range: tuple[float, float] = (0, 8), resolution: int = 1000
+    ) -> dict[str, Any]:
         """
         Generate complete map of reality across dimensional space.
 
@@ -208,112 +212,167 @@ class RealityModeler:
         stable_zones = d_values[stability > np.percentile(stability, 75)]
 
         return {
-            'dimensions': d_values,
-            'reality_stability': stability,
-            'life_probability': life_prob,
-            'consciousness_emergence': consciousness,
-            'temporal_flow_rate': time_flow,
-            'geometric_volume': volume,
-            'geometric_surface': surface,
-            'geometric_complexity': complexity,
-            'critical_zones': {
-                'consciousness': consciousness_zones,
-                'life': life_zones,
-                'stability': stable_zones
+            "dimensions": d_values,
+            "reality_stability": stability,
+            "life_probability": life_prob,
+            "consciousness_emergence": consciousness,
+            "temporal_flow_rate": time_flow,
+            "geometric_volume": volume,
+            "geometric_surface": surface,
+            "geometric_complexity": complexity,
+            "critical_zones": {
+                "consciousness": consciousness_zones,
+                "life": life_zones,
+                "stability": stable_zones,
             },
-            'physical_constants': self.physical_constants,
-            'analysis_range': d_range
+            "physical_constants": self.physical_constants,
+            "analysis_range": d_range,
         }
 
-    def plot_reality_map(self, reality_map: Optional[Dict] = None):
+    def plot_reality_map(self, reality_map: Optional[dict] = None):
         """Plot comprehensive reality map."""
         if reality_map is None:
             reality_map = self.generate_reality_map()
 
-        d_values = reality_map['dimensions']
+        d_values = reality_map["dimensions"]
 
         fig, axes = plt.subplots(3, 2, figsize=(15, 12))
-        fig.suptitle('Complete Reality Map Across Dimensional Space', fontsize=16)
+        fig.suptitle("Complete Reality Map Across Dimensional Space", fontsize=16)
 
         # Stability and life
-        axes[0,0].plot(d_values, reality_map['reality_stability'], 'b-',
-                      linewidth=2, label='Reality Stability')
-        axes[0,0].plot(d_values, reality_map['life_probability'] * 10, 'g-',
-                      linewidth=2, label='Life Probability (×10)')
-        axes[0,0].axvline(PHI, color='gold', linestyle='--', alpha=0.7, label='φ')
-        axes[0,0].axvline(E, color='red', linestyle='--', alpha=0.7, label='e')
-        axes[0,0].set_xlabel('Dimension')
-        axes[0,0].set_ylabel('Stability / Life Probability')
-        axes[0,0].set_title('Reality Stability & Life Emergence')
-        axes[0,0].legend()
-        axes[0,0].grid(True, alpha=0.3)
+        axes[0, 0].plot(
+            d_values,
+            reality_map["reality_stability"],
+            "b-",
+            linewidth=2,
+            label="Reality Stability",
+        )
+        axes[0, 0].plot(
+            d_values,
+            reality_map["life_probability"] * 10,
+            "g-",
+            linewidth=2,
+            label="Life Probability (×10)",
+        )
+        axes[0, 0].axvline(PHI, color="gold", linestyle="--", alpha=0.7, label="φ")
+        axes[0, 0].axvline(E, color="red", linestyle="--", alpha=0.7, label="e")
+        axes[0, 0].set_xlabel("Dimension")
+        axes[0, 0].set_ylabel("Stability / Life Probability")
+        axes[0, 0].set_title("Reality Stability & Life Emergence")
+        axes[0, 0].legend()
+        axes[0, 0].grid(True, alpha=0.3)
 
         # Consciousness emergence
-        axes[0,1].plot(d_values, reality_map['consciousness_emergence'], 'purple',
-                      linewidth=3, label='Consciousness')
-        axes[0,1].axhline(0.5, color='red', linestyle=':', alpha=0.7,
-                         label='Consciousness Threshold')
-        axes[0,1].axvline(PHI, color='gold', linestyle='--', alpha=0.7, label='φ')
-        axes[0,1].set_xlabel('Dimension')
-        axes[0,1].set_ylabel('Consciousness Level')
-        axes[0,1].set_title('Consciousness Emergence')
-        axes[0,1].legend()
-        axes[0,1].grid(True, alpha=0.3)
+        axes[0, 1].plot(
+            d_values,
+            reality_map["consciousness_emergence"],
+            "purple",
+            linewidth=3,
+            label="Consciousness",
+        )
+        axes[0, 1].axhline(
+            0.5, color="red", linestyle=":", alpha=0.7, label="Consciousness Threshold"
+        )
+        axes[0, 1].axvline(PHI, color="gold", linestyle="--", alpha=0.7, label="φ")
+        axes[0, 1].set_xlabel("Dimension")
+        axes[0, 1].set_ylabel("Consciousness Level")
+        axes[0, 1].set_title("Consciousness Emergence")
+        axes[0, 1].legend()
+        axes[0, 1].grid(True, alpha=0.3)
 
         # Temporal flow
-        axes[1,0].plot(d_values, reality_map['temporal_flow_rate'], 'orange',
-                      linewidth=2, label='Time Flow Rate')
-        axes[1,0].axvline(E, color='red', linestyle='--', alpha=0.7, label='e')
-        axes[1,0].set_xlabel('Dimension')
-        axes[1,0].set_ylabel('Temporal Flow Rate')
-        axes[1,0].set_title('Time Flow Across Dimensions')
-        axes[1,0].legend()
-        axes[1,0].grid(True, alpha=0.3)
+        axes[1, 0].plot(
+            d_values,
+            reality_map["temporal_flow_rate"],
+            "orange",
+            linewidth=2,
+            label="Time Flow Rate",
+        )
+        axes[1, 0].axvline(E, color="red", linestyle="--", alpha=0.7, label="e")
+        axes[1, 0].set_xlabel("Dimension")
+        axes[1, 0].set_ylabel("Temporal Flow Rate")
+        axes[1, 0].set_title("Time Flow Across Dimensions")
+        axes[1, 0].legend()
+        axes[1, 0].grid(True, alpha=0.3)
 
         # Geometric measures
-        axes[1,1].semilogy(d_values, reality_map['geometric_volume'], 'b-',
-                          label='Volume', linewidth=2)
-        axes[1,1].semilogy(d_values, reality_map['geometric_surface'], 'g-',
-                          label='Surface', linewidth=2)
-        axes[1,1].semilogy(d_values, reality_map['geometric_complexity'], 'purple',
-                          label='Complexity', linewidth=2)
-        axes[1,1].set_xlabel('Dimension')
-        axes[1,1].set_ylabel('Measures (log scale)')
-        axes[1,1].set_title('Geometric Measures')
-        axes[1,1].legend()
-        axes[1,1].grid(True, alpha=0.3)
+        axes[1, 1].semilogy(
+            d_values, reality_map["geometric_volume"], "b-", label="Volume", linewidth=2
+        )
+        axes[1, 1].semilogy(
+            d_values,
+            reality_map["geometric_surface"],
+            "g-",
+            label="Surface",
+            linewidth=2,
+        )
+        axes[1, 1].semilogy(
+            d_values,
+            reality_map["geometric_complexity"],
+            "purple",
+            label="Complexity",
+            linewidth=2,
+        )
+        axes[1, 1].set_xlabel("Dimension")
+        axes[1, 1].set_ylabel("Measures (log scale)")
+        axes[1, 1].set_title("Geometric Measures")
+        axes[1, 1].legend()
+        axes[1, 1].grid(True, alpha=0.3)
 
         # Critical zones overlay
-        axes[2,0].fill_between(d_values, 0, 1,
-                              where=np.isin(d_values, reality_map['critical_zones']['consciousness']),
-                              alpha=0.3, color='purple', label='Consciousness Zones')
-        axes[2,0].fill_between(d_values, 0, 0.5,
-                              where=np.isin(d_values, reality_map['critical_zones']['life']),
-                              alpha=0.3, color='green', label='Life Zones')
-        axes[2,0].fill_between(d_values, 0, 0.25,
-                              where=np.isin(d_values, reality_map['critical_zones']['stability']),
-                              alpha=0.3, color='blue', label='Stable Zones')
-        axes[2,0].set_xlabel('Dimension')
-        axes[2,0].set_ylabel('Zone Indicator')
-        axes[2,0].set_title('Critical Reality Zones')
-        axes[2,0].legend()
-        axes[2,0].grid(True, alpha=0.3)
+        axes[2, 0].fill_between(
+            d_values,
+            0,
+            1,
+            where=np.isin(d_values, reality_map["critical_zones"]["consciousness"]),
+            alpha=0.3,
+            color="purple",
+            label="Consciousness Zones",
+        )
+        axes[2, 0].fill_between(
+            d_values,
+            0,
+            0.5,
+            where=np.isin(d_values, reality_map["critical_zones"]["life"]),
+            alpha=0.3,
+            color="green",
+            label="Life Zones",
+        )
+        axes[2, 0].fill_between(
+            d_values,
+            0,
+            0.25,
+            where=np.isin(d_values, reality_map["critical_zones"]["stability"]),
+            alpha=0.3,
+            color="blue",
+            label="Stable Zones",
+        )
+        axes[2, 0].set_xlabel("Dimension")
+        axes[2, 0].set_ylabel("Zone Indicator")
+        axes[2, 0].set_title("Critical Reality Zones")
+        axes[2, 0].legend()
+        axes[2, 0].grid(True, alpha=0.3)
 
         # Phase space
-        axes[2,1].scatter(reality_map['reality_stability'],
-                         reality_map['consciousness_emergence'],
-                         c=d_values, cmap='viridis', alpha=0.7, s=20)
-        axes[2,1].set_xlabel('Reality Stability')
-        axes[2,1].set_ylabel('Consciousness Level')
-        axes[2,1].set_title('Reality Phase Space')
-        cbar = plt.colorbar(axes[2,1].collections[0], ax=axes[2,1])
-        cbar.set_label('Dimension')
-        axes[2,1].grid(True, alpha=0.3)
+        axes[2, 1].scatter(
+            reality_map["reality_stability"],
+            reality_map["consciousness_emergence"],
+            c=d_values,
+            cmap="viridis",
+            alpha=0.7,
+            s=20,
+        )
+        axes[2, 1].set_xlabel("Reality Stability")
+        axes[2, 1].set_ylabel("Consciousness Level")
+        axes[2, 1].set_title("Reality Phase Space")
+        cbar = plt.colorbar(axes[2, 1].collections[0], ax=axes[2, 1])
+        cbar.set_label("Dimension")
+        axes[2, 1].grid(True, alpha=0.3)
 
         plt.tight_layout()
         plt.show()
 
-    def complete_analysis(self) -> Dict[str, Any]:
+    def complete_analysis(self) -> dict[str, Any]:
         """Complete analysis of reality across all dimensions."""
         print("🌌 Generating complete reality analysis...")
 
@@ -321,67 +380,72 @@ class RealityModeler:
         reality_map = self.generate_reality_map()
 
         # Find optimal dimensions for various phenomena
-        d_values = reality_map['dimensions']
+        d_values = reality_map["dimensions"]
 
         # Peak consciousness dimension
-        consciousness_peak_idx = np.argmax(reality_map['consciousness_emergence'])
+        consciousness_peak_idx = np.argmax(reality_map["consciousness_emergence"])
         consciousness_peak_d = d_values[consciousness_peak_idx]
 
         # Peak life probability dimension
-        life_peak_idx = np.argmax(reality_map['life_probability'])
+        life_peak_idx = np.argmax(reality_map["life_probability"])
         life_peak_d = d_values[life_peak_idx]
 
         # Most stable dimension
-        stability_peak_idx = np.argmax(reality_map['reality_stability'])
+        stability_peak_idx = np.argmax(reality_map["reality_stability"])
         stability_peak_d = d_values[stability_peak_idx]
 
         # Critical dimension analysis
         critical_analysis = {
-            'consciousness_peak': {
-                'dimension': consciousness_peak_d,
-                'consciousness_level': reality_map['consciousness_emergence'][consciousness_peak_idx],
-                'distance_to_phi': abs(consciousness_peak_d - PHI)
+            "consciousness_peak": {
+                "dimension": consciousness_peak_d,
+                "consciousness_level": reality_map["consciousness_emergence"][
+                    consciousness_peak_idx
+                ],
+                "distance_to_phi": abs(consciousness_peak_d - PHI),
             },
-            'life_optimum': {
-                'dimension': life_peak_d,
-                'life_probability': reality_map['life_probability'][life_peak_idx],
-                'stability': reality_map['reality_stability'][life_peak_idx]
+            "life_optimum": {
+                "dimension": life_peak_d,
+                "life_probability": reality_map["life_probability"][life_peak_idx],
+                "stability": reality_map["reality_stability"][life_peak_idx],
             },
-            'stability_maximum': {
-                'dimension': stability_peak_d,
-                'stability': reality_map['reality_stability'][stability_peak_idx],
-                'complexity': reality_map['geometric_complexity'][stability_peak_idx]
-            }
+            "stability_maximum": {
+                "dimension": stability_peak_d,
+                "stability": reality_map["reality_stability"][stability_peak_idx],
+                "complexity": reality_map["geometric_complexity"][stability_peak_idx],
+            },
         }
 
         # Reality zone statistics
         zone_stats = {}
-        for zone_name, zone_dims in reality_map['critical_zones'].items():
+        for zone_name, zone_dims in reality_map["critical_zones"].items():
             if len(zone_dims) > 0:
                 zone_stats[zone_name] = {
-                    'range': (zone_dims.min(), zone_dims.max()),
-                    'span': zone_dims.max() - zone_dims.min(),
-                    'center': zone_dims.mean(),
-                    'total_dimensions': len(zone_dims)
+                    "range": (zone_dims.min(), zone_dims.max()),
+                    "span": zone_dims.max() - zone_dims.min(),
+                    "center": zone_dims.mean(),
+                    "total_dimensions": len(zone_dims),
                 }
 
-        print(f"✅ Analysis complete!")
+        print("✅ Analysis complete!")
         print(f"📊 Consciousness peaks at d = {consciousness_peak_d:.3f}")
         print(f"🧬 Life optimum at d = {life_peak_d:.3f}")
         print(f"🔒 Maximum stability at d = {stability_peak_d:.3f}")
 
         return {
-            'reality_map': reality_map,
-            'critical_analysis': critical_analysis,
-            'zone_statistics': zone_stats,
-            'physical_constants': self.physical_constants,
-            'summary': {
-                'total_dimensions_analyzed': len(d_values),
-                'consciousness_zones': len(reality_map['critical_zones']['consciousness']),
-                'life_zones': len(reality_map['critical_zones']['life']),
-                'stable_zones': len(reality_map['critical_zones']['stability'])
-            }
+            "reality_map": reality_map,
+            "critical_analysis": critical_analysis,
+            "zone_statistics": zone_stats,
+            "physical_constants": self.physical_constants,
+            "summary": {
+                "total_dimensions_analyzed": len(d_values),
+                "consciousness_zones": len(
+                    reality_map["critical_zones"]["consciousness"]
+                ),
+                "life_zones": len(reality_map["critical_zones"]["life"]),
+                "stable_zones": len(reality_map["critical_zones"]["stability"]),
+            },
         }
+
 
 # Convenience functions
 def analyze_reality():
@@ -389,26 +453,31 @@ def analyze_reality():
     modeler = RealityModeler()
     return modeler.complete_analysis()
 
+
 def plot_reality():
     """Quick reality visualization."""
     modeler = RealityModeler()
     reality_map = modeler.generate_reality_map()
     modeler.plot_reality_map(reality_map)
 
+
 def consciousness_at(d):
     """Consciousness level at dimension d."""
     modeler = RealityModeler()
     return modeler.consciousness_emergence(d)
+
 
 def life_probability_at(d):
     """Life probability at dimension d."""
     modeler = RealityModeler()
     return modeler.life_probability(d)
 
+
 def reality_stability_at(d):
     """Reality stability at dimension d."""
     modeler = RealityModeler()
     return modeler.reality_stability(d)
+
 
 # Module test
 def test_reality_modeling():
@@ -425,30 +494,35 @@ def test_reality_modeling():
         life_prob = modeler.life_probability(d)
         consciousness = modeler.consciousness_emergence(d)
 
-        print(f"  d={d:.3f}: stability={stability:.4f}, "
-              f"life={life_prob:.4f}, consciousness={consciousness:.4f}")
+        print(
+            f"  d={d:.3f}: stability={stability:.4f}, "
+            f"life={life_prob:.4f}, consciousness={consciousness:.4f}"
+        )
 
     # Test derived physical constants
-    print(f"\nDerived physical constants:")
+    print("\nDerived physical constants:")
     for name, value in modeler.physical_constants.items():
         print(f"  {name}: {value:.6f}")
 
     # Quick reality map test
-    print(f"\nGenerating reality map...")
+    print("\nGenerating reality map...")
     reality_map = modeler.generate_reality_map(d_range=(1, 6), resolution=100)
 
-    consciousness_zones = reality_map['critical_zones']['consciousness']
-    life_zones = reality_map['critical_zones']['life']
+    consciousness_zones = reality_map["critical_zones"]["consciousness"]
+    life_zones = reality_map["critical_zones"]["life"]
 
     print(f"  Consciousness zones: {len(consciousness_zones)} regions")
     print(f"  Life zones: {len(life_zones)} regions")
 
     if len(consciousness_zones) > 0:
-        print(f"  Consciousness range: {consciousness_zones.min():.3f} - {consciousness_zones.max():.3f}")
+        print(
+            f"  Consciousness range: {consciousness_zones.min():.3f} - {consciousness_zones.max():.3f}"
+        )
     if len(life_zones) > 0:
         print(f"  Life range: {life_zones.min():.3f} - {life_zones.max():.3f}")
 
     print("\n✅ All reality modeling tests completed!")
+
 
 if __name__ == "__main__":
     test_reality_modeling()

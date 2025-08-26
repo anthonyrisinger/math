@@ -13,19 +13,22 @@ Core geometric formulas:
 - Critical dimension analysis
 """
 
+import warnings
+from typing import Any, Union
+
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.special import gamma, gammaln
-from typing import Union, Optional, Tuple, Dict, Any
-import matplotlib.pyplot as plt
-import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # Core mathematical constants
-PHI = (1 + np.sqrt(5)) / 2      # Golden ratio ≈ 1.618
-PSI = 1 / PHI                   # Golden conjugate ≈ 0.618
-VARPI = gamma(0.25)**2 / (2 * np.sqrt(2 * np.pi))  # ≈ 1.311
+PHI = (1 + np.sqrt(5)) / 2  # Golden ratio ≈ 1.618
+PSI = 1 / PHI  # Golden conjugate ≈ 0.618
+VARPI = gamma(0.25) ** 2 / (2 * np.sqrt(2 * np.pi))  # ≈ 1.311
 PI = np.pi
 E = np.e
+
 
 class GeometricMeasures:
     """
@@ -69,24 +72,26 @@ class GeometricMeasures:
                 large_mask = d_nonzero > 170
                 if np.any(large_mask):
                     d_large = d_nonzero[large_mask]
-                    log_vol = (d_large/2) * np.log(PI) - gammaln(d_large/2 + 1)
+                    log_vol = (d_large / 2) * np.log(PI) - gammaln(d_large / 2 + 1)
                     result[mask][large_mask] = np.exp(np.real(log_vol))
 
                 # Direct calculation for reasonable dimensions
                 normal_mask = ~large_mask
                 if np.any(normal_mask):
                     d_normal = d_nonzero[normal_mask]
-                    result[mask][normal_mask] = PI**(d_normal/2) / gamma(d_normal/2 + 1)
+                    result[mask][normal_mask] = PI ** (d_normal / 2) / gamma(
+                        d_normal / 2 + 1
+                    )
 
             return result[0] if scalar_input else result
 
         # Direct path for all non-zero dimensions
         if np.any(d > 170):
             # Use log-space for numerical stability
-            log_vol = (d/2) * np.log(PI) - gammaln(d/2 + 1)
+            log_vol = (d / 2) * np.log(PI) - gammaln(d / 2 + 1)
             return np.exp(np.real(log_vol))
         else:
-            return PI**(d/2) / gamma(d/2 + 1)
+            return PI ** (d / 2) / gamma(d / 2 + 1)
 
     @staticmethod
     def sphere_surface(d: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
@@ -135,7 +140,7 @@ class GeometricMeasures:
         def neg_volume(d):
             return -GeometricMeasures.ball_volume(d)
 
-        result = minimize_scalar(neg_volume, bounds=(0, 10), method='bounded')
+        result = minimize_scalar(neg_volume, bounds=(0, 10), method="bounded")
         return result.x
 
     @staticmethod
@@ -146,20 +151,21 @@ class GeometricMeasures:
         def neg_complexity(d):
             return -GeometricMeasures.complexity_measure(d)
 
-        result = minimize_scalar(neg_complexity, bounds=(0, 20), method='bounded')
+        result = minimize_scalar(neg_complexity, bounds=(0, 20), method="bounded")
         return result.x
 
     @staticmethod
-    def critical_dimensions() -> Dict[str, float]:
+    def critical_dimensions() -> dict[str, float]:
         """Find all critical dimensions and special values."""
         return {
-            'volume_peak': GeometricMeasures.find_volume_peak(),
-            'complexity_peak': GeometricMeasures.find_complexity_peak(),
-            'golden_ratio': PHI,
-            'euler_number': E,
-            'pi': PI,
-            'varpi': VARPI
+            "volume_peak": GeometricMeasures.find_volume_peak(),
+            "complexity_peak": GeometricMeasures.find_complexity_peak(),
+            "golden_ratio": PHI,
+            "euler_number": E,
+            "pi": PI,
+            "varpi": VARPI,
         }
+
 
 class DimensionalAnalyzer:
     """
@@ -169,7 +175,7 @@ class DimensionalAnalyzer:
     def __init__(self):
         self.measures = GeometricMeasures()
 
-    def analyze_dimension(self, d: float) -> Dict[str, Any]:
+    def analyze_dimension(self, d: float) -> dict[str, Any]:
         """Comprehensive analysis of a specific dimension."""
         V = self.measures.ball_volume(d)
         S = self.measures.sphere_surface(d)
@@ -182,27 +188,24 @@ class DimensionalAnalyzer:
         dC_dd = (self.measures.complexity_measure(d + epsilon) - C) / epsilon
 
         return {
-            'dimension': d,
-            'ball_volume': V,
-            'sphere_surface': S,
-            'complexity': C,
-            'volume_gradient': dV_dd,
-            'surface_gradient': dS_dd,
-            'complexity_gradient': dC_dd,
-            'is_volume_peak': abs(dV_dd) < 1e-6,
-            'is_complexity_peak': abs(dC_dd) < 1e-6,
-            'critical_distances': self._critical_distances(d)
+            "dimension": d,
+            "ball_volume": V,
+            "sphere_surface": S,
+            "complexity": C,
+            "volume_gradient": dV_dd,
+            "surface_gradient": dS_dd,
+            "complexity_gradient": dC_dd,
+            "is_volume_peak": abs(dV_dd) < 1e-6,
+            "is_complexity_peak": abs(dC_dd) < 1e-6,
+            "critical_distances": self._critical_distances(d),
         }
 
-    def _critical_distances(self, d: float) -> Dict[str, float]:
+    def _critical_distances(self, d: float) -> dict[str, float]:
         """Calculate distances to critical dimensions."""
         criticals = self.measures.critical_dimensions()
-        return {
-            name: abs(d - value)
-            for name, value in criticals.items()
-        }
+        return {name: abs(d - value) for name, value in criticals.items()}
 
-    def explore_dimension(self, d: float, show_plot: bool = True) -> Dict[str, Any]:
+    def explore_dimension(self, d: float, show_plot: bool = True) -> dict[str, Any]:
         """Explore a dimension with optional visualization."""
         analysis = self.analyze_dimension(d)
 
@@ -211,7 +214,9 @@ class DimensionalAnalyzer:
 
         return analysis
 
-    def plot_dimensional_analysis(self, d_focus: float, d_range: Tuple[float, float] = (0, 10)):
+    def plot_dimensional_analysis(
+        self, d_focus: float, d_range: tuple[float, float] = (0, 10)
+    ):
         """Plot comprehensive dimensional analysis."""
         d_values = np.linspace(d_range[0], d_range[1], 1000)
 
@@ -220,75 +225,82 @@ class DimensionalAnalyzer:
         C_values = self.measures.complexity_measure(d_values)
 
         fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-        fig.suptitle(f'Dimensional Analysis: Focus on d = {d_focus:.3f}', fontsize=16)
+        fig.suptitle(f"Dimensional Analysis: Focus on d = {d_focus:.3f}", fontsize=16)
 
         # Volume plot
-        axes[0,0].plot(d_values, V_values, 'b-', linewidth=2, label='V(d)')
-        axes[0,0].axvline(d_focus, color='red', linestyle='--', alpha=0.7)
-        axes[0,0].set_xlabel('Dimension d')
-        axes[0,0].set_ylabel('Ball Volume V(d)')
-        axes[0,0].set_title('Ball Volume')
-        axes[0,0].grid(True, alpha=0.3)
-        axes[0,0].legend()
+        axes[0, 0].plot(d_values, V_values, "b-", linewidth=2, label="V(d)")
+        axes[0, 0].axvline(d_focus, color="red", linestyle="--", alpha=0.7)
+        axes[0, 0].set_xlabel("Dimension d")
+        axes[0, 0].set_ylabel("Ball Volume V(d)")
+        axes[0, 0].set_title("Ball Volume")
+        axes[0, 0].grid(True, alpha=0.3)
+        axes[0, 0].legend()
 
         # Surface plot
-        axes[0,1].plot(d_values, S_values, 'g-', linewidth=2, label='S(d)')
-        axes[0,1].axvline(d_focus, color='red', linestyle='--', alpha=0.7)
-        axes[0,1].set_xlabel('Dimension d')
-        axes[0,1].set_ylabel('Sphere Surface S(d)')
-        axes[0,1].set_title('Sphere Surface')
-        axes[0,1].grid(True, alpha=0.3)
-        axes[0,1].legend()
+        axes[0, 1].plot(d_values, S_values, "g-", linewidth=2, label="S(d)")
+        axes[0, 1].axvline(d_focus, color="red", linestyle="--", alpha=0.7)
+        axes[0, 1].set_xlabel("Dimension d")
+        axes[0, 1].set_ylabel("Sphere Surface S(d)")
+        axes[0, 1].set_title("Sphere Surface")
+        axes[0, 1].grid(True, alpha=0.3)
+        axes[0, 1].legend()
 
         # Complexity plot
-        axes[1,0].plot(d_values, C_values, 'purple', linewidth=2, label='C(d)')
-        axes[1,0].axvline(d_focus, color='red', linestyle='--', alpha=0.7)
-        axes[1,0].set_xlabel('Dimension d')
-        axes[1,0].set_ylabel('Complexity C(d)')
-        axes[1,0].set_title('Complexity Measure')
-        axes[1,0].grid(True, alpha=0.3)
-        axes[1,0].legend()
+        axes[1, 0].plot(d_values, C_values, "purple", linewidth=2, label="C(d)")
+        axes[1, 0].axvline(d_focus, color="red", linestyle="--", alpha=0.7)
+        axes[1, 0].set_xlabel("Dimension d")
+        axes[1, 0].set_ylabel("Complexity C(d)")
+        axes[1, 0].set_title("Complexity Measure")
+        axes[1, 0].grid(True, alpha=0.3)
+        axes[1, 0].legend()
 
         # Combined plot with log scale
-        axes[1,1].semilogy(d_values, V_values, 'b-', label='V(d)', linewidth=2)
-        axes[1,1].semilogy(d_values, S_values, 'g-', label='S(d)', linewidth=2)
-        axes[1,1].semilogy(d_values, C_values, 'purple', label='C(d)', linewidth=2)
-        axes[1,1].axvline(d_focus, color='red', linestyle='--', alpha=0.7)
-        axes[1,1].set_xlabel('Dimension d')
-        axes[1,1].set_ylabel('Measures (log scale)')
-        axes[1,1].set_title('All Measures (Log Scale)')
-        axes[1,1].grid(True, alpha=0.3)
-        axes[1,1].legend()
+        axes[1, 1].semilogy(d_values, V_values, "b-", label="V(d)", linewidth=2)
+        axes[1, 1].semilogy(d_values, S_values, "g-", label="S(d)", linewidth=2)
+        axes[1, 1].semilogy(d_values, C_values, "purple", label="C(d)", linewidth=2)
+        axes[1, 1].axvline(d_focus, color="red", linestyle="--", alpha=0.7)
+        axes[1, 1].set_xlabel("Dimension d")
+        axes[1, 1].set_ylabel("Measures (log scale)")
+        axes[1, 1].set_title("All Measures (Log Scale)")
+        axes[1, 1].grid(True, alpha=0.3)
+        axes[1, 1].legend()
 
         plt.tight_layout()
         plt.show()
+
 
 # Convenience functions for package interface
 def V(d):
     """Ball volume shorthand."""
     return GeometricMeasures.ball_volume(d)
 
+
 def S(d):
     """Sphere surface shorthand."""
     return GeometricMeasures.sphere_surface(d)
 
+
 def C(d):
     """Complexity measure shorthand."""
     return GeometricMeasures.complexity_measure(d)
+
 
 def analyze(d):
     """Quick analysis shorthand."""
     analyzer = DimensionalAnalyzer()
     return analyzer.analyze_dimension(d)
 
+
 def explore(d):
     """Quick exploration with plots."""
     analyzer = DimensionalAnalyzer()
     return analyzer.explore_dimension(d)
 
+
 def find_peaks():
     """Find all critical peaks."""
     return GeometricMeasures.critical_dimensions()
+
 
 # Module test
 def test_geometric_measures():
@@ -305,18 +317,21 @@ def test_geometric_measures():
         print(f"  d={d}: V={V_d:.6f}, S={S_d:.6f}, C={C_d:.6f}")
 
     # Test peaks
-    print(f"\nCritical dimensions:")
+    print("\nCritical dimensions:")
     criticals = find_peaks()
     for name, value in criticals.items():
         print(f"  {name}: {value:.6f}")
 
     # Test fractional dimensions
-    print(f"\nFractional dimensions:")
+    print("\nFractional dimensions:")
     for d in [PHI, E, PI]:
         analysis = analyze(d)
-        print(f"  d={d:.3f}: V={analysis['ball_volume']:.6f}, complexity={analysis['complexity']:.6f}")
+        print(
+            f"  d={d:.3f}: V={analysis['ball_volume']:.6f}, complexity={analysis['complexity']:.6f}"
+        )
 
     print("\n✅ All geometric measures tests completed!")
+
 
 if __name__ == "__main__":
     test_geometric_measures()

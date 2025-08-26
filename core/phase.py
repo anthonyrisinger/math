@@ -16,7 +16,7 @@ Where R(s→t) is the sapping rate from dimension s to dimension t.
 
 import numpy as np
 
-from .constants import NUMERICAL_EPSILON, PHI, PI
+from .constants import NUMERICAL_EPSILON, PHI
 from .measures import phase_capacity
 
 

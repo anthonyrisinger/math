@@ -4,10 +4,13 @@ Debug Phase Dynamics Energy Conservation
 """
 
 import sys
-sys.path.insert(0, '.')
+
+sys.path.insert(0, ".")
+
+import numpy as np
 
 from core import PhaseDynamicsEngine, total_phase_energy
-import numpy as np
+
 
 def debug_phase_evolution():
     print("PHASE DYNAMICS ENERGY DEBUG")
@@ -29,8 +32,8 @@ def debug_phase_evolution():
         engine.step(0.05)  # Smaller steps
 
         state = engine.get_state()
-        energies.append(state['total_energy'])
-        times.append(state['time'])
+        energies.append(state["total_energy"])
+        times.append(state["time"])
 
         if step % 5 == 0:
             print(f"\nStep {step:2d} (t={state['time']:.2f}):")
@@ -40,7 +43,7 @@ def debug_phase_evolution():
 
     # Analyze energy changes
     energy_changes = np.diff(energies)
-    print(f"\nEnergy Analysis:")
+    print("\nEnergy Analysis:")
     print(f"  Initial energy: {energies[0]:.6f}")
     print(f"  Final energy: {energies[-1]:.6f}")
     print(f"  Total change: {energies[-1] - energies[0]:.6f}")
@@ -58,6 +61,7 @@ def debug_phase_evolution():
     else:
         print("Energy change without emergence - potential bug")
         return False
+
 
 def test_simple_transfer():
     """Test simple energy transfer between two dimensions."""
@@ -78,12 +82,15 @@ def test_simple_transfer():
     new_phase_density, flow_matrix = phase_evolution_step(phase_density, 0.01, 1)
     final_energy = total_phase_energy(new_phase_density)
 
-    print(f"Final: ρ₀={abs(new_phase_density[0]):.3f}, ρ₁={abs(new_phase_density[1]):.3f}")
+    print(
+        f"Final: ρ₀={abs(new_phase_density[0]):.3f}, ρ₁={abs(new_phase_density[1]):.3f}"
+    )
     print(f"Final energy: {final_energy:.6f}")
     print(f"Energy change: {final_energy - initial_energy:.6f}")
     print(f"Flow matrix: {flow_matrix}")
 
     return abs(final_energy - initial_energy) < 0.01
+
 
 if __name__ == "__main__":
     # Run debug

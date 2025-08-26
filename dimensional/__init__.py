@@ -14,24 +14,24 @@ Quick start:
 """
 
 # Import everything from gamma module
+# Import CLI for programmatic access
+from . import cli
 from .gamma import *
 
 # Import everything from measures module
 from .measures import *
 
-# Import everything from phase module
-from .phase import *
-
 # Import everything from morphic module
 from .morphic import *
 
-# Import CLI for programmatic access
-from . import cli
+# Import everything from phase module
+from .phase import *
 
 # Package metadata
 __version__ = "1.0.0"
 __author__ = "Dimensional Mathematics Project"
 __description__ = "Unified dimensional mathematics and gamma function tools"
+
 
 # Make commonly used functions available at package level
 def quick_start():
@@ -58,6 +58,7 @@ def quick_start():
     print("  golden_ratio_properties()     # φ properties")
     print("  stability_regions()           # Stability analysis")
     print("  MorphicAnalyzer()             # Full analyzer")
+
 
 # Convenience aliases
 γ_lab = lab

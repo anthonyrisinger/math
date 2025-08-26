@@ -25,12 +25,14 @@ Features:
 """
 
 import numpy as np
-from .gamma import PI, PHI, PSI, E, NUMERICAL_EPSILON
-from .measures import ball_volume, phase_capacity
+
+from .gamma import PHI
+from .measures import phase_capacity
 
 # ============================================================================
 # CORE PHASE SAPPING FUNCTIONS
 # ============================================================================
+
 
 def sap_rate(source, target, phase_density=None, phi=PHI, min_distance=1e-3):
     """
@@ -63,7 +65,7 @@ def sap_rate(source, target, phase_density=None, phi=PHI, min_distance=1e-3):
     # Distance calculation with golden ratio regularization
     distance = target - source
     if distance < min_distance:
-        regularized_distance = min_distance + phi * (distance / min_distance)**2
+        regularized_distance = min_distance + phi * (distance / min_distance) ** 2
     else:
         regularized_distance = distance + phi
 
@@ -72,7 +74,7 @@ def sap_rate(source, target, phase_density=None, phi=PHI, min_distance=1e-3):
     if phase_density is not None:
         target_idx = int(target) if target == int(target) else None
         if target_idx is not None and 0 <= target_idx < len(phase_density):
-            target_energy = abs(phase_density[target_idx])**2
+            target_energy = abs(phase_density[target_idx]) ** 2
 
     # Capacity calculations with error handling
     try:
@@ -127,13 +129,13 @@ def phase_evolution_step(phase_density, dt=0.01, max_dimensions=None):
         inflow = 0.0
         for s in range(d):
             rate = sap_rate(s, d, phase_density)
-            inflow += rate * abs(phase_density[s])**2
+            inflow += rate * abs(phase_density[s]) ** 2
 
         # Outflow to higher dimensions
         outflow = 0.0
         for t in range(d + 1, max_dimensions):
             rate = sap_rate(d, t, phase_density)
-            outflow += rate * abs(phase_density[d])**2
+            outflow += rate * abs(phase_density[d]) ** 2
 
         # Update phase density
         new_phase[d] += dt * (inflow - outflow)
@@ -174,7 +176,7 @@ def total_phase_energy(phase_density):
     float
         Total energy
     """
-    return np.sum(np.abs(phase_density)**2)
+    return np.sum(np.abs(phase_density) ** 2)
 
 
 def phase_coherence(phase_density):
@@ -221,6 +223,7 @@ def dimensional_time(dimension, phi=PHI):
 # ============================================================================
 # PHASE DYNAMICS ENGINE
 # ============================================================================
+
 
 class PhaseDynamicsEngine:
     """
@@ -283,12 +286,14 @@ class PhaseDynamicsEngine:
 
         for _ in range(time_steps):
             # Store current state
-            self.history.append({
-                'time': self.time,
-                'phase_density': self.phase_density.copy(),
-                'total_energy': total_phase_energy(self.phase_density),
-                'coherence': phase_coherence(self.phase_density)
-            })
+            self.history.append(
+                {
+                    "time": self.time,
+                    "phase_density": self.phase_density.copy(),
+                    "total_energy": total_phase_energy(self.phase_density),
+                    "coherence": phase_coherence(self.phase_density),
+                }
+            )
 
             # Check for new emergences before evolution
             for d in range(self.max_dim):
@@ -306,11 +311,11 @@ class PhaseDynamicsEngine:
             self.time += self.dt
 
         return {
-            'time_range': (initial_time, self.time),
-            'new_emergences': new_emergences,
-            'current_emerged': list(self.emerged_dimensions),
-            'total_energy': total_phase_energy(self.phase_density),
-            'coherence': phase_coherence(self.phase_density)
+            "time_range": (initial_time, self.time),
+            "new_emergences": new_emergences,
+            "current_emerged": list(self.emerged_dimensions),
+            "total_energy": total_phase_energy(self.phase_density),
+            "coherence": phase_coherence(self.phase_density),
         }
 
     def reset(self, initial_state=None):
@@ -329,19 +334,19 @@ class PhaseDynamicsEngine:
     def get_current_state(self):
         """Get current system state."""
         return {
-            'time': self.time,
-            'phase_density': self.phase_density.copy(),
-            'emerged_dimensions': list(self.emerged_dimensions),
-            'emergence_times': self.emergence_times.copy(),
-            'total_energy': total_phase_energy(self.phase_density),
-            'coherence': phase_coherence(self.phase_density),
-            'effective_dimension': self.calculate_effective_dimension()
+            "time": self.time,
+            "phase_density": self.phase_density.copy(),
+            "emerged_dimensions": list(self.emerged_dimensions),
+            "emergence_times": self.emergence_times.copy(),
+            "total_energy": total_phase_energy(self.phase_density),
+            "coherence": phase_coherence(self.phase_density),
+            "effective_dimension": self.calculate_effective_dimension(),
         }
 
     def calculate_effective_dimension(self):
         """Calculate the effective dimension of the system."""
         # Weighted average dimension based on phase densities
-        weights = np.abs(self.phase_density)**2
+        weights = np.abs(self.phase_density) ** 2
         total_weight = np.sum(weights)
 
         if total_weight == 0:
@@ -365,43 +370,46 @@ class PhaseDynamicsEngine:
             Convergence analysis
         """
         if len(self.history) < window_size:
-            return {'error': 'Insufficient history for analysis'}
+            return {"error": "Insufficient history for analysis"}
 
         recent_history = self.history[-window_size:]
 
         # Energy stability
-        energies = [state['total_energy'] for state in recent_history]
+        energies = [state["total_energy"] for state in recent_history]
         energy_variance = np.var(energies)
 
         # Coherence stability
-        coherences = [state['coherence'] for state in recent_history]
+        coherences = [state["coherence"] for state in recent_history]
         coherence_variance = np.var(coherences)
 
         # Dimensional drift
         effective_dims = []
         for state in recent_history:
-            weights = np.abs(state['phase_density'])**2
+            weights = np.abs(state["phase_density"]) ** 2
             total_weight = np.sum(weights)
             if total_weight > 0:
-                dims = np.arange(len(state['phase_density']))
+                dims = np.arange(len(state["phase_density"]))
                 eff_dim = np.sum(dims * weights) / total_weight
                 effective_dims.append(eff_dim)
 
         dimensional_variance = np.var(effective_dims) if effective_dims else 0.0
 
         return {
-            'energy_variance': energy_variance,
-            'coherence_variance': coherence_variance,
-            'dimensional_variance': dimensional_variance,
-            'is_converged': (energy_variance < 1e-6 and
-                           coherence_variance < 1e-6 and
-                           dimensional_variance < 1e-6)
+            "energy_variance": energy_variance,
+            "coherence_variance": coherence_variance,
+            "dimensional_variance": dimensional_variance,
+            "is_converged": (
+                energy_variance < 1e-6
+                and coherence_variance < 1e-6
+                and dimensional_variance < 1e-6
+            ),
         }
 
 
 # ============================================================================
 # CONVENIENCE FUNCTIONS
 # ============================================================================
+
 
 def run_emergence_simulation(max_time=10.0, max_dimensions=8, dt=0.01):
     """
@@ -428,10 +436,10 @@ def run_emergence_simulation(max_time=10.0, max_dimensions=8, dt=0.01):
     results = engine.evolve(time_steps)
 
     return {
-        'engine': engine,
-        'final_state': engine.get_current_state(),
-        'evolution_summary': results,
-        'convergence': engine.analyze_convergence()
+        "engine": engine,
+        "final_state": engine.get_current_state(),
+        "evolution_summary": results,
+        "convergence": engine.analyze_convergence(),
     }
 
 
@@ -463,16 +471,17 @@ def quick_phase_analysis(dimension=4.0, time_steps=1000):
     results = engine.evolve(time_steps)
 
     return {
-        'target_dimension': dimension,
-        'final_state': engine.get_current_state(),
-        'emergence_pattern': results['new_emergences'],
-        'energy_conservation': total_phase_energy(engine.phase_density)
+        "target_dimension": dimension,
+        "final_state": engine.get_current_state(),
+        "emergence_pattern": results["new_emergences"],
+        "energy_conservation": total_phase_energy(engine.phase_density),
     }
 
 
 # ============================================================================
 # VERIFICATION AND TESTING
 # ============================================================================
+
 
 def verify_phase_dynamics():
     """Verify phase dynamics properties."""
@@ -485,16 +494,16 @@ def verify_phase_dynamics():
     final_energy = total_phase_energy(engine.phase_density)
 
     energy_conservation_error = abs(final_energy - initial_energy) / initial_energy
-    results['energy_conserved'] = energy_conservation_error < 0.1  # 10% tolerance
+    results["energy_conserved"] = energy_conservation_error < 0.1  # 10% tolerance
 
     # Sapping rate properties
-    results['no_reverse_sapping'] = sap_rate(5, 3) == 0.0  # Higher can't sap lower
-    results['self_sapping_zero'] = sap_rate(3, 3) == 0.0   # No self-sapping
+    results["no_reverse_sapping"] = sap_rate(5, 3) == 0.0  # Higher can't sap lower
+    results["self_sapping_zero"] = sap_rate(3, 3) == 0.0  # No self-sapping
 
     # Emergence threshold consistency
     threshold_4 = emergence_threshold(4)
     capacity_4 = phase_capacity(4)
-    results['threshold_reasonable'] = 0.5 < threshold_4 < capacity_4
+    results["threshold_reasonable"] = 0.5 < threshold_4 < capacity_4
 
     return results
 
@@ -509,13 +518,15 @@ if __name__ == "__main__":
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"{test:25}: {status}")
 
-    print(f"\nOverall: {'✅ ALL TESTS PASSED' if all(verification.values()) else '❌ SOME TESTS FAILED'}")
+    print(
+        f"\nOverall: {'✅ ALL TESTS PASSED' if all(verification.values()) else '❌ SOME TESTS FAILED'}"
+    )
 
     # Quick simulation demo
     print("\nQUICK SIMULATION DEMO:")
     print("-" * 30)
     results = run_emergence_simulation(max_time=5.0, max_dimensions=6)
-    state = results['final_state']
+    state = results["final_state"]
 
     print(f"Final time: {state['time']:.2f}")
     print(f"Emerged dimensions: {state['emerged_dimensions']}")

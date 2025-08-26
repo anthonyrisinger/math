@@ -20,14 +20,16 @@ Features:
 """
 
 import numpy as np
-from .gamma import gamma_safe, gammaln_safe, PI, PHI, PSI, E, NUMERICAL_EPSILON
+
+from .gamma import NUMERICAL_EPSILON, PHI, PI, E, gamma_safe, gammaln_safe
 
 # Add VARPI constant (dimensional coupling constant)
-VARPI = gamma_safe(0.25)**2 / (4 * np.sqrt(2 * PI))
+VARPI = gamma_safe(0.25) ** 2 / (4 * np.sqrt(2 * PI))
 
 # ============================================================================
 # CORE DIMENSIONAL MEASURES
 # ============================================================================
+
 
 def ball_volume(d):
     """
@@ -65,9 +67,9 @@ def ball_volume(d):
 
     # Use gamma_safe for robustness
     try:
-        gamma_term = gamma_safe(d/2 + 1)
-        with np.errstate(over='ignore', invalid='ignore'):
-            result = np.power(PI, d/2) / gamma_term
+        gamma_term = gamma_safe(d / 2 + 1)
+        with np.errstate(over="ignore", invalid="ignore"):
+            result = np.power(PI, d / 2) / gamma_term
 
         # Handle overflow/underflow
         result = np.nan_to_num(result, nan=0.0, posinf=0.0, neginf=0.0)
@@ -93,7 +95,7 @@ def ball_volume_log(d):
         log(V_d)
     """
     d = np.asarray(d)
-    return (d/2) * np.log(PI) - gammaln_safe(d/2 + 1)
+    return (d / 2) * np.log(PI) - gammaln_safe(d / 2 + 1)
 
 
 def sphere_surface(d):
@@ -138,9 +140,9 @@ def sphere_surface(d):
 
     # Use gamma_safe for robustness
     try:
-        gamma_term = gamma_safe(d/2)
-        with np.errstate(over='ignore', invalid='ignore'):
-            result = 2 * np.power(PI, d/2) / gamma_term
+        gamma_term = gamma_safe(d / 2)
+        with np.errstate(over="ignore", invalid="ignore"):
+            result = 2 * np.power(PI, d / 2) / gamma_term
 
         # Handle overflow/underflow
         result = np.nan_to_num(result, nan=0.0, posinf=0.0, neginf=0.0)
@@ -166,7 +168,7 @@ def sphere_surface_log(d):
         log(S_d)
     """
     d = np.asarray(d)
-    return np.log(2) + (d/2) * np.log(PI) - gammaln_safe(d/2)
+    return np.log(2) + (d / 2) * np.log(PI) - gammaln_safe(d / 2)
 
 
 def complexity_measure(d):
@@ -232,6 +234,7 @@ def phase_capacity(d):
 # PEAK FINDING AND ANALYSIS
 # ============================================================================
 
+
 def find_peak(func, d_min=0.1, d_max=15.0, resolution=10000):
     """
     Find the peak (maximum) of a function over dimension range.
@@ -284,24 +287,25 @@ def find_all_peaks(d_min=0.1, d_max=15.0, resolution=10000):
     results = {}
 
     # Volume peak
-    results['volume_peak'] = find_peak(ball_volume, d_min, d_max, resolution)
+    results["volume_peak"] = find_peak(ball_volume, d_min, d_max, resolution)
 
     # Surface peak
-    results['surface_peak'] = find_peak(sphere_surface, d_min, d_max, resolution)
+    results["surface_peak"] = find_peak(sphere_surface, d_min, d_max, resolution)
 
     # Complexity peak
-    results['complexity_peak'] = find_peak(complexity_measure, d_min, d_max, resolution)
+    results["complexity_peak"] = find_peak(complexity_measure, d_min, d_max, resolution)
 
     # Ratio peak (minimum ratio = maximum compactness)
     def neg_ratio(d):
         return -ratio_measure(d)
+
     ratio_peak_d, neg_ratio_val = find_peak(neg_ratio, d_min, d_max, resolution)
-    results['compactness_peak'] = (ratio_peak_d, -neg_ratio_val)
+    results["compactness_peak"] = (ratio_peak_d, -neg_ratio_val)
 
     return results
 
 
-def integrated_measures(d_min=0.0, d_max=np.inf, method='adaptive'):
+def integrated_measures(d_min=0.0, d_max=np.inf, method="adaptive"):
     """
     Compute integrated measures over all dimensions.
 
@@ -326,19 +330,21 @@ def integrated_measures(d_min=0.0, d_max=np.inf, method='adaptive'):
     try:
         # Volume integral
         vol_integral, vol_error = quad(ball_volume, d_min, d_max)
-        results['volume_integral'] = vol_integral
-        results['volume_error'] = vol_error
+        results["volume_integral"] = vol_integral
+        results["volume_error"] = vol_error
 
         # Surface integral
         surf_integral, surf_error = quad(sphere_surface, d_min, d_max)
-        results['surface_integral'] = surf_integral
-        results['surface_error'] = surf_error
+        results["surface_integral"] = surf_integral
+        results["surface_error"] = surf_error
 
         # Ratio of integrals
-        results['integral_ratio'] = surf_integral / vol_integral if vol_integral != 0 else np.inf
+        results["integral_ratio"] = (
+            surf_integral / vol_integral if vol_integral != 0 else np.inf
+        )
 
     except Exception as e:
-        results['error'] = str(e)
+        results["error"] = str(e)
 
     return results
 
@@ -349,13 +355,13 @@ def integrated_measures(d_min=0.0, d_max=np.inf, method='adaptive'):
 
 # Critical dimensional boundaries
 CRITICAL_DIMENSIONS = {
-    'pi_boundary': PI,                    # d = π ≈ 3.14159 (stability boundary)
-    'e_boundary': E,                      # d = e ≈ 2.71828 (exponential boundary)
-    'phi_boundary': PHI,                  # d = φ ≈ 1.61803 (golden boundary)
-    'two_pi_boundary': 2*PI,              # d = 2π ≈ 6.28318 (compression boundary)
-    'volume_peak': 5.256789,              # Approximate V(d) peak
-    'surface_peak': 7.256789,             # Approximate S(d) peak
-    'complexity_peak': 6.0,               # Approximate C(d) peak
+    "pi_boundary": PI,  # d = π ≈ 3.14159 (stability boundary)
+    "e_boundary": E,  # d = e ≈ 2.71828 (exponential boundary)
+    "phi_boundary": PHI,  # d = φ ≈ 1.61803 (golden boundary)
+    "two_pi_boundary": 2 * PI,  # d = 2π ≈ 6.28318 (compression boundary)
+    "volume_peak": 5.256789,  # Approximate V(d) peak
+    "surface_peak": 7.256789,  # Approximate S(d) peak
+    "complexity_peak": 6.0,  # Approximate C(d) peak
 }
 
 
@@ -375,6 +381,7 @@ def is_near_critical(d, tolerance=0.1):
 # ============================================================================
 # CLASS-BASED INTERFACE (for compatibility)
 # ============================================================================
+
 
 class DimensionalMeasures:
     """
@@ -413,6 +420,7 @@ class DimensionalMeasures:
 # CONVENIENCE FUNCTIONS
 # ============================================================================
 
+
 def V(d):
     """Shorthand for ball_volume(d)"""
     return ball_volume(d)
@@ -443,22 +451,23 @@ BOX_ASPECT = (1, 1, 1)
 # VERIFICATION AND TESTING
 # ============================================================================
 
+
 def verify_measures():
     """Verify mathematical properties of dimensional measures."""
     tolerance = 1e-12
     results = {}
 
     # Test known values
-    results['V_0_equals_1'] = abs(ball_volume(0) - 1.0) < tolerance
-    results['V_2_equals_pi'] = abs(ball_volume(2) - PI) < tolerance
-    results['S_2_equals_2pi'] = abs(sphere_surface(2) - 2*PI) < tolerance
+    results["V_0_equals_1"] = abs(ball_volume(0) - 1.0) < tolerance
+    results["V_2_equals_pi"] = abs(ball_volume(2) - PI) < tolerance
+    results["S_2_equals_2pi"] = abs(sphere_surface(2) - 2 * PI) < tolerance
 
     # Test relationships
-    results['S_1_equals_2'] = abs(sphere_surface(1) - 2.0) < tolerance
+    results["S_1_equals_2"] = abs(sphere_surface(1) - 2.0) < tolerance
 
     # Peak locations (approximate)
     vol_peak_d, _ = find_peak(ball_volume, 4, 6, 1000)
-    results['volume_peak_near_5_26'] = abs(vol_peak_d - 5.26) < 0.1
+    results["volume_peak_near_5_26"] = abs(vol_peak_d - 5.26) < 0.1
 
     return results
 
@@ -473,7 +482,9 @@ if __name__ == "__main__":
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"{test:25}: {status}")
 
-    print(f"\nOverall: {'✅ ALL TESTS PASSED' if all(verification.values()) else '❌ SOME TESTS FAILED'}")
+    print(
+        f"\nOverall: {'✅ ALL TESTS PASSED' if all(verification.values()) else '❌ SOME TESTS FAILED'}"
+    )
 
     # Show peaks
     print("\nPEAK ANALYSIS:")

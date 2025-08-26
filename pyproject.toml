@@ -1,0 +1,87 @@
+[tool.ruff]
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "E402",  # Module level import not at top of file (allowed for conditional imports)
+    "E722",  # Do not use bare except (sometimes needed for robust error handling)
+]
+extend-select = [
+    "UP",  # pyupgrade
+    "I",   # isort
+]
+
+# Skip naming conventions for mathematical code
+# Mathematical variables often use uppercase (X, Y, Z, etc.) which is conventional
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"conftest.py" = ["F401", "F841"]  # Allow test setup patterns
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+strict_optional = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Start permissive, tighten later
+check_untyped_defs = true
+
+# Mathematical precision modules need stricter checking
+[[tool.mypy.overrides]]
+module = ["dimensional.gamma", "dimensional.measures", "dimensional.morphic"]
+disallow_untyped_defs = true
+warn_return_any = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --cov=dimensional --cov-report=term-missing"
+testpaths = [
+    "tests",
+    "core",
+]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["dimensional", "core"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

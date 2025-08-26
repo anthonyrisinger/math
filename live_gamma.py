@@ -6,18 +6,18 @@ Watches gamma_expr.py and auto-refreshes plots on save.
 Edit gamma_expr.py in your editor, save, and see instant results!
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.special import gamma, gammaln, digamma
+import importlib.util
 import os
 import time
-import importlib.util
 import traceback
-from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.special import digamma, gamma, gammaln
 
 # Constants
 π = np.pi
-φ = (1 + np.sqrt(5))/2
+φ = (1 + np.sqrt(5)) / 2
 
 EXPR_FILE = "gamma_expr.py"
 TEMPLATE = '''#!/usr/bin/env python3
@@ -71,6 +71,7 @@ def plot(fig, d=4.0):
     # - Multiple subplots: use fig.add_subplot(2,2,1) etc
 '''
 
+
 class LiveGamma:
     def __init__(self):
         self.d = 4.0  # Current dimension
@@ -79,13 +80,13 @@ class LiveGamma:
 
         # Create expression file if it doesn't exist
         if not os.path.exists(EXPR_FILE):
-            with open(EXPR_FILE, 'w') as f:
+            with open(EXPR_FILE, "w") as f:
                 f.write(TEMPLATE)
             print(f"✨ Created {EXPR_FILE} - edit it and save to see live updates!")
 
         # Setup figure
-        self.fig = plt.figure(figsize=(12, 8), facecolor='#0a0a0a')
-        self.fig.canvas.mpl_connect('key_press_event', self.on_key)
+        self.fig = plt.figure(figsize=(12, 8), facecolor="#0a0a0a")
+        self.fig.canvas.mpl_connect("key_press_event", self.on_key)
 
         # Initial load
         self.reload_module()
@@ -95,25 +96,25 @@ class LiveGamma:
 
     def on_key(self, event):
         """Handle keyboard input"""
-        if event.key == 'up':
+        if event.key == "up":
             self.d += 0.1
             self.update_plot()
-        elif event.key == 'down':
+        elif event.key == "down":
             self.d -= 0.1
             self.update_plot()
-        elif event.key == 'right':
+        elif event.key == "right":
             self.d += 1.0
             self.update_plot()
-        elif event.key == 'left':
+        elif event.key == "left":
             self.d -= 1.0
             self.update_plot()
-        elif event.key == 'r':
+        elif event.key == "r":
             self.d = 4.0
             self.update_plot()
-        elif event.key == 'space':
+        elif event.key == "space":
             self.reload_module()
-        elif event.key in ['q', 'escape']:
-            plt.close('all')
+        elif event.key in ["q", "escape"]:
+            plt.close("all")
             exit()
 
     def reload_module(self):
@@ -125,14 +126,14 @@ class LiveGamma:
             spec.loader.exec_module(module)
 
             # Check if plot function exists
-            if not hasattr(module, 'plot'):
+            if not hasattr(module, "plot"):
                 self.show_error("No plot() function found in gamma_expr.py")
                 return
 
             self.module = module
             self.update_plot()
 
-        except Exception as e:
+        except Exception:
             self.show_error(f"Error loading module:\n{traceback.format_exc()}")
 
     def update_plot(self):
@@ -143,8 +144,15 @@ class LiveGamma:
         try:
             # Clear and set title
             self.fig.clear()
-            self.fig.text(0.5, 0.98, f'LIVE GAMMA | d = {self.d:.3f} | ↑↓←→: change d | SPACE: reload | Q: quit',
-                         ha='center', fontsize=12, color='white', weight='bold')
+            self.fig.text(
+                0.5,
+                0.98,
+                f"LIVE GAMMA | d = {self.d:.3f} | ↑↓←→: change d | SPACE: reload | Q: quit",
+                ha="center",
+                fontsize=12,
+                color="white",
+                weight="bold",
+            )
 
             # Call user's plot function
             self.module.plot(self.fig, self.d)
@@ -152,31 +160,39 @@ class LiveGamma:
             # Refresh
             self.fig.canvas.draw_idle()
 
-        except Exception as e:
+        except Exception:
             self.show_error(f"Error in plot():\n{traceback.format_exc()}")
 
     def show_error(self, msg):
         """Display error message"""
         self.fig.clear()
-        ax = self.fig.add_subplot(111, facecolor='#1a1a1a')
-        ax.text(0.5, 0.5, msg, ha='center', va='center',
-                color='red', fontsize=10, family='monospace',
-                transform=ax.transAxes)
+        ax = self.fig.add_subplot(111, facecolor="#1a1a1a")
+        ax.text(
+            0.5,
+            0.5,
+            msg,
+            ha="center",
+            va="center",
+            color="red",
+            fontsize=10,
+            family="monospace",
+            transform=ax.transAxes,
+        )
         ax.set_xticks([])
         ax.set_yticks([])
         self.fig.canvas.draw_idle()
 
     def watch(self):
         """Watch for file changes"""
-        print(f"\n🔥 LIVE MODE ACTIVE")
+        print("\n🔥 LIVE MODE ACTIVE")
         print(f"   Watching: {EXPR_FILE}")
-        print(f"   Edit the file and save to see changes!")
-        print(f"\n   Keyboard controls:")
-        print(f"   ↑/↓     : d ± 0.1")
-        print(f"   ←/→     : d ± 1.0")
-        print(f"   R       : Reset to d=4")
-        print(f"   SPACE   : Force reload")
-        print(f"   Q/ESC   : Quit\n")
+        print("   Edit the file and save to see changes!")
+        print("\n   Keyboard controls:")
+        print("   ↑/↓     : d ± 0.1")
+        print("   ←/→     : d ± 1.0")
+        print("   R       : Reset to d=4")
+        print("   SPACE   : Force reload")
+        print("   Q/ESC   : Quit\n")
 
         while plt.fignum_exists(self.fig.number):
             try:
@@ -184,7 +200,7 @@ class LiveGamma:
                 current_mtime = os.path.getmtime(EXPR_FILE)
                 if current_mtime > self.last_mtime:
                     self.last_mtime = current_mtime
-                    print(f"📝 Detected change, reloading...")
+                    print("📝 Detected change, reloading...")
                     self.reload_module()
 
                 # Small pause to not hog CPU
@@ -196,21 +212,22 @@ class LiveGamma:
                 print(f"Watch error: {e}")
                 time.sleep(1)
 
+
 def live_snippet(code_str):
     """Quick live evaluation of code snippet"""
-    fig = plt.figure(figsize=(10, 6), facecolor='#0a0a0a')
+    fig = plt.figure(figsize=(10, 6), facecolor="#0a0a0a")
 
     # Create namespace with common imports
     namespace = {
-        'np': np,
-        'plt': plt,
-        'gamma': gamma,
-        'gammaln': gammaln,
-        'digamma': digamma,
-        'π': π,
-        'φ': φ,
-        'fig': fig,
-        'd': 4.0
+        "np": np,
+        "plt": plt,
+        "gamma": gamma,
+        "gammaln": gammaln,
+        "digamma": digamma,
+        "π": π,
+        "φ": φ,
+        "fig": fig,
+        "d": 4.0,
     }
 
     # Execute code
@@ -221,14 +238,16 @@ def live_snippet(code_str):
         print(f"Error: {e}")
         traceback.print_exc()
 
+
 if __name__ == "__main__":
     print(__doc__)
 
     # Check if running with snippet
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == '--snippet':
+
+    if len(sys.argv) > 1 and sys.argv[1] == "--snippet":
         if len(sys.argv) > 2:
-            code = ' '.join(sys.argv[2:])
+            code = " ".join(sys.argv[2:])
             live_snippet(code)
         else:
             print("Usage: python live_gamma.py --snippet 'your code here'")

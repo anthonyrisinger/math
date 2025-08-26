@@ -8,28 +8,41 @@ Tests mathematical correctness, numerical stability, edge cases,
 and usability of the API.
 """
 
-import pytest
-import numpy as np
-import sys
 import os
+import sys
+
+import numpy as np
+import pytest
 
 # Add core to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 
 # Test imports - this will immediately reveal import issues
 try:
     import core
     from core import (
-        PHI, PI, PSI, VARPI, CRITICAL_DIMENSIONS,
-        gamma_safe, ball_volume, sphere_surface, complexity_measure,
-        sap_rate, PhaseDynamicsEngine, morphic_polynomial_roots,
-        setup_3d_axis, create_3d_figure
+        CRITICAL_DIMENSIONS,
+        PHI,
+        PI,
+        PSI,
+        VARPI,
+        PhaseDynamicsEngine,
+        ball_volume,
+        complexity_measure,
+        create_3d_figure,
+        gamma_safe,
+        morphic_polynomial_roots,
+        sap_rate,
+        setup_3d_axis,
+        sphere_surface,
     )
+
     IMPORT_SUCCESS = True
     IMPORT_ERROR = None
 except Exception as e:
     IMPORT_SUCCESS = False
     IMPORT_ERROR = str(e)
+
 
 class TestImports:
     """Test that all imports work correctly."""
@@ -55,9 +68,10 @@ class TestImports:
             pytest.skip("Import failed")
 
         assert isinstance(CRITICAL_DIMENSIONS, dict)
-        assert 'pi_boundary' in CRITICAL_DIMENSIONS
-        assert 'complexity_peak' in CRITICAL_DIMENSIONS
-        assert 'leech_limit' in CRITICAL_DIMENSIONS
+        assert "pi_boundary" in CRITICAL_DIMENSIONS
+        assert "complexity_peak" in CRITICAL_DIMENSIONS
+        assert "leech_limit" in CRITICAL_DIMENSIONS
+
 
 class TestGammaFunctions:
     """Test gamma function family."""
@@ -107,6 +121,7 @@ class TestGammaFunctions:
         assert abs(results[2] - 2.0) < 1e-10  # Γ(3)
         assert abs(results[3] - np.sqrt(PI)) < 1e-10  # Γ(1/2)
 
+
 class TestDimensionalMeasures:
     """Test dimensional measures."""
 
@@ -125,7 +140,7 @@ class TestDimensionalMeasures:
         assert abs(ball_volume(2) - PI) < 1e-10
 
         # V_3 = 4π/3 (ball)
-        assert abs(ball_volume(3) - 4*PI/3) < 1e-10
+        assert abs(ball_volume(3) - 4 * PI / 3) < 1e-10
 
     def test_sphere_surface_known_values(self):
         """Test sphere surface against known values."""
@@ -136,10 +151,10 @@ class TestDimensionalMeasures:
         assert abs(sphere_surface(1) - 2.0) < 1e-10
 
         # S_2 = 2π (circle)
-        assert abs(sphere_surface(2) - 2*PI) < 1e-10
+        assert abs(sphere_surface(2) - 2 * PI) < 1e-10
 
         # S_3 = 4π (sphere)
-        assert abs(sphere_surface(3) - 4*PI) < 1e-10
+        assert abs(sphere_surface(3) - 4 * PI) < 1e-10
 
     def test_complexity_measure(self):
         """Test complexity measure C = V × S."""
@@ -174,19 +189,25 @@ class TestDimensionalMeasures:
             pytest.skip("Import failed")
 
         from core.measures import find_all_peaks
+
         peaks = find_all_peaks()
 
         # Volume should peak around d ≈ 5.26
-        vol_peak_d, vol_peak_val = peaks['volume_peak']
+        vol_peak_d, vol_peak_val = peaks["volume_peak"]
         assert 5.0 < vol_peak_d < 6.0, f"Volume peak at d={vol_peak_d} (expected ~5.26)"
 
         # Surface should peak around d ≈ 7.26
-        surf_peak_d, surf_peak_val = peaks['surface_peak']
-        assert 7.0 < surf_peak_d < 8.0, f"Surface peak at d={surf_peak_d} (expected ~7.26)"
+        surf_peak_d, surf_peak_val = peaks["surface_peak"]
+        assert (
+            7.0 < surf_peak_d < 8.0
+        ), f"Surface peak at d={surf_peak_d} (expected ~7.26)"
 
         # Complexity should peak around d ≈ 6
-        comp_peak_d, comp_peak_val = peaks['complexity_peak']
-        assert 5.5 < comp_peak_d < 6.5, f"Complexity peak at d={comp_peak_d} (expected ~6)"
+        comp_peak_d, comp_peak_val = peaks["complexity_peak"]
+        assert (
+            5.5 < comp_peak_d < 6.5
+        ), f"Complexity peak at d={comp_peak_d} (expected ~6)"
+
 
 class TestPhaseDynamics:
     """Test phase dynamics."""
@@ -216,9 +237,9 @@ class TestPhaseDynamics:
 
         # Check initial state
         state = engine.get_state()
-        assert state['time'] == 0.0
-        assert 0 in state['emerged_dimensions']
-        assert state['total_energy'] > 0  # Should have energy at void
+        assert state["time"] == 0.0
+        assert 0 in state["emerged_dimensions"]
+        assert state["total_energy"] > 0  # Should have energy at void
 
     def test_phase_evolution(self):
         """Test phase evolution step."""
@@ -226,7 +247,7 @@ class TestPhaseDynamics:
             pytest.skip("Import failed")
 
         engine = PhaseDynamicsEngine(max_dimensions=4)
-        initial_energy = engine.get_state()['total_energy']
+        initial_energy = engine.get_state()["total_energy"]
 
         # Run a few steps
         for _ in range(10):
@@ -235,10 +256,10 @@ class TestPhaseDynamics:
         final_state = engine.get_state()
 
         # Time should have advanced
-        assert final_state['time'] > 0
+        assert final_state["time"] > 0
 
         # Energy should be conserved (approximately)
-        final_energy = final_state['total_energy']
+        final_energy = final_state["total_energy"]
         assert abs(final_energy - initial_energy) < 0.1, "Energy not conserved"
 
     def test_energy_injection(self):
@@ -247,14 +268,17 @@ class TestPhaseDynamics:
             pytest.skip("Import failed")
 
         engine = PhaseDynamicsEngine(max_dimensions=4)
-        initial_energy = engine.get_state()['total_energy']
+        initial_energy = engine.get_state()["total_energy"]
 
         # Inject energy into dimension 1
         engine.inject(1, 0.5)
 
         # Total energy should increase
-        new_energy = engine.get_state()['total_energy']
-        assert new_energy > initial_energy, "Energy injection should increase total energy"
+        new_energy = engine.get_state()["total_energy"]
+        assert (
+            new_energy > initial_energy
+        ), "Energy injection should increase total energy"
+
 
 class TestMorphicMathematics:
     """Test morphic mathematics."""
@@ -265,19 +289,20 @@ class TestMorphicMathematics:
             pytest.skip("Import failed")
 
         from core.morphic import golden_ratio_properties
+
         props = golden_ratio_properties()
 
         # φ² = φ + 1
-        assert props['phi_squared_equals_phi_plus_one'], "φ² ≠ φ + 1"
+        assert props["phi_squared_equals_phi_plus_one"], "φ² ≠ φ + 1"
 
         # ψ² = 1 - ψ
-        assert props['psi_squared_equals_one_minus_psi'], "ψ² ≠ 1 - ψ"
+        assert props["psi_squared_equals_one_minus_psi"], "ψ² ≠ 1 - ψ"
 
         # φψ = 1
-        assert props['phi_times_psi_equals_one'], "φψ ≠ 1"
+        assert props["phi_times_psi_equals_one"], "φψ ≠ 1"
 
         # φ - ψ = √5
-        assert props['phi_minus_psi_equals_sqrt5'], "φ - ψ ≠ √5"
+        assert props["phi_minus_psi_equals_sqrt5"], "φ - ψ ≠ √5"
 
     def test_polynomial_roots(self):
         """Test morphic polynomial root finding."""
@@ -288,7 +313,9 @@ class TestMorphicMathematics:
         roots = morphic_polynomial_roots(2.0, "shifted")
 
         # Should have τ = 1 as a root
-        assert any(abs(r - 1.0) < 1e-10 for r in roots), "τ = 1 should be a root at k = 2"
+        assert any(
+            abs(r - 1.0) < 1e-10 for r in roots
+        ), "τ = 1 should be a root at k = 2"
 
     def test_discriminant(self):
         """Test discriminant calculation."""
@@ -302,6 +329,7 @@ class TestMorphicMathematics:
         disc = discriminant(k_critical, "shifted")
         assert abs(disc) < 1e-8, f"Discriminant should be zero at k={k_critical}"
 
+
 class TestVisualization:
     """Test visualization functions."""
 
@@ -312,8 +340,9 @@ class TestVisualization:
 
         try:
             import matplotlib.pyplot as plt
+
             fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
+            ax = fig.add_subplot(111, projection="3d")
 
             # Test setup function
             ax = setup_3d_axis(ax, title="Test")
@@ -331,6 +360,7 @@ class TestVisualization:
 
         try:
             import matplotlib.pyplot as plt
+
             fig, ax = create_3d_figure(figsize=(6, 4))
 
             # Should return figure and axis
@@ -341,6 +371,7 @@ class TestVisualization:
 
         except ImportError:
             pytest.skip("Matplotlib not available")
+
 
 class TestAPIUsability:
     """Test API usability and common usage patterns."""
@@ -392,9 +423,9 @@ class TestAPIUsability:
             state = engine.get_state()
 
             # State should always be valid
-            assert state['time'] >= 0
-            assert state['total_energy'] >= 0
-            assert 0 <= state['coherence'] <= 1
+            assert state["time"] >= 0
+            assert state["total_energy"] >= 0
+            assert 0 <= state["coherence"] <= 1
 
     def test_mathematical_consistency(self):
         """Test mathematical consistency across modules."""
@@ -404,9 +435,13 @@ class TestAPIUsability:
         # Phase capacity should equal ball volume
         for d in [1, 2, 3, 4, 5]:
             from core.measures import phase_capacity
+
             capacity = phase_capacity(d)
             volume = ball_volume(d)
-            assert abs(capacity - volume) < 1e-10, f"Phase capacity ≠ ball volume at d={d}"
+            assert (
+                abs(capacity - volume) < 1e-10
+            ), f"Phase capacity ≠ ball volume at d={d}"
+
 
 class TestNumericalStability:
     """Test numerical stability and edge cases."""
@@ -455,6 +490,7 @@ class TestNumericalStability:
         assert all(np.isfinite(volumes))
         assert all(np.isfinite(surfaces))
 
+
 def test_library_verification():
     """Test the built-in library verification."""
     if not IMPORT_SUCCESS:
@@ -464,7 +500,8 @@ def test_library_verification():
     verification = core.verify_mathematical_properties()
 
     # All tests should pass
-    assert verification['overall']['all_tests_passed'], "Built-in verification failed"
+    assert verification["overall"]["all_tests_passed"], "Built-in verification failed"
+
 
 def run_performance_test():
     """Run performance tests (not part of main test suite)."""
@@ -481,7 +518,7 @@ def run_performance_test():
     dimensions = np.linspace(0.1, 10, 1000)
 
     start_time = time.time()
-    volumes = [ball_volume(d) for d in dimensions]
+    [ball_volume(d) for d in dimensions]
     end_time = time.time()
 
     print(f"1000 ball volume calculations: {end_time - start_time:.4f}s")
@@ -495,6 +532,7 @@ def run_performance_test():
     end_time = time.time()
 
     print(f"100 phase dynamics steps: {end_time - start_time:.4f}s")
+
 
 if __name__ == "__main__":
     # Run basic tests
@@ -551,5 +589,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

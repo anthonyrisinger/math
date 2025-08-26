@@ -9,17 +9,12 @@ adaptive RK45 integrator, convergence diagnostics, and topological
 invariant preservation.
 """
 
-import os
-import sys
 
 import numpy as np
 import pytest
 
 from core.phase import (
-    NUMERICAL_EPSILON,
-    ConvergenceDiagnostics,
     PhaseDynamicsEngine,
-    TopologicalInvariants,
     rk45_step,
     sap_rate,
     total_phase_energy,
