@@ -10,11 +10,8 @@ Consolidated mathematical implementation with enhanced exploration tools.
 import numpy as np
 from scipy.special import digamma, gamma, gammaln, polygamma
 
-# Import constants
-try:
-    from ..core.constants import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON, SQRT_PI
-except ImportError:
-    from core.constants import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON, SQRT_PI
+# Import constants from consolidated mathematics module
+from .mathematics import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON, SQRT_PI
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
@@ -177,15 +174,15 @@ def beta_function(a, b):
 
 # DIMENSIONAL MEASURE IMPORTS AND ALIASES
 try:
-    from ..core.measures import ball_volume as v
-    from ..core.measures import complexity_measure as c
-    from ..core.measures import ratio_measure as r
-    from ..core.measures import sphere_surface as s
+    from .mathematics import ball_volume as v
+    from .mathematics import complexity_measure as c
+    from .mathematics import ratio_measure as r
+    from .mathematics import sphere_surface as s
 except ImportError:
-    from core.measures import ball_volume as v
-    from core.measures import complexity_measure as c
-    from core.measures import ratio_measure as r
-    from core.measures import sphere_surface as s
+    from .mathematics import ball_volume as v
+    from .mathematics import complexity_measure as c
+    from .mathematics import ratio_measure as r
+    from .mathematics import sphere_surface as s
 
 
 # Create density function
@@ -198,9 +195,9 @@ def ρ(d):
 def v_peak():
     """Find volume peak dimension."""
     try:
-        from ..core.measures import ball_volume, find_peak
+        from .mathematics import ball_volume, find_peak
     except ImportError:
-        from core.measures import ball_volume, find_peak
+        from .mathematics import ball_volume, find_peak
 
     return find_peak(ball_volume)[0]
 
@@ -208,9 +205,9 @@ def v_peak():
 def s_peak():
     """Find surface peak dimension."""
     try:
-        from ..core.measures import find_peak, sphere_surface
+        from .mathematics import find_peak, sphere_surface
     except ImportError:
-        from core.measures import find_peak, sphere_surface
+        from .mathematics import find_peak, sphere_surface
 
     return find_peak(sphere_surface)[0]
 
@@ -218,9 +215,9 @@ def s_peak():
 def c_peak():
     """Find complexity peak dimension."""
     try:
-        from ..core.measures import complexity_measure, find_peak
+        from .mathematics import complexity_measure, find_peak
     except ImportError:
-        from core.measures import complexity_measure, find_peak
+        from .mathematics import complexity_measure, find_peak
 
     return find_peak(complexity_measure)[0]
 

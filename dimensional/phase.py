@@ -18,13 +18,8 @@ Where R(s→t) is the sapping rate from dimension s to dimension t.
 
 import numpy as np
 
-# Import constants and measures
-try:
-    from ..core.constants import NUMERICAL_EPSILON, PHI
-    from .measures import phase_capacity
-except ImportError:
-    from core.constants import NUMERICAL_EPSILON, PHI
-    from dimensional.measures import phase_capacity
+# Import constants and measures from consolidated mathematics module
+from .mathematics import NUMERICAL_EPSILON, PHI, phase_capacity
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 

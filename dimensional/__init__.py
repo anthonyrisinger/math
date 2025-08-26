@@ -15,6 +15,13 @@ Quick start:
 
 # CONSOLIDATED MATHEMATICS IMPORT - Single source of truth
 # Import all mathematical functions from consolidated modules
+
+# Import core constants and mathematical framework
+from .mathematics import (
+    PHI, PSI, PI, E, VARPI,
+    NUMERICAL_EPSILON, CRITICAL_DIMENSIONS,
+    PhaseDynamicsEngine, quick_phase_analysis
+)
 from .gamma import (
     # Core mathematical functions
     gamma_safe,

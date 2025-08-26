@@ -13,13 +13,8 @@ extensions of sphere geometry.
 import warnings
 import numpy as np
 
-# Import constants and gamma functions
-try:
-    from ..core.constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI, E
-    from .gamma import gamma_safe, gammaln_safe
-except ImportError:
-    from core.constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI, E
-    from dimensional.gamma import gamma_safe, gammaln_safe
+# Import constants and gamma functions from consolidated mathematics module
+from .mathematics import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI, E, gamma_safe, gammaln_safe
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
