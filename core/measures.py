@@ -21,7 +21,7 @@ from .gamma import gamma_safe, gammaln_safe
 def _validate_dimension(d, function_name="measure"):
     """
     Validate dimensional input and issue warnings for edge cases.
-    
+
     Parameters
     ----------
     d : float or array-like
@@ -30,7 +30,7 @@ def _validate_dimension(d, function_name="measure"):
         Name of the calling function for warning messages
     """
     d_array = np.asarray(d)
-    
+
     # Check for negative dimensions
     if np.any(d_array < 0):
         negative_values = d_array[d_array < 0]
@@ -38,7 +38,7 @@ def _validate_dimension(d, function_name="measure"):
             warnings.warn(
                 f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
                 f"Returning mathematical extension value. "
-                f"Physical dimensions are typically d ≥ 0.", 
+                f"Physical dimensions are typically d ≥ 0.",
                 UserWarning, stacklevel=3
             )
         else:
@@ -46,24 +46,24 @@ def _validate_dimension(d, function_name="measure"):
                 f"Negative dimensions detected in {function_name}() "
                 f"(min: {np.min(negative_values):.3f}). "
                 f"Returning mathematical extension values. "
-                f"Physical dimensions are typically d ≥ 0.", 
+                f"Physical dimensions are typically d ≥ 0.",
                 UserWarning, stacklevel=3
             )
-    
+
     # Check for large dimensions
     if np.any(d_array > 100):
         large_values = d_array[d_array > 100]
         if len(large_values) == 1:
             warnings.warn(
                 f"Large dimension d={large_values[0]:.1f} in {function_name}() "
-                f"may underflow to zero due to gamma function behavior.", 
+                f"may underflow to zero due to gamma function behavior.",
                 UserWarning, stacklevel=3
             )
         else:
             warnings.warn(
                 f"Large dimensions detected in {function_name}() "
                 f"(max: {np.max(large_values):.1f}) "
-                f"may underflow to zero due to gamma function behavior.", 
+                f"may underflow to zero due to gamma function behavior.",
                 UserWarning, stacklevel=3
             )
 
@@ -420,8 +420,7 @@ def integrated_measures(d_max=np.inf):
 
 
 if __name__ == "__main__":
-    print("DIMENSIONAL MEASURES")
-    print("=" * 50)
+    # Validate dimensional measures - library code should never print
 
     # Test standard dimensions
     dims = [0, 1, 2, 3, 4, 5, 6]
@@ -429,16 +428,19 @@ if __name__ == "__main__":
         v = ball_volume(d)
         s = sphere_surface(d)
         c = complexity_measure(d)
-        print(f"d={d}: V={v:.4f}, S={s:.4f}, C={c:.4f}")
+        # Validate mathematical properties
+        assert v > 0, f"Invalid volume for dimension {d}"
+        assert s > 0, f"Invalid surface for dimension {d}"
+        assert np.isfinite(c), f"Invalid complexity for dimension {d}"
 
-    print("\nPEAK ANALYSIS")
-    print("=" * 50)
+    # Validate peak analysis
     peaks = find_all_peaks()
+    assert len(peaks) > 0, "No peaks found"
     for peak_name, (d_peak, val_peak) in peaks.items():
-        print(f"{peak_name}: d={d_peak:.3f}, value={val_peak:.3f}")
+        assert np.isfinite(d_peak), f"Invalid peak dimension for {peak_name}"
+        assert np.isfinite(val_peak), f"Invalid peak value for {peak_name}"
 
-    print("\nINTEGRATED MEASURES")
-    print("=" * 50)
+    # Validate integrated measures
     integrals = integrated_measures()
     for name, value in integrals.items():
-        print(f"{name}: {value:.6f}")
+        assert np.isfinite(value), f"Invalid integral: {name}"

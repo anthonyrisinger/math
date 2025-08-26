@@ -459,8 +459,7 @@ class View3DManager:
 
 
 if __name__ == "__main__":
-    print("3D VISUALIZATION STANDARDS TEST")
-    print("=" * 50)
+    # Test 3D visualization standards - library code should never print
 
     # Test figure creation
     fig, ax = create_3d_figure(figsize=(8, 6))
@@ -477,10 +476,11 @@ if __name__ == "__main__":
     # Set title
     ax.set_title("3D Visualization Standards Test")
 
-    print(f"View elevation: {VIEW_ELEV:.1f}°")
-    print(f"View azimuth: {VIEW_AZIM:.1f}°")
-    print(f"Box aspect: {BOX_ASPECT}")
-    print(f"Golden ratio: {PHI:.6f}")
+    # Validate view parameters
+    assert VIEW_ELEV == -15.0, f"Invalid elevation: {VIEW_ELEV}"
+    assert VIEW_AZIM == -45.0, f"Invalid azimuth: {VIEW_AZIM}"
+    assert BOX_ASPECT == (1, 1, 1), f"Invalid box aspect: {BOX_ASPECT}"
+    assert abs(PHI - 1.618033988749895) < 1e-10, f"Invalid golden ratio: {PHI}"
 
     # Show plot
     plt.tight_layout()

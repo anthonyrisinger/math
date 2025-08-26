@@ -13,10 +13,15 @@ Quick start:
     lab()          # Interactive lab
 """
 
-# Import everything from gamma module
-# Import CLI for programmatic access
-# from . import cli  # Temporarily disabled due to consolidation
-from .gamma import *
+# Import everything from gamma module - prevent numpy gamma conflict
+from .gamma import (
+    explore, peaks, demo, live, instant, qplot, lab,
+    gamma_safe, gammaln_safe, digamma_safe, factorial_extension,
+    v, s, c, r, ρ, v_peak, s_peak, c_peak,
+    γ, ln_γ, ψ, abs_γ,
+    gamma_explorer, gamma_comparison_plot,
+    quick_gamma_analysis, peaks_analysis
+)
 
 # Import core constants with hybrid imports for flexibility
 try:
@@ -27,19 +32,34 @@ except ImportError:
     from core import PI, PHI, PSI, E, VARPI
     from core.constants import SQRT_PI, NUMERICAL_EPSILON
 
-# Import everything from measures module
-from .measures import *
+# Import specific functions from modules to prevent namespace conflicts
+from .measures import (
+    measures_explorer, peak_finder, critical_analysis, comparative_plot,
+    quick_measure_analysis, is_critical_dimension, volume_ratio, surface_ratio
+)
 
-# Import everything from morphic module
-from .morphic import *
+# Import missing functions from core modules that tests expect
+try:
+    from ..core.measures import find_all_peaks
+    from ..core.phase import sap_rate, total_phase_energy
+except ImportError:
+    from core.measures import find_all_peaks
+    from core.phase import sap_rate, total_phase_energy
 
-# Import everything from phase module
-from .phase import *
+from .morphic import (
+    morphic_polynomial_roots, real_roots, discriminant, 
+    k_perfect_circle, k_discriminant_zero, golden_ratio_properties,
+    morphic_scaling_factor, generate_morphic_sequence,
+    make_rotor, sample_loop_xyz, morphic_circle_transform
+)
 
-# Import pregeometry module
-from .pregeometry import *
+from .phase import (
+    PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis
+)
 
-# Import modern visualization components
+from .pregeometry import (
+    PreGeometry, PreGeometryVisualizer
+)# Import modern visualization components
 # TEMPORARILY DISABLED - BLOCKING GAMMA MODULE IMPORTS
 # try:
 #     from visualization import PlotlyDashboard, KingdonRenderer
@@ -82,11 +102,12 @@ def quick_start():
 
 
 # Convenience aliases (only include functions that exist)
-try:
-    γ_explorer = gamma_explorer
-    γ_analysis = quick_gamma_analysis
-except NameError:
-    pass
+γ_analysis = quick_gamma_analysis
+
+# Uppercase aliases for test compatibility
+V = v  # Volume function
+S = s  # Surface function  
+C = c  # Complexity function
 
 # Import phase analysis functions
 from .phase import PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis

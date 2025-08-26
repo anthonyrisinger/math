@@ -276,17 +276,17 @@ def beta_function(a, b):
 
 
 if __name__ == "__main__":
-    # Test the functions
+    # Test the functions - library code should never print
     test_values = [0.5, 1.0, 1.5, 2.0, 2.5, 5.0, 10.0]
 
-    print("GAMMA FUNCTION TESTS")
-    print("=" * 40)
+    # Validate gamma function implementation
     for val in test_values:
-        print(f"Γ({val}) = {gamma_safe(val):.6f}")
+        result = gamma_safe(val)
+        assert np.isfinite(result), f"Gamma function failed for {val}"
 
-    print("\nKNOWN VALUES")
-    print("=" * 40)
-    print(f"Γ(1/2) = √π = {gamma_safe(0.5):.6f} (exact: {np.sqrt(np.pi):.6f})")
-    print(f"Γ(1) = 1 = {gamma_safe(1.0):.6f}")
-    print(f"Γ(2) = 1! = {gamma_safe(2.0):.6f}")
-    print(f"Γ(3) = 2! = {gamma_safe(3.0):.6f}")
+    # Validate known mathematical identities
+    sqrt_pi = np.sqrt(np.pi)
+    assert abs(gamma_safe(0.5) - sqrt_pi) < 1e-10, "Γ(1/2) ≠ √π"
+    assert abs(gamma_safe(1.0) - 1.0) < 1e-10, "Γ(1) ≠ 1"
+    assert abs(gamma_safe(2.0) - 1.0) < 1e-10, "Γ(2) ≠ 1!"
+    assert abs(gamma_safe(3.0) - 2.0) < 1e-10, "Γ(3) ≠ 2!"
