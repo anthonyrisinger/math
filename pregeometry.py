@@ -14,7 +14,8 @@ from matplotlib import animation, cm
 from matplotlib.widgets import Button, Slider
 from scipy.special import gamma
 
-from core_measures import PHI, PI, setup_3d_axis
+from core.constants import PHI, PI
+from core.view import setup_3d_axis
 
 
 class PreGeometry:

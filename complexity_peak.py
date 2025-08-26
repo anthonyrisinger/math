@@ -16,7 +16,9 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.widgets import Button, CheckButtons, Slider
 
-from core_measures import PHI, PI, DimensionalMeasures, E, setup_3d_axis
+from core.constants import PHI, PI, E
+from core.measures import DimensionalMeasures
+from core.view import setup_3d_axis
 
 
 class ComplexityPeakExplorer:

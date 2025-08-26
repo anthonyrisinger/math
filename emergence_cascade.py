@@ -17,7 +17,9 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.widgets import Button, CheckButtons, Slider
 
-from core_measures import PHI, PI, PSI, DimensionalMeasures, setup_3d_axis
+from core.constants import PHI, PI, PSI, E
+from core.measures import DimensionalMeasures
+from core.view import setup_3d_axis
 
 
 class EmergenceCascade:

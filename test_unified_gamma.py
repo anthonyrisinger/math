@@ -29,7 +29,7 @@ try:
         PI, PHI, PSI, E,
         # Core gamma functions
         gamma_safe, gammaln_safe, digamma_safe,
-        # Dimensional measures  
+        # Dimensional measures
         v, s, c, r, ρ,
         # Peak finders
         v_peak, s_peak, c_peak,

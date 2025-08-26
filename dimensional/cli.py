@@ -23,7 +23,7 @@ import numpy as np
 import plotly.graph_objects as go
 import typer
 from plotly.subplots import make_subplots
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import track
@@ -56,9 +56,10 @@ class DimensionRange(BaseModel):
     end: float = Field(default=10.0, ge=0.001, le=100.0)
     steps: int = Field(default=1000, ge=10, le=10000)
 
-    @validator("end")
-    def end_must_be_greater_than_start(self, v, values):
-        if "start" in values and v <= values["start"]:
+    @field_validator("end")
+    @classmethod
+    def end_must_be_greater_than_start(cls, v, info):
+        if "start" in info.data and v <= info.data["start"]:
             raise ValueError("end must be greater than start")
         return v
 
