@@ -47,28 +47,29 @@ def test_constants():
 
     from core import CRITICAL_DIMENSIONS, PHI, PI, PSI, VARPI
 
-    # Check constant values
-    tests = [
-        (1.6 < PHI < 1.7, f"PHI = {PHI:.6f} (expected ~1.618)"),
-        (3.1 < PI < 3.2, f"PI = {PI:.6f} (expected ~3.14159)"),
-        (0.6 < PSI < 0.7, f"PSI = {PSI:.6f} (expected ~0.618)"),
-        (1.3 < VARPI < 1.4, f"VARPI = {VARPI:.6f} (expected ~1.311)"),
-        ("pi_boundary" in CRITICAL_DIMENSIONS, "Critical dimensions dictionary"),
-        (
-            len(CRITICAL_DIMENSIONS) > 5,
-            f"Has {len(CRITICAL_DIMENSIONS)} critical dimensions",
-        ),
-    ]
+    # Test PHI (golden ratio)
+    assert 1.6 < PHI < 1.7, f"PHI = {PHI:.6f} (expected ~1.618)"
+    print(f"✅ PHI = {PHI:.6f} (expected ~1.618)")
 
-    all_passed = True
-    for test_result, description in tests:
-        if test_result:
-            print(f"✅ {description}")
-        else:
-            print(f"❌ {description}")
-            all_passed = False
+    # Test PI
+    assert 3.1 < PI < 3.2, f"PI = {PI:.6f} (expected ~3.14159)"
+    print(f"✅ PI = {PI:.6f} (expected ~3.14159)")
 
-    return all_passed
+    # Test PSI (golden ratio conjugate)
+    assert 0.6 < PSI < 0.7, f"PSI = {PSI:.6f} (expected ~0.618)"
+    print(f"✅ PSI = {PSI:.6f} (expected ~0.618)")
+
+    # Test VARPI (dimensional coupling constant)
+    assert 1.3 < VARPI < 1.4, f"VARPI = {VARPI:.6f} (expected ~1.311)"
+    print(f"✅ VARPI = {VARPI:.6f} (expected ~1.311)")
+
+    # Test critical dimensions dictionary structure
+    assert "pi_boundary" in CRITICAL_DIMENSIONS, "Critical dimensions dictionary missing pi_boundary"
+    print("✅ Critical dimensions dictionary has pi_boundary")
+
+    # Test critical dimensions count
+    assert len(CRITICAL_DIMENSIONS) > 5, f"Expected >5 critical dimensions, got {len(CRITICAL_DIMENSIONS)}"
+    print(f"✅ Has {len(CRITICAL_DIMENSIONS)} critical dimensions")
 
 
 def test_gamma_functions():
@@ -76,39 +77,38 @@ def test_gamma_functions():
 
     from core import gamma_safe
 
-    # Test known values
-    tests = [
-        (abs(gamma_safe(1.0) - 1.0) < 1e-10, "Γ(1) = 1"),
-        (abs(gamma_safe(2.0) - 1.0) < 1e-10, "Γ(2) = 1"),
-        (abs(gamma_safe(3.0) - 2.0) < 1e-10, "Γ(3) = 2"),
-        (abs(gamma_safe(0.5) - np.sqrt(np.pi)) < 1e-10, "Γ(1/2) = √π"),
-        (np.isinf(gamma_safe(0.0)), "Γ(0) = ∞ (pole)"),
-        (np.isinf(gamma_safe(-1.0)), "Γ(-1) = ∞ (pole)"),
-    ]
+    # Test Γ(1) = 1
+    assert abs(gamma_safe(1.0) - 1.0) < 1e-10, f"Γ(1) should equal 1, got {gamma_safe(1.0)}"
+    print("✅ Γ(1) = 1")
 
-    all_passed = True
-    for test_result, description in tests:
-        if test_result:
-            print(f"✅ {description}")
-        else:
-            print(f"❌ {description}")
-            all_passed = False
+    # Test Γ(2) = 1
+    assert abs(gamma_safe(2.0) - 1.0) < 1e-10, f"Γ(2) should equal 1, got {gamma_safe(2.0)}"
+    print("✅ Γ(2) = 1")
 
-    # Test array input
-    try:
-        values = np.array([1.0, 2.0, 3.0])
-        results = gamma_safe(values)
-        expected = np.array([1.0, 1.0, 2.0])
-        if np.allclose(results, expected):
-            print("✅ Array input works")
-        else:
-            print(f"❌ Array input failed: got {results}, expected {expected}")
-            all_passed = False
-    except Exception as e:
-        print(f"❌ Array input failed: {e}")
-        all_passed = False
+    # Test Γ(3) = 2
+    assert abs(gamma_safe(3.0) - 2.0) < 1e-10, f"Γ(3) should equal 2, got {gamma_safe(3.0)}"
+    print("✅ Γ(3) = 2")
 
-    return all_passed
+    # Test Γ(1/2) = √π
+    sqrt_pi = np.sqrt(np.pi)
+    assert abs(gamma_safe(0.5) - sqrt_pi) < 1e-10, f"Γ(1/2) should equal √π ({sqrt_pi}), got {gamma_safe(0.5)}"
+    print("✅ Γ(1/2) = √π")
+
+    # Test Γ(0) = ∞ (pole)
+    assert np.isinf(gamma_safe(0.0)), f"Γ(0) should be infinite (pole), got {gamma_safe(0.0)}"
+    print("✅ Γ(0) = ∞ (pole)")
+
+    # Test Γ(-1) = ∞ (pole)
+    assert np.isinf(gamma_safe(-1.0)), f"Γ(-1) should be infinite (pole), got {gamma_safe(-1.0)}"
+    print("✅ Γ(-1) = ∞ (pole)")
+
+    # Test array input functionality
+    values = np.array([1.0, 2.0, 3.0])
+    results = gamma_safe(values)
+    expected = np.array([1.0, 1.0, 2.0])
+    
+    assert np.allclose(results, expected), f"Array input failed: got {results}, expected {expected}"
+    print("✅ Array input works")
 
 
 def test_dimensional_measures():
@@ -116,51 +116,54 @@ def test_dimensional_measures():
 
     from core import ball_volume, complexity_measure, sphere_surface
 
-    # Test known values
-    tests = [
-        (abs(ball_volume(0) - 1.0) < 1e-10, "V₀ = 1 (point)"),
-        (abs(ball_volume(1) - 2.0) < 1e-10, "V₁ = 2 (line segment)"),
-        (abs(ball_volume(2) - np.pi) < 1e-10, "V₂ = π (disk)"),
-        (abs(ball_volume(3) - 4 * np.pi / 3) < 1e-10, "V₃ = 4π/3 (ball)"),
-        (abs(sphere_surface(1) - 2.0) < 1e-10, "S₁ = 2 (two points)"),
-        (abs(sphere_surface(2) - 2 * np.pi) < 1e-10, "S₂ = 2π (circle)"),
-        (abs(sphere_surface(3) - 4 * np.pi) < 1e-10, "S₃ = 4π (sphere)"),
-    ]
+    # Test V₀ = 1 (point)
+    assert abs(ball_volume(0) - 1.0) < 1e-10, f"V₀ should be 1, got {ball_volume(0)}"
+    print("✅ V₀ = 1 (point)")
 
-    all_passed = True
-    for test_result, description in tests:
-        if test_result:
-            print(f"✅ {description}")
-        else:
-            print(f"❌ {description}")
-            all_passed = False
+    # Test V₁ = 2 (line segment)
+    assert abs(ball_volume(1) - 2.0) < 1e-10, f"V₁ should be 2, got {ball_volume(1)}"
+    print("✅ V₁ = 2 (line segment)")
+
+    # Test V₂ = π (disk)
+    assert abs(ball_volume(2) - np.pi) < 1e-10, f"V₂ should be π, got {ball_volume(2)}"
+    print("✅ V₂ = π (disk)")
+
+    # Test V₃ = 4π/3 (ball)
+    expected_v3 = 4 * np.pi / 3
+    assert abs(ball_volume(3) - expected_v3) < 1e-10, f"V₃ should be 4π/3 ({expected_v3}), got {ball_volume(3)}"
+    print("✅ V₃ = 4π/3 (ball)")
+
+    # Test S₁ = 2 (two points)
+    assert abs(sphere_surface(1) - 2.0) < 1e-10, f"S₁ should be 2, got {sphere_surface(1)}"
+    print("✅ S₁ = 2 (two points)")
+
+    # Test S₂ = 2π (circle)
+    expected_s2 = 2 * np.pi
+    assert abs(sphere_surface(2) - expected_s2) < 1e-10, f"S₂ should be 2π ({expected_s2}), got {sphere_surface(2)}"
+    print("✅ S₂ = 2π (circle)")
+
+    # Test S₃ = 4π (sphere)
+    expected_s3 = 4 * np.pi
+    assert abs(sphere_surface(3) - expected_s3) < 1e-10, f"S₃ should be 4π ({expected_s3}), got {sphere_surface(3)}"
+    print("✅ S₃ = 4π (sphere)")
 
     # Test consistency: C(d) = V(d) × S(d)
     for d in [1, 2, 3, 4]:
         v = ball_volume(d)
         s = sphere_surface(d)
         c = complexity_measure(d)
-        if abs(c - v * s) < 1e-10:
-            print(f"✅ C({d}) = V({d}) × S({d})")
-        else:
-            print(f"❌ C({d}) ≠ V({d}) × S({d})")
-            all_passed = False
+        expected_c = v * s
+        assert abs(c - expected_c) < 1e-10, f"C({d}) should equal V({d}) × S({d}) = {expected_c}, got {c}"
+        print(f"✅ C({d}) = V({d}) × S({d})")
 
     # Test fractional dimensions
-    try:
-        v = ball_volume(1.5)
-        s = sphere_surface(2.7)
-        c = complexity_measure(3.14159)
-        if all(np.isfinite([v, s, c])) and all(x > 0 for x in [v, s, c]):
-            print("✅ Fractional dimensions work")
-        else:
-            print(f"❌ Fractional dimensions failed: V(1.5)={v}, S(2.7)={s}, C(π)={c}")
-            all_passed = False
-    except Exception as e:
-        print(f"❌ Fractional dimensions failed: {e}")
-        all_passed = False
-
-    return all_passed
+    v = ball_volume(1.5)
+    s = sphere_surface(2.7)
+    c = complexity_measure(3.14159)
+    
+    assert all(np.isfinite([v, s, c])), f"Fractional dimensions should be finite: V(1.5)={v}, S(2.7)={s}, C(π)={c}"
+    assert all(x > 0 for x in [v, s, c]), f"Fractional dimensions should be positive: V(1.5)={v}, S(2.7)={s}, C(π)={c}"
+    print("✅ Fractional dimensions work")
 
 
 def test_phase_dynamics():
@@ -435,16 +438,31 @@ def main():
 
     test_results = []
 
-    # Run all tests
-    test_results.append(("Imports", test_imports()))
+    # Helper function to run modernized tests (that use assert instead of return bool)
+    def run_test(test_name, test_func):
+        try:
+            test_func()
+            return True
+        except Exception as e:
+            print(f"❌ {test_name} failed: {e}")
+            return False
 
-    if not test_results[0][1]:  # If imports failed, stop here
+    # Run imports test (critical - stop if this fails)
+    try:
+        test_imports()
+        test_results.append(("Imports", True))
+    except Exception as e:
+        print(f"❌ Imports failed: {e}")
+        test_results.append(("Imports", False))
         print("\n❌ CRITICAL FAILURE: Cannot import core library")
         return False
 
-    test_results.append(("Constants", test_constants()))
-    test_results.append(("Gamma Functions", test_gamma_functions()))
-    test_results.append(("Dimensional Measures", test_dimensional_measures()))
+    # Run modernized tests (using assert patterns)
+    test_results.append(("Constants", run_test("Constants", test_constants)))
+    test_results.append(("Gamma Functions", run_test("Gamma Functions", test_gamma_functions)))
+    test_results.append(("Dimensional Measures", run_test("Dimensional Measures", test_dimensional_measures)))
+
+    # Run remaining tests (still using return bool pattern)
     test_results.append(("Phase Dynamics", test_phase_dynamics()))
     test_results.append(("Morphic Mathematics", test_morphic_mathematics()))
     test_results.append(("API Usability", test_api_usability()))
