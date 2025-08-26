@@ -85,6 +85,192 @@ app = typer.Typer(
 )
 
 # ============================================================================
+# ULTRA-FAST PROTOTYPING SHORTCUTS
+# ============================================================================
+
+@app.command("v")
+def shortcut_volume(
+    dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
+):
+    """⚡ Ultra-fast volume calculation: dim v 4"""
+    _process_shortcut("volume", dims)
+
+@app.command("s")
+def shortcut_surface(
+    dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
+):
+    """⚡ Ultra-fast surface calculation: dim s 4"""
+    _process_shortcut("surface", dims)
+
+@app.command("c")
+def shortcut_complexity(
+    dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
+):
+    """⚡ Ultra-fast complexity calculation: dim c 4"""
+    _process_shortcut("complexity", dims)
+
+@app.command("p")
+def shortcut_peaks():
+    """⚡ Ultra-fast peak analysis: dim p"""
+    from .measures import find_all_peaks
+    console.print("🏔️ [bold cyan]Critical Peaks[/bold cyan]")
+    peaks = find_all_peaks()
+    for key, (location, value) in peaks.items():
+        console.print(f"  {key}: d={location:.3f}, value={value:.3f}")
+
+@app.command("g")
+def shortcut_gamma(
+    value: float = typer.Argument(..., help="🔢 Value for gamma function")
+):
+    """⚡ Ultra-fast gamma calculation: dim g 2.5"""
+    from .gamma import gamma_safe
+    result = gamma_safe(value)
+    console.print(f"Γ({value}) = {result:.6f}")
+
+def _process_shortcut(func_name: str, dims_str: str):
+    """Process ultra-fast shortcut commands with mathematical context."""
+    # Parse dimensions - support both single values and comma-separated
+    try:
+        if ',' in dims_str:
+            dims = [float(d.strip()) for d in dims_str.split(',')]
+        else:
+            dims = [float(dims_str)]
+    except ValueError:
+        console.print(f"[red]❌ Invalid dimension format: {dims_str}[/red]")
+        return
+
+    # Import functions
+    if func_name == "volume":
+        from .measures import ball_volume as func
+        symbol = "V"
+    elif func_name == "surface":
+        from .measures import sphere_surface as func
+        symbol = "S"
+    elif func_name == "complexity":
+        from .measures import complexity_measure as func
+        symbol = "C"
+
+    # Compute and display with mathematical context
+    console.print(f"🧮 [bold cyan]{func_name.title()}[/bold cyan]")
+    for d in dims:
+        result = func(d)
+        console.print(f"  {symbol}({d}) = {result:.6f}")
+
+# ============================================================================
+# AI-FRIENDLY FEATURES
+# ============================================================================
+
+@app.command("eval")
+def ai_eval(
+    expression: str = typer.Argument(..., help="🤖 Math expression: 'V(4)', 'C(2,3,4)', 'gamma(2.5)'"),
+    format: str = typer.Option("human", "--format", "-f", help="📊 Output: human, json, csv")
+):
+    """🤖 AI-friendly expression evaluator: dim eval 'V(4) + C(3)'"""
+    result = _evaluate_expression(expression, format)
+    if format == "json":
+        console.print_json(json.dumps(result))
+    elif format == "csv":
+        if isinstance(result, list):
+            for item in result:
+                print(f"{item.get('expression', '')},{item.get('result', '')}")
+        else:
+            print(f"{result.get('expression', '')},{result.get('result', '')}")
+    else:
+        console.print(f"🤖 {expression} = {result}")
+
+@app.command("batch")
+def ai_batch(
+    expressions: str = typer.Argument(..., help="🚀 Multiple expressions: 'V(2);C(3);gamma(1.5)'"),
+    format: str = typer.Option("table", "--format", "-f", help="📊 Output: table, json, csv")
+):
+    """🚀 AI batch processing: dim batch 'V(2);C(3);S(4)'"""
+    expr_list = [expr.strip() for expr in expressions.split(';')]
+    results = []
+
+    for expr in expr_list:
+        try:
+            result = _evaluate_expression(expr, "raw")
+            results.append({"expression": expr, "result": result, "status": "success"})
+        except Exception as e:
+            results.append({"expression": expr, "error": str(e), "status": "error"})
+
+    if format == "json":
+        console.print_json(json.dumps(results, indent=2))
+    elif format == "csv":
+        print("expression,result,status")
+        for r in results:
+            status = r["status"]
+            value = r.get("result", r.get("error", ""))
+            print(f"{r['expression']},{value},{status}")
+    else:
+        # Table format
+        table = Table(title="🚀 Batch Results")
+        table.add_column("Expression", style="cyan")
+        table.add_column("Result", style="yellow")
+        table.add_column("Status", style="green")
+
+        for r in results:
+            status_color = "green" if r["status"] == "success" else "red"
+            value = str(r.get("result", r.get("error", "")))
+            table.add_row(r["expression"], value, f"[{status_color}]{r['status']}[/{status_color}]")
+
+        console.print(table)
+
+def _evaluate_expression(expr: str, output_format: str = "human"):
+    """Evaluate mathematical expressions with AI-friendly parsing."""
+    import re
+
+    # Clean the expression
+    expr = expr.strip()
+
+    # Import mathematical functions
+    from .measures import ball_volume, sphere_surface, complexity_measure
+    from .gamma import gamma_safe
+
+    # Simple expression patterns for AI workflows
+    patterns = {
+        r'V\(([0-9.,\s]+)\)': lambda m: _eval_function(ball_volume, m.group(1)),
+        r'S\(([0-9.,\s]+)\)': lambda m: _eval_function(sphere_surface, m.group(1)),
+        r'C\(([0-9.,\s]+)\)': lambda m: _eval_function(complexity_measure, m.group(1)),
+        r'gamma\(([0-9.,\s]+)\)': lambda m: _eval_function(gamma_safe, m.group(1)),
+        r'Γ\(([0-9.,\s]+)\)': lambda m: _eval_function(gamma_safe, m.group(1)),
+    }
+
+    for pattern, handler in patterns.items():
+        match = re.search(pattern, expr)
+        if match:
+            try:
+                result = handler(match)
+                if output_format == "raw":
+                    return result
+                return {"expression": expr, "result": result}
+            except Exception as e:
+                if output_format == "raw":
+                    raise e
+                return {"expression": expr, "error": str(e)}
+
+    # If no pattern matches, try direct evaluation for simple expressions
+    try:
+        # Very basic evaluation for expressions like "4.5" or simple arithmetic
+        if re.match(r'^[0-9.,\s+\-*/()]+$', expr):
+            result = eval(expr)  # Safe for numeric expressions only
+            if output_format == "raw":
+                return result
+            return {"expression": expr, "result": result}
+    except:
+        pass
+
+    raise ValueError(f"Could not evaluate expression: {expr}")
+
+def _eval_function(func, args_str):
+    """Helper to evaluate function with parsed arguments."""
+    if ',' in args_str:
+        args = [float(x.strip()) for x in args_str.split(',')]
+        return [func(arg) for arg in args]
+    else:
+        return func(float(args_str.strip()))
+
+# ============================================================================
 # PYDANTIC MODELS FOR TYPE SAFETY
 # ============================================================================
 
