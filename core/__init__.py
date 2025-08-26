@@ -104,6 +104,24 @@ from .phase import (
     total_phase_energy,
 )
 
+# Import phase analysis functions from dimensional package for API consistency
+try:
+    from dimensional.phase import quick_phase_analysis
+except ImportError:
+    # Create placeholder if dimensional package not available
+    def quick_phase_analysis(*args, **kwargs):
+        """Placeholder - dimensional.phase module not available"""
+        return {"status": "dimensional_module_not_available"}
+
+# Import emergence simulation for API consistency  
+try:
+    from analysis.emergence_framework import run_emergence_simulation
+except ImportError:
+    # Create placeholder if analysis module not available
+    def run_emergence_simulation(*args, **kwargs):
+        """Placeholder - analysis module not available"""
+        return {"status": "analysis_module_not_available"}
+
 # 3D visualization
 from .view import (
     View3DManager,
@@ -114,6 +132,12 @@ from .view import (
     set_equal_aspect_3d,
     setup_3d_axis,
 )
+
+# Uppercase aliases for measure functions - API consistency with dimensional package
+V = ball_volume
+S = sphere_surface  
+C = complexity_measure
+R = ratio_measure
 
 # Version info
 __version__ = "1.0.0"

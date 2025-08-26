@@ -48,7 +48,8 @@ try:
     einf = cga.multivector({"e5": 1})  # Point at infinity (e5 in CGA)
 
     GA_AVAILABLE = "kingdon"
-    print(f"✅ Kingdon geometric algebra loaded: {cga}")
+    # Library code should never print - store algebra info in module variable
+    _KINGDON_ALGEBRA = cga
 
     def up(point_3d):
         """Lift 3D point to conformal space using Kingdon."""
@@ -62,8 +63,8 @@ try:
         return point_cga
 
 except ImportError:
-    # Fallback mock for systems without Kingdon
-    print("⚠️  Kingdon not available, using mock GA implementation")
+    # Fallback mock for systems without Kingdon - library code should not print
+    _KINGDON_WARNING = "Kingdon not available, using mock GA implementation"
 
     class MockGA:
         def __init__(self, val=0):
@@ -678,60 +679,56 @@ def get_critical_parameters(mode: str = "shifted") -> dict[str, float]:
 
 
 def test_morphic_module():
-    """Test the morphic module functionality."""
-    print("MORPHIC MATHEMATICS - UNIFIED MODULE TEST")
-    print("=" * 60)
+    """Test the morphic module functionality.
 
-    # Test geometric algebra availability
-    print(f"Geometric Algebra Support: {GA_AVAILABLE}")
+    Returns:
+        dict: Test results and validation data
+    """
+    test_results = {
+        'ga_support': GA_AVAILABLE,
+        'golden_ratio_properties': golden_ratio_properties(),
+        'critical_points': {},
+        'polynomial_tests': {},
+        'sequence_tests': {},
+        'morphic_scaling_factor': morphic_scaling_factor()
+    }
 
-    # Golden ratio properties
-    props = golden_ratio_properties()
-    print("\nGolden ratio properties:")
-    for key, value in props.items():
-        if isinstance(value, bool):
-            print(f"  {key}: {value}")
-        else:
-            print(f"  {key}: {value:.6f}")
-
-    print("\nCritical points:")
+    # Critical points
     for mode in ["shifted", "simple"]:
         k_circle = k_perfect_circle(mode)
         k_disc = k_discriminant_zero(mode)
-        print(
-            f"  {mode}: perfect circle k={k_circle:.3f}, discriminant zero k={k_disc:.3f}"
-        )
+        test_results['critical_points'][mode] = {
+            'perfect_circle': k_circle,
+            'discriminant_zero': k_disc
+        }
 
-    # Test polynomial roots
-    print("\nPolynomial roots for k=1.5 (shifted):")
+    # Polynomial roots test
     roots = morphic_polynomial_roots(1.5, "shifted")
-    print(f"  Real roots: {roots}")
+    test_results['polynomial_tests']['k_1_5_shifted'] = roots.tolist() if hasattr(roots, 'tolist') else list(roots)
 
-    # Test morphic sequence
-    print("\nMorphic sequence (first 8 terms):")
+    # Morphic sequence test
     sequence = generate_morphic_sequence(8)
-    print(f"  {sequence}")
+    test_results['sequence_tests']['first_8_terms'] = sequence.tolist() if hasattr(sequence, 'tolist') else list(sequence)
 
     # Stability analysis
     analyzer = MorphicAnalyzer("shifted")
     analysis = analyzer.analyze_parameter(1.5)
-    print("\nParameter k=1.5 analysis:")
-    for key, value in analysis.items():
-        if key != "real_roots":
-            print(f"  {key}: {value}")
+    test_results['parameter_analysis'] = {k: v for k, v in analysis.items() if k != "real_roots"}
 
-    # Test transformation
-    print(f"\nMorphic scaling factor: {morphic_scaling_factor():.6f}")
-
-    # Test curvature estimation
+    # Geometric transformations (if GA available)
     if GA_AVAILABLE != "mock":
-        print("\nTesting geometric transformations...")
         theta = np.linspace(0, 2 * np.pi, 100)
         xyz_transformed = sample_loop_xyz(1.5, theta)
-        print(f"  Transformed circle shape: {xyz_transformed.shape}")
+        test_results['geometric_tests'] = {'transformed_circle_shape': list(xyz_transformed.shape)}
 
-    print("\n✅ All morphic module tests completed!")
+    return test_results
 
 
 if __name__ == "__main__":
-    test_morphic_module()
+    # Test morphic module without printing
+    results = test_morphic_module()
+
+    # Validate core functionality
+    assert 'golden_ratio_properties' in results
+    assert 'critical_points' in results
+    assert results['morphic_scaling_factor'] > 0

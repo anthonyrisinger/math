@@ -27,27 +27,36 @@ from .gamma import (
 try:
     from ..core import PI, PHI, PSI, E, VARPI
     from ..core.constants import SQRT_PI, NUMERICAL_EPSILON
+    from ..core.measures import find_all_peaks
+    from ..analysis.emergence_framework import run_emergence_simulation
 except ImportError:
     # Fallback for script execution
     from core import PI, PHI, PSI, E, VARPI
     from core.constants import SQRT_PI, NUMERICAL_EPSILON
+    from core.measures import find_all_peaks
+    try:
+        from analysis.emergence_framework import run_emergence_simulation
+    except ImportError:
+        # Create a placeholder if analysis module not available
+        def run_emergence_simulation(*args, **kwargs):
+            """Placeholder - analysis module not available"""
+            return {"status": "analysis_module_not_available"}
 
 # Import specific functions from modules to prevent namespace conflicts
 from .measures import (
     measures_explorer, peak_finder, critical_analysis, comparative_plot,
-    quick_measure_analysis, is_critical_dimension, volume_ratio, surface_ratio
+    quick_measure_analysis, is_critical_dimension, volume_ratio, surface_ratio,
+    # Uppercase aliases for backward compatibility
+    V, S, C, v, s, c,
+    # Import core functions through dimensional.measures
+    ratio_measure
 )
 
-# Import missing functions from core modules that tests expect
-try:
-    from ..core.measures import find_all_peaks
-    from ..core.phase import sap_rate, total_phase_energy
-except ImportError:
-    from core.measures import find_all_peaks
-    from core.phase import sap_rate, total_phase_energy
+# Add uppercase alias for ratio measure
+R = ratio_measure
 
 from .morphic import (
-    morphic_polynomial_roots, real_roots, discriminant, 
+    morphic_polynomial_roots, real_roots, discriminant,
     k_perfect_circle, k_discriminant_zero, golden_ratio_properties,
     morphic_scaling_factor, generate_morphic_sequence,
     make_rotor, sample_loop_xyz, morphic_circle_transform
@@ -57,9 +66,17 @@ from .phase import (
     PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis
 )
 
+# Import additional phase functions from core
+try:
+    from ..core.phase import sap_rate, total_phase_energy
+except ImportError:
+    from core.phase import sap_rate, total_phase_energy
+
 from .pregeometry import (
     PreGeometry, PreGeometryVisualizer
-)# Import modern visualization components
+)
+
+# Import modern visualization components
 # TEMPORARILY DISABLED - BLOCKING GAMMA MODULE IMPORTS
 # try:
 #     from visualization import PlotlyDashboard, KingdonRenderer
@@ -103,11 +120,6 @@ def quick_start():
 
 # Convenience aliases (only include functions that exist)
 γ_analysis = quick_gamma_analysis
-
-# Uppercase aliases for test compatibility
-V = v  # Volume function
-S = s  # Surface function  
-C = c  # Complexity function
 
 # Import phase analysis functions
 from .phase import PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis

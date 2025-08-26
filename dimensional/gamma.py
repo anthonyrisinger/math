@@ -233,21 +233,19 @@ def abs_γ(z):
 # Quick visualization functions (modernized - no matplotlib)
 def qplot(*funcs, labels=None):
     """Quick plot function - returns data for visualization backends.
-    
+
     Returns:
-        tuple: (None, None) for backward compatibility with matplotlib-style API
-        
-    Note: Function still processes data internally but returns None for matplotlib compatibility
+        dict: Plot data with function evaluations and statistics
     """
     d_vals = np.linspace(0.1, 10, 1000)
     results = {}
-    
+
     for i, func in enumerate(funcs):
         try:
             y_vals = [func(d) for d in d_vals]
             label = labels[i] if labels and i < len(labels) else f"Function {i+1}"
             y_finite = [y for y in y_vals if np.isfinite(y)]
-            
+
             results[label] = {
                 'x_values': d_vals,
                 'y_values': y_vals,
@@ -257,20 +255,16 @@ def qplot(*funcs, labels=None):
             }
         except Exception as e:
             results[label] = {'error': str(e)}
-    
-    # Store results for potential access but return matplotlib-style None, None
-    qplot._last_results = results
-    return None, None
 
+    return results
 
 def instant():
     """Instant 4-panel visualization data.
-    
+
     Returns:
-        tuple: (None, None) for backward compatibility with matplotlib-style API
+        dict: Configuration for 4-panel gamma function visualization
     """
-    # Internal data processing (not exposed in return value for test compatibility)
-    _config = {
+    return {
         'panels': ['gamma', 'ln_gamma', 'digamma', 'factorial'],
         'config': {
             'gamma': {'range': (-3, 5), 'points': 1000},
@@ -279,25 +273,14 @@ def instant():
             'factorial': {'range': (0, 10), 'points': 1000}
         }
     }
-    # Store for potential access but return matplotlib-style None, None for test compatibility
-    instant._last_config = _config
-    return None, None
+
+
 def explore(d):
     """Explore dimensional measures at given dimension.
-    
-    Prints analysis and returns data for backward compatibility.
-    
+
     Returns:
         dict: Complete dimensional analysis at dimension d
     """
-    # Print output for test compatibility
-    print(f"Dimensional Analysis at d = {d}")
-    print(f"Volume: {v(d):.6f}")
-    print(f"Surface: {s(d):.6f}")
-    print(f"Complexity: {c(d):.6f}")
-    print(f"Ratio: {r(d):.6f}")
-    print(f"Density: {ρ(d):.6f}")
-    
     return {
         'dimension': d,
         'volume': v(d),
@@ -310,22 +293,17 @@ def explore(d):
 
 def peaks():
     """Return all dimensional peaks.
-    
-    Prints peaks and returns data for backward compatibility.
 
     Returns:
         dict: All peak values for dimensional measures
     """
-    # Print output for test compatibility  
-    print(f"Volume peak: {v_peak():.3f}")
-    print(f"Surface peak: {s_peak():.3f}")
-    print(f"Complexity peak: {c_peak():.3f}")
-    
     return {
         'volume_peak': v_peak(),
         'surface_peak': s_peak(),
         'complexity_peak': c_peak()
     }
+
+
 # Mock interactive classes
 class GammaLab:
     def __init__(self, start_d=4.0):
@@ -351,11 +329,7 @@ def lab(start_d=4.0):
 
 
 def demo():
-    """Run demonstration - prints output and calls functions for test compatibility."""
-    print("Dimensional Gamma Demo")
-    explore(4.0)
-    instant()
-    
+    """Run demonstration - returns data instead of printing."""
     return {
         'demo_type': 'dimensional_gamma',
         'exploration': explore(4.0),

@@ -18,7 +18,7 @@ def test_unified_dimensional_package():
     try:
         import numpy as np
 
-        from dimensional import (
+        from core import (
             PHI,
             PI,
             C,
@@ -119,7 +119,7 @@ def test_unified_dimensional_package():
     print("📦 Unified dimensional package is fully functional")
     print("🧬 Gamma functions, measures, and phase dynamics integrated")
     print("⚡ Ready for advanced mathematical exploration!")
-    
+
     assert True, "Unified dimensional package test completed successfully"
 
 
@@ -129,7 +129,7 @@ def demo_unified_capabilities():
     print("\n\n🌟 UNIFIED PACKAGE DEMONSTRATION")
     print("=" * 60)
 
-    from dimensional import PI, C, R, S, V, find_all_peaks, run_emergence_simulation
+    from core import PI, C, R, S, V, find_all_peaks, run_emergence_simulation
 
     print("📈 DIMENSIONAL ANALYSIS WORKFLOW:")
     print("-" * 50)

@@ -79,26 +79,33 @@ def measures_explorer(d_range=(0, 10), n_points=1000, plot=True):
     }
 
     if plot:
-        # MODERNIZED: Provide analysis without matplotlib dependency
-        print("📊 Dimensional measures exploration:")
-        print(f"   Range: {d_range}, Points: {n_points}")
+        # MODERNIZED: Return analysis data instead of printing
+        analysis_summary = {
+            'range': d_range,
+            'n_points': n_points,
+            'measures': {}
+        }
 
         for name, values in results.items():
             finite_mask = np.isfinite(values)
             finite_count = np.sum(finite_mask)
-            print(f"   {name}: {finite_count}/{len(values)} finite values")
+            measure_stats = {
+                'finite_count': finite_count,
+                'total_count': len(values),
+                'finite_ratio': finite_count / len(values) if len(values) > 0 else 0
+            }
 
             if finite_count > 0:
                 finite_vals = values[finite_mask]
-                print(f"     Range: [{np.min(finite_vals):.3e}, {np.max(finite_vals):.3e}]")
+                measure_stats.update({
+                    'value_range': (np.min(finite_vals), np.max(finite_vals)),
+                    'peak_dimension': d_vals[finite_mask][np.argmax(finite_vals)],
+                    'peak_value': np.max(finite_vals)
+                })
 
-                # Find peak
-                peak_idx = np.argmax(finite_vals)
-                peak_d = d_vals[finite_mask][peak_idx]
-                peak_val = finite_vals[peak_idx]
-                print(f"     Peak: d={peak_d:.3f}, value={peak_val:.3e}")
+            analysis_summary['measures'][name] = measure_stats
 
-        print("   💾 Data available for modern visualization backends")
+        results['_analysis_summary'] = analysis_summary
 
     return results
 
@@ -237,10 +244,16 @@ def comparative_plot(dimensions, measures=None, log_scale=True):
 
     dimensions = np.asarray(dimensions)
 
-    # MODERNIZED: Analysis without matplotlib dependency
-    print("📈 Comparative dimensional measures analysis:")
-    print(f"   Dimensions: {len(dimensions)} points from {dimensions.min():.2f} to {dimensions.max():.2f}")
-    print(f"   Log scale: {log_scale}")
+    # MODERNIZED: Return analysis data instead of printing
+    analysis = {
+        'dimensions': dimensions,
+        'log_scale': log_scale,
+        'measures': {},
+        'summary': {
+            'dimension_count': len(dimensions),
+            'dimension_range': (dimensions.min(), dimensions.max())
+        }
+    }
 
     for i, (measure, name) in enumerate(zip(measures, measure_names)):
         try:
@@ -248,33 +261,35 @@ def comparative_plot(dimensions, measures=None, log_scale=True):
             finite_mask = np.isfinite(values) & (values > 0 if log_scale else True)
             finite_count = np.sum(finite_mask)
 
-            print(f"   {name}: {finite_count}/{len(values)} finite values")
+            measure_stats = {
+                'finite_count': finite_count,
+                'total_count': len(values),
+                'finite_ratio': finite_count / len(values) if len(values) > 0 else 0
+            }
 
             if finite_count > 0:
                 finite_vals = values[finite_mask]
                 finite_dims = dimensions[finite_mask]
 
-                if log_scale:
-                    print(f"     Range: [{np.min(finite_vals):.3e}, {np.max(finite_vals):.3e}]")
-                else:
-                    print(f"     Range: [{np.min(finite_vals):.3f}, {np.max(finite_vals):.3f}]")
+                measure_stats.update({
+                    'value_range': (np.min(finite_vals), np.max(finite_vals)),
+                    'max_dimension': finite_dims[np.argmax(finite_vals)],
+                    'max_value': np.max(finite_vals),
+                    'min_dimension': finite_dims[np.argmin(finite_vals)],
+                    'min_value': np.min(finite_vals)
+                })
 
-                # Find extrema
-                max_idx = np.argmax(finite_vals)
-                min_idx = np.argmin(finite_vals)
-                print(f"     Maximum: d={finite_dims[max_idx]:.3f}, value={finite_vals[max_idx]:.3e}")
-                print(f"     Minimum: d={finite_dims[min_idx]:.3f}, value={finite_vals[min_idx]:.3e}")
+            analysis['measures'][name] = measure_stats
 
         except Exception as e:
-            print(f"   {name}: Error - {e}")
+            analysis['measures'][name] = {'error': str(e)}
 
     # Mark critical dimensions
     critical_in_range = [d for d in CRITICAL_DIMENSIONS.values()
                         if dimensions.min() <= d <= dimensions.max()]
-    if critical_in_range:
-        print(f"   Critical dimensions in range: {critical_in_range}")
+    analysis['critical_dimensions_in_range'] = critical_in_range
 
-    print("   💾 Data available for modern visualization backends")
+    return analysis
 
 
 def quick_measure_analysis(dimension):
@@ -336,43 +351,38 @@ c = complexity_measure  # c(d) - complexity measure (lowercase alias)
 
 
 def peaks():
-    """Find all major peaks in dimensional measures."""
-    print("🔍 Finding peaks in dimensional measures...")
+    """Find all major peaks in dimensional measures.
 
+    Returns:
+        dict: Analysis of all peaks in dimensional measures
+    """
     analysis = critical_analysis(d_range=(0, 15), resolution=5000)
 
-    print("\n📊 CRITICAL DIMENSION ANALYSIS")
-    print(f"{'='*50}")
-    print(f"Volume peaks found: {analysis['summary']['total_volume_peaks']}")
-    print(f"Surface peaks found: {analysis['summary']['total_surface_peaks']}")
-    print(f"Complexity peaks found: {analysis['summary']['total_complexity_peaks']}")
-    print(f"Known critical dimensions: {analysis['known_critical_dimensions']}")
+    # Organize peak data for return
+    peak_summary = {
+        'volume_peaks': analysis['summary']['total_volume_peaks'],
+        'surface_peaks': analysis['summary']['total_surface_peaks'],
+        'complexity_peaks': analysis['summary']['total_complexity_peaks'],
+        'known_critical_dimensions': analysis['known_critical_dimensions'],
+        'top_peaks': {}
+    }
 
-    # Show top peaks
+    # Collect top peaks for each measure
     for measure_type in ["volume", "surface", "complexity"]:
         peaks_data = analysis[f"{measure_type}_analysis"]["peaks"][:3]  # Top 3
-        if peaks_data:
-            print(f"\n🏔️ Top {measure_type} peaks:")
-            for i, peak in enumerate(peaks_data, 1):
-                print(f"  {i}. d={peak['dimension']:.3f}, value={peak['value']:.6f}")
+        peak_summary['top_peaks'][measure_type] = peaks_data
 
-    return analysis
+    return peak_summary
 
 
 if __name__ == "__main__":
-    print("DIMENSIONAL MEASURES")
-    print("=" * 40)
-
-    # Quick test of consolidation
+    # Test dimensional measures without printing
     test_dims = [1, 2, 3, 4, 5]
 
-    print("Test dimensions:", test_dims)
+    # Validate functionality
     for d in test_dims:
         result = quick_measure_analysis(d)
-        print(
-            f"d={d}: V={result['ball_volume']:.4f}, S={result['sphere_surface']:.4f}, C={result['complexity_measure']:.4f}"
-        )
-
-    print("\n✅ Measures consolidation successful!")
-    print("Core functions imported from ../core/measures")
-    print("Enhanced visualization and analysis tools added")
+        # Validate mathematical properties
+        assert result['ball_volume'] > 0, f"Invalid volume for d={d}"
+        assert result['sphere_surface'] > 0, f"Invalid surface for d={d}"
+        assert np.isfinite(result['complexity_measure']), f"Invalid complexity for d={d}"
