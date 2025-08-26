@@ -44,15 +44,11 @@ import numpy as np
 # Import core mathematical functions with hybrid pattern for both package and direct execution
 try:
     # Try relative imports first (when used as package)
-    from ..core.constants import NUMERICAL_EPSILON, PI
-    from ..core.gamma import gamma_safe, gammaln_safe
-    from ..core.measures import ball_volume, complexity_measure, sphere_surface
+    from .mathematics import NUMERICAL_EPSILON, PI, gamma_safe, gammaln_safe, ball_volume, complexity_measure, sphere_surface
 except ImportError:
     # Fallback for direct execution or test collection
     sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-    from core.constants import NUMERICAL_EPSILON, PI
-    from core.gamma import gamma_safe, gammaln_safe
-    from core.measures import ball_volume, complexity_measure, sphere_surface
+    from .mathematics import NUMERICAL_EPSILON, PI, gamma_safe, gammaln_safe, ball_volume, complexity_measure, sphere_surface
 
 
 @dataclass

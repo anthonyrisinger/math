@@ -14,8 +14,8 @@ from matplotlib import animation, cm
 from matplotlib.widgets import Button, Slider
 from scipy.special import gamma
 
-from core.constants import PHI, PI
-from core.view import setup_3d_axis
+from .mathematics import PHI, PI
+# Note: setup_3d_axis functionality moved to visualization/
 
 
 class PreGeometry:
@@ -158,7 +158,11 @@ class PreGeometryVisualizer:
         self.ax3d = self.fig.add_subplot(121, projection="3d")
         self.ax2d = self.fig.add_subplot(122)
 
-        setup_3d_axis(self.ax3d, "Pre-Geometric Potential Field")
+        # Basic 3D axis setup (replacing setup_3d_axis functionality)
+        self.ax3d.set_xlabel('x')
+        self.ax3d.set_ylabel('y') 
+        self.ax3d.set_zlabel('Pre-Geometric Potential')
+        self.ax3d.set_title("Pre-Geometric Potential Field")
 
         # Controls
         self._create_controls()
