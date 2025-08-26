@@ -3,47 +3,185 @@
 Dimensional Gamma Functions
 ===========================
 
-Enhanced gamma function module that imports robust core functionality
-and adds interactive exploration, visualization, and analysis tools.
-
-This module preserves API compatibility while building upon the
-robust mathematical implementations in core.gamma.
+Complete gamma function family with numerical stability and interactive features.
+Consolidated mathematical implementation with enhanced exploration tools.
 """
 
-# Import all robust core functionality
-
 import numpy as np
+from scipy.special import digamma, gamma, gammaln, polygamma
 
-# ARCHITECT MANDATE: ZERO VISUALIZATION IMPORTS IN MATHEMATICAL MODULES
-# Visualization backends must be completely isolated from core mathematics
-# _viz_backend = None  # DEPRECATED - Use modern backends through separate interfaces
-
-# Import and re-export constants for API compatibility
-
-# Re-export core gamma functions with hybrid imports for flexibility
+# Import constants
 try:
-    from ..core.gamma import *  # noqa: F401,F403
-    from ..core.gamma import (
-        digamma_safe,
-        factorial_extension,
-        gamma_safe,
-        gammaln_safe,
-    )
+    from ..core.constants import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON, SQRT_PI
+except ImportError:
+    from core.constants import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON, SQRT_PI
 
-    # Import dimensional measures functions
+# CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
+
+def gamma_safe(z):
+    """
+    Numerically stable gamma function.
+    
+    Parameters
+    ----------
+    z : float or array-like
+        Input values
+    
+    Returns
+    -------
+    float or array
+        Γ(z) with proper handling of edge cases and overflow
+    """
+    z = np.asarray(z)
+    
+    # Handle edge cases
+    if np.any(z == 0):
+        result = np.full_like(z, np.inf, dtype=float)
+        mask = z != 0
+        if np.any(mask):
+            result[mask] = gamma_safe(z[mask])
+        return result if z.ndim > 0 else float(result)
+    
+    # Handle negative integers (poles)
+    if np.any((z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON)):
+        result = np.full_like(z, np.inf, dtype=float)
+        mask = ~((z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON))
+        if np.any(mask):
+            result[mask] = gamma_safe(z[mask])
+        return result if z.ndim > 0 else float(result)
+    
+    # Use log-space for large values
+    if np.any(np.abs(z) > GAMMA_OVERFLOW_THRESHOLD):
+        large_mask = np.abs(z) > GAMMA_OVERFLOW_THRESHOLD
+        result = np.zeros_like(z, dtype=float)
+        
+        if np.any(~large_mask):
+            result[~large_mask] = gamma(z[~large_mask])
+        
+        if np.any(large_mask):
+            log_gamma_vals = gammaln(z[large_mask])
+            exp_mask = log_gamma_vals < LOG_SPACE_THRESHOLD
+            if np.any(exp_mask):
+                if large_mask.ndim > 0:
+                    large_indices = np.where(large_mask)[0]
+                    safe_indices = large_indices[exp_mask]
+                    result[safe_indices] = np.exp(log_gamma_vals[exp_mask])
+                else:
+                    result[()] = np.exp(log_gamma_vals)
+            
+            inf_mask = log_gamma_vals >= LOG_SPACE_THRESHOLD
+            if np.any(inf_mask):
+                if large_mask.ndim > 0:
+                    large_indices = np.where(large_mask)[0]
+                    inf_indices = large_indices[inf_mask]
+                    result[inf_indices] = np.inf
+                else:
+                    result[()] = np.inf
+        
+        return result if z.ndim > 0 else float(result)
+    
+    return gamma(z)
+
+
+def gammaln_safe(z):
+    """
+    Safe log-gamma function.
+    
+    Parameters
+    ----------
+    z : float or array-like
+        Input values
+    
+    Returns
+    -------
+    float or array
+        log(Γ(z)) with proper handling of edge cases
+    """
+    z = np.asarray(z)
+    
+    if np.any(z <= 0):
+        if np.any(np.abs(z - np.round(z)) < NUMERICAL_EPSILON):
+            result = np.full_like(z, -np.inf, dtype=float)
+            mask = ~(np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
+            if np.any(mask):
+                result[mask] = gammaln_safe(z[mask])
+            return result if z.ndim > 0 else float(result)
+    
+    return gammaln(z)
+
+
+def digamma_safe(z):
+    """
+    Safe digamma function (psi function).
+    ψ(z) = d/dz log(Γ(z)) = Γ'(z)/Γ(z)
+    
+    Parameters
+    ----------
+    z : float or array-like
+        Input values
+    
+    Returns
+    -------
+    float or array
+        ψ(z) with proper handling of edge cases
+    """
+    z = np.asarray(z)
+    
+    if np.any(z <= 0):
+        if np.any(np.abs(z - np.round(z)) < NUMERICAL_EPSILON):
+            result = np.full_like(z, -np.inf, dtype=float)
+            mask = ~(np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
+            if np.any(mask):
+                result[mask] = digamma_safe(z[mask])
+            return result if z.ndim > 0 else float(result)
+    
+    return digamma(z)
+
+
+def factorial_extension(n):
+    """
+    Factorial extension for non-negative real numbers.
+    n! = Γ(n+1)
+    
+    Parameters
+    ----------
+    n : float or array-like
+        Non-negative real numbers
+    
+    Returns
+    -------
+    float or array
+        n! = Γ(n+1)
+    """
+    return gamma_safe(np.asarray(n) + 1)
+
+
+def beta_function(a, b):
+    """
+    Beta function B(a,b) = Γ(a)Γ(b)/Γ(a+b).
+    
+    Parameters
+    ----------
+    a, b : float or array-like
+        Beta function parameters
+    
+    Returns
+    -------
+    float or array
+        B(a,b)
+    """
+    # Use log-space for numerical stability
+    log_result = gammaln_safe(a) + gammaln_safe(b) - gammaln_safe(a + b)
+    return np.exp(log_result)
+
+
+# DIMENSIONAL MEASURE IMPORTS AND ALIASES
+try:
     from ..core.measures import ball_volume as v
     from ..core.measures import complexity_measure as c
     from ..core.measures import ratio_measure as r
     from ..core.measures import sphere_surface as s
 except ImportError:
-    # Fallback for script execution
-    from core.gamma import *  # noqa: F401,F403
-    from core.gamma import (
-        digamma_safe,
-        factorial_extension,
-        gamma_safe,
-        gammaln_safe,
-    )
     from core.measures import ball_volume as v
     from core.measures import complexity_measure as c
     from core.measures import ratio_measure as r
