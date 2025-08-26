@@ -33,6 +33,10 @@ from rich.table import Table
 from .gamma import c, demo, explore, gamma_safe, instant, lab, live, peaks, qplot, s, v
 from .phase import PhaseDynamicsEngine
 
+# Import visualization modules
+from visualization import PlotlyDashboard, KingdonRenderer
+from visualization.modernized_dashboard import create_modern_dashboard
+
 # Initialize rich console for beautiful output
 console = Console()
 

@@ -301,8 +301,11 @@ class TestMorphicMathematics:
         # φψ = 1
         assert props["phi_times_psi_equals_one"], "φψ ≠ 1"
 
-        # φ - ψ = √5
-        assert props["phi_minus_psi_equals_sqrt5"], "φ - ψ ≠ √5"
+        # φ - ψ = 1 (correct mathematical relationship)
+        assert props["phi_minus_psi_equals_one"], "φ - ψ ≠ 1"
+
+        # φ + ψ = √5 (correct mathematical relationship)
+        assert props["phi_plus_psi_equals_sqrt5"], "φ + ψ ≠ √5"
 
     def test_polynomial_roots(self):
         """Test morphic polynomial root finding."""

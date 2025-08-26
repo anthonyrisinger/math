@@ -1,7 +1,5 @@
-bokeh==3.7.3
+# PHASE 2: MATPLOTLIB AGGRESSIVELY ELIMINATED
 click==8.2.1
-matplotlib==3.10.5
-matplotlib-inline==0.1.7
 numpy==2.2.6
 plotly==6.3.0
 pydantic==2.11.7
@@ -10,3 +8,15 @@ pydantic_core==2.33.2
 rich==14.1.0
 scipy==1.16.1
 typer==0.16.1
+
+# Modern visualization backends
+kingdon>=0.1.0  # Geometric algebra visualization
+kaleido>=0.2.1  # Plotly static image export
+
+# Optional: Advanced mathematical visualization
+# ganja>=1.0.0  # Geometric algebra web visualization
+# bokeh==3.7.3  # Alternative to matplotlib (kept for compatibility)
+
+# AGGRESSIVE MATPLOTLIB REPLACEMENT COMPLETE
+# matplotlib==3.10.5  # ELIMINATED WITH EXTREME PREJUDICE
+# matplotlib-inline==0.1.7  # ELIMINATED WITH EXTREME PREJUDICE

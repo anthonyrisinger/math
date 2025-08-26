@@ -27,6 +27,17 @@ from .morphic import *
 # Import everything from phase module
 from .phase import *
 
+# Import pregeometry module
+from .pregeometry import *
+
+# Import modern visualization components
+try:
+    from visualization import PlotlyDashboard, KingdonRenderer
+    from visualization.modernized_dashboard import create_modern_dashboard
+    VISUALIZATION_AVAILABLE = True
+except ImportError:
+    VISUALIZATION_AVAILABLE = False
+
 # Package metadata
 __version__ = "1.0.0"
 __author__ = "Dimensional Mathematics Project"

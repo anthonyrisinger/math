@@ -82,16 +82,18 @@ def gamma_safe(z):
 
     # Use log-space for large values
     if np.any(np.abs(z) > GAMMA_OVERFLOW_THRESHOLD):
-        large_mask = np.abs(z) > GAMMA_OVERFLOW_THRESHOLD
-        result = np.zeros_like(z, dtype=float)
+        # Ensure we're working with arrays for indexing
+        z_array = np.atleast_1d(z)
+        large_mask = np.abs(z_array) > GAMMA_OVERFLOW_THRESHOLD
+        result = np.zeros_like(z_array, dtype=float)
 
         # Small values: direct computation
         if np.any(~large_mask):
-            result[~large_mask] = gamma(z[~large_mask])
+            result[~large_mask] = gamma(z_array[~large_mask])
 
         # Large values: exp(log(gamma))
         if np.any(large_mask):
-            log_gamma_vals = gammaln(z[large_mask])
+            log_gamma_vals = gammaln(z_array[large_mask])
             exp_mask = log_gamma_vals < LOG_SPACE_THRESHOLD
             if np.any(exp_mask):
                 large_indices = np.where(large_mask)[0]
@@ -105,7 +107,7 @@ def gamma_safe(z):
                 inf_indices = large_indices[inf_mask]
                 result[inf_indices] = np.inf
 
-        return result if z.ndim > 0 else float(result)
+        return result if z.ndim > 0 else result.item()
 
     # Normal case
     return gamma(z)

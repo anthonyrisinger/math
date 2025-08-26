@@ -296,7 +296,12 @@ def handle_test_warnings():
     with warnings.catch_warnings():
         # Convert mathematical warnings to errors
         warnings.filterwarnings("error", category=RuntimeWarning)
-        warnings.filterwarnings("error", category=np.ComplexWarning)
+        # NumPy 2.0 compatibility: ComplexWarning was removed
+        try:
+            warnings.filterwarnings("error", category=np.ComplexWarning)
+        except AttributeError:
+            # NumPy 2.0+ doesn't have ComplexWarning
+            pass
 
         # Allow some specific warnings that are expected
         warnings.filterwarnings(
