@@ -17,9 +17,7 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import dimensional as dm
-from core.constants import NUMERICAL_EPSILON, PHI, PI
-from core.gamma import beta_function, gamma_safe, gammaln_safe
-from core.measures import ball_volume, complexity_measure, sphere_surface
+from dimensional.mathematics import NUMERICAL_EPSILON, PHI, PI, beta_function, gamma_safe, gammaln_safe, ball_volume, complexity_measure, sphere_surface
 
 
 class InvariantValidator:
@@ -171,7 +169,7 @@ class InvariantValidator:
 
         for d in test_dimensions:
             # Volume consistency
-            core_vol = ball_volume(d)  # from core/
+            core_vol = ball_volume(d)  # from dimensional.mathematics
             dim_vol = dm.v(d)  # from dimensional/
             self.assert_close(
                 dim_vol,
@@ -211,7 +209,7 @@ class InvariantValidator:
         # Test that gamma functions are consistent
         test_gamma_values = [0.5, 1.0, 2.0, 3.5, 10.0]
         for z in test_gamma_values:
-            core_gamma = gamma_safe(z)  # from core/
+            core_gamma = gamma_safe(z)  # from dimensional.mathematics
             dim_gamma = dm.gamma_safe(z)  # from dimensional/
             self.assert_close(
                 dim_gamma,

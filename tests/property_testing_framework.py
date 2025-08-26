@@ -28,7 +28,7 @@ import numpy as np
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from core.constants import NUMERICAL_EPSILON, PHI, PI
+from dimensional.mathematics import NUMERICAL_EPSILON, PHI, PI
 
 
 class InvariantType(Enum):
@@ -142,7 +142,7 @@ class GammaInvariantTester(InvariantTester):
     @settings(max_examples=500)
     def test_recurrence(self, z):
         """Test Γ(z+1) = z·Γ(z)"""
-        from core.gamma import gamma_safe
+        from dimensional.mathematics import gamma_safe
 
         gamma_z = gamma_safe(z)
         gamma_z_plus_1 = gamma_safe(z + 1)
@@ -162,7 +162,7 @@ class GammaInvariantTester(InvariantTester):
     @settings(max_examples=300)
     def test_reflection(self, z):
         """Test Γ(z)Γ(1-z) = π/sin(πz)"""
-        from core.gamma import gamma_safe
+        from dimensional.mathematics import gamma_safe
 
         gamma_z = gamma_safe(z)
         gamma_1_minus_z = gamma_safe(1 - z)
@@ -181,7 +181,7 @@ class GammaInvariantTester(InvariantTester):
     @settings(max_examples=300)
     def test_log_consistency(self, z):
         """Test log(Γ(z)) = gammaln(z)"""
-        from core.gamma import gamma_safe, gammaln_safe
+        from dimensional.mathematics import gamma_safe, gammaln_safe
 
         gamma_z = gamma_safe(z)
         log_gamma_z = gammaln_safe(z)
@@ -198,7 +198,7 @@ class GammaInvariantTester(InvariantTester):
     @settings(max_examples=200)
     def test_beta_symmetry(self, a, b):
         """Test B(a,b) = B(b,a)"""
-        from core.gamma import beta_function
+        from dimensional.mathematics import beta_function
 
         beta_ab = beta_function(a, b)
         beta_ba = beta_function(b, a)
@@ -214,7 +214,7 @@ class GammaInvariantTester(InvariantTester):
         """Test Γ(n+1) = n!"""
         import math
 
-        from core.gamma import gamma_safe
+        from dimensional.mathematics import gamma_safe
 
         gamma_result = gamma_safe(n + 1)
         expected = math.factorial(n)
@@ -254,7 +254,7 @@ class MeasuresInvariantTester(InvariantTester):
     @settings(max_examples=300)
     def test_volume_positivity(self, d):
         """Test V_d ≥ 0"""
-        from core.measures import ball_volume
+        from dimensional.mathematics import ball_volume
 
         vol = ball_volume(d)
         assert vol >= 0 or np.isclose(
@@ -268,7 +268,7 @@ class MeasuresInvariantTester(InvariantTester):
     @settings(max_examples=300)
     def test_surface_positivity(self, d):
         """Test S_d > 0 for d > 0"""
-        from core.measures import sphere_surface
+        from dimensional.mathematics import sphere_surface
 
         surf = sphere_surface(d)
         assert surf > 0 or np.isclose(
@@ -282,7 +282,7 @@ class MeasuresInvariantTester(InvariantTester):
     @settings(max_examples=200)
     def test_volume_recurrence(self, d):
         """Test V_{d+2} = (2π/(d+2)) × V_d"""
-        from core.measures import ball_volume
+        from dimensional.mathematics import ball_volume
 
         vol_d = ball_volume(d)
         vol_d_plus_2 = ball_volume(d + 2)
@@ -304,7 +304,7 @@ class MeasuresInvariantTester(InvariantTester):
     @settings(max_examples=200)
     def test_complexity_factorization(self, d):
         """Test C_d = V_d × S_d"""
-        from core.measures import ball_volume, complexity_measure, sphere_surface
+        from dimensional.mathematics import ball_volume, complexity_measure, sphere_surface
 
         vol = ball_volume(d)
         surf = sphere_surface(d)
@@ -342,7 +342,7 @@ class MeasuresInvariantTester(InvariantTester):
 
     def test_known_values(self):
         """Test against known exact values"""
-        from core.measures import ball_volume, sphere_surface
+        from dimensional.mathematics import ball_volume, sphere_surface
 
         # Test known values
         assert abs(ball_volume(0) - 1.0) < NUMERICAL_EPSILON, "V_0 ≠ 1"
@@ -431,8 +431,8 @@ class CrossModuleValidator:
 
     def _test_measure_gamma_consistency(self, d: float) -> InvariantTestResult:
         """Test V_d = π^{d/2} / Γ(d/2 + 1)"""
-        from core.gamma import gamma_safe
-        from core.measures import ball_volume
+        from dimensional.mathematics import gamma_safe
+        from dimensional.mathematics import ball_volume
 
         try:
             measured_volume = ball_volume(d)

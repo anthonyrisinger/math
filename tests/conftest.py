@@ -126,7 +126,7 @@ def known_dimensional_measures():
 def golden_phase_engine():
     """Phase dynamics engine with well-tested 'golden' parameters."""
     try:
-        from core import PhaseDynamicsEngine
+        from dimensional.mathematics import PhaseDynamicsEngine
 
         return PhaseDynamicsEngine(max_dimensions=6, use_adaptive=True)
     except ImportError:
@@ -137,7 +137,7 @@ def golden_phase_engine():
 def stress_test_engine():
     """Phase engine configured for stress testing extreme conditions."""
     try:
-        from core import PhaseDynamicsEngine
+        from dimensional.mathematics import PhaseDynamicsEngine
 
         engine = PhaseDynamicsEngine(max_dimensions=12, use_adaptive=True)
         # Add some initial energy for interesting dynamics
