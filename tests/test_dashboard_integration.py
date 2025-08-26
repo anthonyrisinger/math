@@ -21,6 +21,7 @@ def test_imports():
         print("✅ dashboard_core imported successfully")
     except Exception as e:
         print(f"❌ dashboard_core import failed: {e}")
+        assert False, f"dashboard_core import failed: {e}"
         return False
 
     try:
@@ -31,6 +32,7 @@ def test_imports():
     except Exception as e:
         print(f"⚠️ topo_viz import failed: {e} (fallback mode will be used)")
 
+    assert True, "Import tests completed successfully"
     return True
 
 
@@ -64,6 +66,7 @@ def test_topology_controller():
         else:
             print("ℹ️ Running in fallback mode (topo_viz not available)")
 
+        assert True, "TopologyViewController test completed successfully"
         return True
 
     except Exception as e:
@@ -71,6 +74,7 @@ def test_topology_controller():
         import traceback
 
         traceback.print_exc()
+        assert False, f"TopologyViewController test failed: {e}"
         return False
 
 
@@ -95,6 +99,7 @@ def test_dashboard_creation():
         scene_info = dashboard.topo_controller.get_available_scenes()
         print(f"🎭 Scene categories available: {len(scene_info)}")
 
+        assert True, "Dashboard creation test completed successfully"
         return True
 
     except Exception as e:
@@ -102,6 +107,7 @@ def test_dashboard_creation():
         import traceback
 
         traceback.print_exc()
+        assert False, f"Dashboard creation test failed: {e}"
         return False
 
 
@@ -143,6 +149,7 @@ def test_scene_switching():
         else:
             print("⚠️ Not enough test scenes available for switching test")
 
+        assert True, "Scene switching test completed successfully"
         return True
 
     except Exception as e:
@@ -150,6 +157,7 @@ def test_scene_switching():
         import traceback
 
         traceback.print_exc()
+        assert False, f"Scene switching test failed: {e}"
         return False
 
 

@@ -35,6 +35,7 @@ def test_unified_dimensional_package():
         print("✅ Import successful - all modules loaded")
     except Exception as e:
         print(f"❌ Import failed: {e}")
+        assert False, f"Import failed: {e}"
         return False
 
     print("\n📊 TESTING GAMMA FUNCTIONS:")
@@ -46,6 +47,7 @@ def test_unified_dimensional_package():
         print("  ✅ Gamma functions working")
     except Exception as e:
         print(f"  ❌ Gamma functions failed: {e}")
+        assert False, f"Gamma functions failed: {e}"
         return False
 
     print("\n📐 TESTING DIMENSIONAL MEASURES:")
@@ -62,6 +64,7 @@ def test_unified_dimensional_package():
         print("  ✅ Dimensional measures working")
     except Exception as e:
         print(f"  ❌ Dimensional measures failed: {e}")
+        assert False, f"Dimensional measures failed: {e}"
         return False
 
     print("\n⚡ TESTING PHASE DYNAMICS:")
@@ -83,6 +86,7 @@ def test_unified_dimensional_package():
         print("  ✅ Phase dynamics working")
     except Exception as e:
         print(f"  ❌ Phase dynamics failed: {e}")
+        assert False, f"Phase dynamics failed: {e}"
         return False
 
     print("\n🔬 TESTING INTEGRATION:")
@@ -98,6 +102,7 @@ def test_unified_dimensional_package():
         print("  ✅ Integration working")
     except Exception as e:
         print(f"  ❌ Integration failed: {e}")
+        assert False, f"Integration failed: {e}"
         return False
 
     print("\n🚀 TESTING CONVENIENCE FUNCTIONS:")
@@ -111,6 +116,7 @@ def test_unified_dimensional_package():
         print("  ✅ Convenience functions working")
     except Exception as e:
         print(f"  ❌ Convenience functions failed: {e}")
+        assert False, f"Convenience functions failed: {e}"
         return False
 
     print("\n✨ SUMMARY:")
@@ -119,7 +125,8 @@ def test_unified_dimensional_package():
     print("📦 Unified dimensional package is fully functional")
     print("🧬 Gamma functions, measures, and phase dynamics integrated")
     print("⚡ Ready for advanced mathematical exploration!")
-
+    
+    assert True, "Unified dimensional package test completed successfully"
     return True
 
 
