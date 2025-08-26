@@ -48,23 +48,82 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
     engine = PhaseDynamicsEngine(max_dimensions=max_dimensions)
 
     results = []
-    for _ in range(time_steps):
-        state = engine.get_state()
-        results.append(
-            {
-                "time": state["time"],
-                "emerged": len(state["emerged_dimensions"]),
-                "energy": state["total_energy"],
-                "coherence": state["coherence"],
-            }
-        )
-        engine.step(0.01)
+    for step in range(time_steps):
+        try:
+            state = engine.get_state()
+            results.append(
+                {
+                    "time": step,
+                    "dimensions": len(state),
+                    "active_phases": sum(1 for phase in state if phase > 0.1),
+                    "total_phase": sum(state),
+                    "max_dimension": np.argmax(state),
+                }
+            )
+            engine.step(dt=0.01)
+        except Exception:
+            break
 
     return {
-        "evolution": results,
+        "time_steps": len(results),
+        "max_dimensions": max_dimensions,
+        "emergence_sequence": results,
         "final_state": engine.get_state(),
         "convergence": engine.diagnostics.get_diagnostics(),
     }
+
+
+def quick_phase_analysis(dimension=4.0, time_steps=100):
+    """
+    Perform quick phase analysis around a specific dimension.
+    
+    Parameters
+    ----------
+    dimension : float
+        Target dimension to analyze
+    time_steps : int
+        Number of evolution steps
+        
+    Returns
+    -------
+    dict
+        Analysis results including phase properties and evolution
+    """
+    from core.measures import phase_capacity
+    
+    try:
+        engine = PhaseDynamicsEngine(max_dimensions=int(dimension) + 2)
+        
+        # Set initial state at target dimension
+        engine.set_phase(int(dimension), 1.0)
+        
+        # Run brief evolution
+        results = []
+        for step in range(time_steps):
+            state = engine.get_state()
+            results.append({
+                'time': step,
+                'phases': state.copy(),
+                'effective_dimension': sum(d * p for d, p in enumerate(state) if p > 0.01)
+            })
+            engine.step(dt=0.01)
+            
+        return {
+            'target_dimension': dimension,
+            'time_steps': time_steps,
+            'phase_capacity': phase_capacity(dimension),
+            'evolution': results,
+            'final_state': results[-1] if results else {'effective_dimension': dimension}
+        }
+        
+    except Exception as e:
+        # Fallback analysis if engine fails
+        return {
+            'target_dimension': dimension,
+            'phase_capacity': phase_capacity(dimension) if dimension >= 0 else 0.0,
+            'final_state': {'effective_dimension': dimension},
+            'error': str(e)
+        }
 
 
 def dimensional_explorer(start_dim=0, end_dim=8, resolution=100):

@@ -81,3 +81,6 @@ try:
     γ_analysis = quick_gamma_analysis
 except NameError:
     pass
+
+# Import phase analysis functions
+from .phase import PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis

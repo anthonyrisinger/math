@@ -12,9 +12,60 @@ handling of edge cases and critical dimensions.
 """
 
 import numpy as np
+import warnings
 
 from .constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI
 from .gamma import gamma_safe, gammaln_safe
+
+
+def _validate_dimension(d, function_name="measure"):
+    """
+    Validate dimensional input and issue warnings for edge cases.
+    
+    Parameters
+    ----------
+    d : float or array-like
+        Dimension value(s) to validate
+    function_name : str
+        Name of the calling function for warning messages
+    """
+    d_array = np.asarray(d)
+    
+    # Check for negative dimensions
+    if np.any(d_array < 0):
+        negative_values = d_array[d_array < 0]
+        if len(negative_values) == 1:
+            warnings.warn(
+                f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
+                f"Returning mathematical extension value. "
+                f"Physical dimensions are typically d ≥ 0.", 
+                UserWarning, stacklevel=3
+            )
+        else:
+            warnings.warn(
+                f"Negative dimensions detected in {function_name}() "
+                f"(min: {np.min(negative_values):.3f}). "
+                f"Returning mathematical extension values. "
+                f"Physical dimensions are typically d ≥ 0.", 
+                UserWarning, stacklevel=3
+            )
+    
+    # Check for large dimensions
+    if np.any(d_array > 100):
+        large_values = d_array[d_array > 100]
+        if len(large_values) == 1:
+            warnings.warn(
+                f"Large dimension d={large_values[0]:.1f} in {function_name}() "
+                f"may underflow to zero due to gamma function behavior.", 
+                UserWarning, stacklevel=3
+            )
+        else:
+            warnings.warn(
+                f"Large dimensions detected in {function_name}() "
+                f"(max: {np.max(large_values):.1f}) "
+                f"may underflow to zero due to gamma function behavior.", 
+                UserWarning, stacklevel=3
+            )
 
 
 def ball_volume(d):
@@ -41,6 +92,9 @@ def ball_volume(d):
     - V_2 = π (disk)
     - V_3 = 4π/3 (sphere)
     """
+    # Validate input and issue warnings
+    _validate_dimension(d, "ball_volume")
+
     d = np.asarray(d)
 
     # Handle d = 0 exactly
@@ -97,6 +151,9 @@ def sphere_surface(d):
     - S_2 = 2π (circle, boundary of disk)
     - S_3 = 4π (sphere, boundary of ball)
     """
+    # Validate input and issue warnings
+    _validate_dimension(d, "sphere_surface")
+
     d = np.asarray(d)
 
     # Handle d = 0 (convention: S_0 = 2)
@@ -160,6 +217,9 @@ def complexity_measure(d):
     float or array
         Complexity measure C_d = V_d × S_d
     """
+    # Validate input and issue warnings
+    _validate_dimension(d, "complexity_measure")
+
     return ball_volume(d) * sphere_surface(d)
 
 
@@ -180,6 +240,9 @@ def ratio_measure(d):
     float or array
         Ratio S_d / V_d
     """
+    # Validate input and issue warnings
+    _validate_dimension(d, "ratio_measure")
+
     v = ball_volume(d)
     s = sphere_surface(d)
     # Avoid division by zero
@@ -203,6 +266,9 @@ def phase_capacity(d):
     float or array
         Phase capacity Λ(d) = V_d
     """
+    # Validate input and issue warnings
+    _validate_dimension(d, "phase_capacity")
+
     return ball_volume(np.maximum(d, 0.01))  # Avoid d = 0 issues
 
 
