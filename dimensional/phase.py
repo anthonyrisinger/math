@@ -14,7 +14,7 @@ to the robust implementations in core.phase.
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
 
@@ -50,18 +50,20 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
     results = []
     for _ in range(time_steps):
         state = engine.get_state()
-        results.append({
-            'time': state['time'],
-            'emerged': len(state['emerged_dimensions']),
-            'energy': state['total_energy'],
-            'coherence': state['coherence']
-        })
+        results.append(
+            {
+                "time": state["time"],
+                "emerged": len(state["emerged_dimensions"]),
+                "energy": state["total_energy"],
+                "coherence": state["coherence"],
+            }
+        )
         engine.step(0.01)
 
     return {
-        'evolution': results,
-        'final_state': engine.get_state(),
-        'convergence': engine.diagnostics.get_diagnostics()
+        "evolution": results,
+        "final_state": engine.get_state(),
+        "convergence": engine.diagnostics.get_diagnostics(),
     }
 
 
@@ -86,27 +88,28 @@ def dimensional_explorer(start_dim=0, end_dim=8, resolution=100):
     dimensions = np.linspace(start_dim, end_dim, resolution)
 
     results = {
-        'dimensions': dimensions,
-        'capacities': [],
-        'thresholds': [],
-        'sapping_rates': []
+        "dimensions": dimensions,
+        "capacities": [],
+        "thresholds": [],
+        "sapping_rates": [],
     }
 
     for d in dimensions:
         try:
             from core.measures import phase_capacity
+
             capacity = phase_capacity(d)
-            results['capacities'].append(capacity)
-            results['thresholds'].append(0.9 * capacity)
+            results["capacities"].append(capacity)
+            results["thresholds"].append(0.9 * capacity)
 
             # Sample sapping rate from d to d+1
             rate = sap_rate(d, d + 1, None)
-            results['sapping_rates'].append(rate)
+            results["sapping_rates"].append(rate)
 
         except (ValueError, OverflowError):
-            results['capacities'].append(np.nan)
-            results['thresholds'].append(np.nan)
-            results['sapping_rates'].append(0.0)
+            results["capacities"].append(np.nan)
+            results["thresholds"].append(np.nan)
+            results["sapping_rates"].append(0.0)
 
     return results
 

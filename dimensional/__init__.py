@@ -13,27 +13,42 @@ Quick start:
     lab()          # Interactive lab
 """
 
-# Import everything from gamma module
-# Import CLI for programmatic access
-# from . import cli  # Temporarily disabled due to consolidation
-from .gamma import *
-
-# Import everything from measures module
-from .measures import *
-
-# Import everything from morphic module
-from .morphic import *
-
-# Import everything from phase module
-from .phase import *
-
-# Import pregeometry module
-from .pregeometry import *
+# Import specific functions from modules to avoid star imports
+from .gamma import (
+    digamma_safe,
+    factorial_extension,
+    gamma_comparison_plot,
+    gamma_explorer,
+    gamma_safe,
+    gammaln_safe,
+    quick_gamma_analysis,
+)
+from .measures import (
+    C,  # Convenience aliases
+    S,
+    V,
+    ball_volume,
+    complexity_measure,
+    find_all_peaks,
+    sphere_surface,
+)
+from .morphic import (
+    MorphicAnalyzer,
+    golden_ratio_properties,
+    morphic_polynomial_roots,
+    stability_regions,
+)
+from .phase import (
+    PhaseDynamicsEngine,
+    dimensional_explorer,
+    quick_emergence_analysis,
+)
 
 # Import modern visualization components
 try:
     from visualization import KingdonRenderer, PlotlyDashboard
     from visualization.modernized_dashboard import create_modern_dashboard
+
     VISUALIZATION_AVAILABLE = True
 except ImportError:
     VISUALIZATION_AVAILABLE = False
@@ -71,9 +86,6 @@ def quick_start():
     print("  MorphicAnalyzer()             # Full analyzer")
 
 
-# Convenience aliases (only include functions that exist)
-try:
-    γ_explorer = gamma_explorer
-    γ_analysis = quick_gamma_analysis
-except NameError:
-    pass
+# Convenience aliases
+γ_explorer = gamma_explorer
+γ_analysis = quick_gamma_analysis

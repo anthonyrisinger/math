@@ -620,9 +620,7 @@ class MorphicAnalyzer:
 
         return analysis
 
-    def find_optimal_parameters(
-        self, criterion: str = "max_stability"
-    ) -> float | None:
+    def find_optimal_parameters(self, criterion: str = "max_stability") -> float | None:
         """Find optimal parameter values."""
         if criterion == "max_stability":
             # Parameters with maximum discriminant

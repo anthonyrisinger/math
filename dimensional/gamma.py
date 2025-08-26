@@ -3,10 +3,10 @@
 Dimensional Gamma Functions
 ===========================
 
-Enhanced gamma function module that imports robust core functionality 
+Enhanced gamma function module that imports robust core functionality
 and adds interactive exploration, visualization, and analysis tools.
 
-This module preserves API compatibility while building upon the 
+This module preserves API compatibility while building upon the
 robust mathematical implementations in core.gamma.
 """
 
@@ -14,13 +14,21 @@ robust mathematical implementations in core.gamma.
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-import matplotlib.pyplot as plt
+
 import numpy as np
 
+# Import modern visualization
+try:
+    from visualization.backends.plotly_backend import PlotlyBackend
+
+    _viz_backend = PlotlyBackend()
+except ImportError:
+    _viz_backend = None
+
 # Import and re-export constants for API compatibility
-from core.constants import PI, PHI, PSI, E
+from core.constants import PHI, PSI, PI, E
 
 # Re-export core gamma functions
 from core.gamma import *  # noqa: F401,F403
@@ -43,88 +51,79 @@ def ρ(d):
     """Volume density (reciprocal volume)."""
     return 1.0 / v(d)
 
+
 # Import peak finding functions - create shortcuts
 def v_peak():
     """Find volume peak dimension."""
     from core.measures import ball_volume, find_peak
+
     return find_peak(ball_volume)[0]
+
 
 def s_peak():
     """Find surface peak dimension."""
     from core.measures import find_peak, sphere_surface
+
     return find_peak(sphere_surface)[0]
+
 
 def c_peak():
     """Find complexity peak dimension."""
     from core.measures import complexity_measure, find_peak
+
     return find_peak(complexity_measure)[0]
+
 
 # ============================================================================
 # ENHANCED ANALYSIS AND VISUALIZATION TOOLS
 # ============================================================================
 
 
-def gamma_explorer(z_range=(-5, 5), n_points=1000, plot=True):
+def gamma_explorer(z_range=(-5, 5), n_points=1000, show_poles=True):
     """
-    Explore gamma function behavior across a range with visualization.
+    Interactive gamma function explorer with modern visualization.
 
-    Parameters
-    ----------
-    z_range : tuple
-        Range of values to explore (min, max)
-    n_points : int
-        Number of points to sample
-    plot : bool
-        Whether to create visualization
-
-    Returns
-    -------
-    dict
-        Exploration results with values, poles, and analysis
+    Args:
+        z_range: Tuple of (start, end) for exploration range
+        n_points: Number of points to evaluate
+        show_poles: Whether to highlight poles
     """
-    z_vals = np.linspace(z_range[0], z_range[1], n_points)
-    gamma_vals = gamma_safe(z_vals)
+    if _viz_backend is None:
+        print(
+            "Visualization backend not available. Install plotly for interactive plots."
+        )
+        return
 
-    # Find poles and special points
-    poles = z_vals[np.isinf(gamma_vals)]
+    z = np.linspace(z_range[0], z_range[1], n_points)
+
+    # Calculate gamma function values
+    gamma_vals = np.array([gamma_safe(zi) for zi in z])
+
+    # Filter out infinite/nan values for plotting
     finite_mask = np.isfinite(gamma_vals)
+    finite_z = z[finite_mask]
+    finite_gamma = gamma_vals[finite_mask]
 
-    results = {
-        'z_values': z_vals,
-        'gamma_values': gamma_vals,
-        'poles': poles,
-        'finite_range': (np.min(gamma_vals[finite_mask]), np.max(gamma_vals[finite_mask])) if np.any(finite_mask) else (np.nan, np.nan)
-    }
-
-    if plot:
-        plt.figure(figsize=(10, 6))
-        finite_z = z_vals[finite_mask]
-        finite_gamma = gamma_vals[finite_mask]
-
-        plt.plot(finite_z, finite_gamma, 'b-', linewidth=2, label='Γ(z)')
-        if len(poles) > 0:
-            for pole in poles:
-                plt.axvline(x=pole, color='r', linestyle='--', alpha=0.5)
-
-        plt.xlabel('z')
-        plt.ylabel('Γ(z)')
-        plt.title('Gamma Function Explorer')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.show()
-
-    return results
+    # Create interactive plot
+    _viz_backend.line_plot(
+        x=finite_z,
+        y=finite_gamma,
+        title="Gamma Function Explorer",
+        xlabel="z",
+        ylabel="Γ(z)",
+        line_color="blue",
+    )
 
 
 def quick_gamma_analysis(z_values):
     """
     Quick analysis of gamma function for given values.
-    
+
     Parameters
     ----------
     z_values : array-like
         Values to analyze
-        
+
     Returns
     -------
     dict
@@ -133,17 +132,21 @@ def quick_gamma_analysis(z_values):
     z_values = np.asarray(z_values)
 
     return {
-        'gamma': gamma_safe(z_values),
-        'ln_gamma': gammaln_safe(z_values),
-        'digamma': digamma_safe(z_values),
-        'factorial': factorial_extension(z_values[z_values >= 0]) if np.any(z_values >= 0) else np.array([])
+        "gamma": gamma_safe(z_values),
+        "ln_gamma": gammaln_safe(z_values),
+        "digamma": digamma_safe(z_values),
+        "factorial": (
+            factorial_extension(z_values[z_values >= 0])
+            if np.any(z_values >= 0)
+            else np.array([])
+        ),
     }
 
 
 def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     """
     Compare gamma function with related functions.
-    
+
     Parameters
     ----------
     z_range : tuple
@@ -151,6 +154,8 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     n_points : int
         Number of points
     """
+    import matplotlib.pyplot as plt
+
     z = np.linspace(z_range[0], z_range[1], n_points)
 
     # Remove problematic regions for plotting
@@ -163,24 +168,24 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     plt.subplot(2, 2, 1)
     gamma_vals = gamma_safe(z_clean)
     finite_mask = np.isfinite(gamma_vals) & (np.abs(gamma_vals) < 100)
-    plt.plot(z_clean[finite_mask], gamma_vals[finite_mask], 'b-', linewidth=2)
-    plt.title('Γ(z)')
+    plt.plot(z_clean[finite_mask], gamma_vals[finite_mask], "b-", linewidth=2)
+    plt.title("Γ(z)")
     plt.grid(True, alpha=0.3)
 
     # Log gamma
     plt.subplot(2, 2, 2)
     ln_gamma_vals = gammaln_safe(z_clean)
     finite_mask = np.isfinite(ln_gamma_vals)
-    plt.plot(z_clean[finite_mask], ln_gamma_vals[finite_mask], 'g-', linewidth=2)
-    plt.title('ln Γ(z)')
+    plt.plot(z_clean[finite_mask], ln_gamma_vals[finite_mask], "g-", linewidth=2)
+    plt.title("ln Γ(z)")
     plt.grid(True, alpha=0.3)
 
     # Digamma
     plt.subplot(2, 2, 3)
     digamma_vals = digamma_safe(z_clean)
     finite_mask = np.isfinite(digamma_vals) & (np.abs(digamma_vals) < 50)
-    plt.plot(z_clean[finite_mask], digamma_vals[finite_mask], 'r-', linewidth=2)
-    plt.title('ψ(z) = Γ\'(z)/Γ(z)')
+    plt.plot(z_clean[finite_mask], digamma_vals[finite_mask], "r-", linewidth=2)
+    plt.title("ψ(z) = Γ'(z)/Γ(z)")
     plt.grid(True, alpha=0.3)
 
     # Factorial extension
@@ -189,8 +194,8 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     if len(positive_z) > 0:
         fact_vals = factorial_extension(positive_z)
         finite_mask = np.isfinite(fact_vals) & (fact_vals < 100)
-        plt.plot(positive_z[finite_mask], fact_vals[finite_mask], 'm-', linewidth=2)
-    plt.title('z! = Γ(z+1)')
+        plt.plot(positive_z[finite_mask], fact_vals[finite_mask], "m-", linewidth=2)
+    plt.title("z! = Γ(z+1)")
     plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
@@ -206,13 +211,17 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
 ln_γ = gammaln_safe  # ln(γ(z))
 ψ = digamma_safe  # ψ(z) = γ'(z)/γ(z)
 
+
 # Additional shortcuts expected by tests
-abs_γ = lambda z: np.abs(gamma_safe(z))  # |γ(z)|
+def abs_γ(z):
+    return np.abs(gamma_safe(z))  # |γ(z)|
+
 
 # Quick visualization functions (placeholders for matplotlib-free version)
 def qplot(*funcs, labels=None):
     """Quick plot function - mock implementation."""
     import matplotlib.pyplot as plt
+
     fig, ax = plt.subplots(figsize=(10, 6))
     d_vals = np.linspace(0.1, 10, 1000)
     for i, func in enumerate(funcs):
@@ -226,11 +235,14 @@ def qplot(*funcs, labels=None):
     ax.grid(True, alpha=0.3)
     return fig, ax
 
+
 def instant():
     """Instant 4-panel visualization."""
     import matplotlib.pyplot as plt
+
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
     return fig, axes
+
 
 def explore(d):
     """Explore dimensional measures at given dimension."""
@@ -241,38 +253,44 @@ def explore(d):
     print(f"Ratio: {r(d):.6f}")
     print(f"Density: {ρ(d):.6f}")
 
+
 def peaks():
     """Show all peaks."""
     print(f"Volume peak: {v_peak():.3f}")
     print(f"Surface peak: {s_peak():.3f}")
     print(f"Complexity peak: {c_peak():.3f}")
 
+
 # Mock interactive classes
 class GammaLab:
     def __init__(self, start_d=4.0):
         self.d = start_d
         self.mode = 0
-        self.modes = ['volume', 'surface', 'complexity']
+        self.modes = ["volume", "surface", "complexity"]
 
     def show(self):
         """Show the gamma lab interface."""
         explore(self.d)
+
 
 class LiveGamma:
     def __init__(self, expr_file=None):
         self.d = 4.0
         self.expr_file = expr_file
 
+
 def lab(start_d=4.0):
     """Launch gamma lab."""
     lab = GammaLab(start_d=start_d)
     return lab
+
 
 def demo():
     """Run demonstration."""
     print("Dimensional Gamma Demo")
     explore(4.0)
     instant()
+
 
 def live(expr_file="gamma_expr.py"):
     """Start live editing mode with hot reload."""
@@ -281,17 +299,18 @@ def live(expr_file="gamma_expr.py"):
     # Placeholder implementation - would use file system watching
     print("Live mode started. Save your expression file to see changes.")
 
+
 def peaks_analysis(d_range=(0, 10), resolution=1000):
     """
     Find and analyze peaks in gamma-related functions.
-    
+
     Parameters
     ----------
     d_range : tuple
         Dimension range to analyze
     resolution : int
         Number of points to sample
-        
+
     Returns
     -------
     dict
@@ -306,7 +325,7 @@ def peaks_analysis(d_range=(0, 10), resolution=1000):
     # Find local maxima (simple peak detection)
     finite_mask = np.isfinite(gamma_vals)
     if not np.any(finite_mask):
-        return {'peaks': [], 'message': 'No finite values found'}
+        return {"peaks": [], "message": "No finite values found"}
 
     finite_d = d_vals[finite_mask]
     finite_gamma = gamma_vals[finite_mask]
@@ -314,13 +333,13 @@ def peaks_analysis(d_range=(0, 10), resolution=1000):
     # Simple peak detection
     peaks = []
     for i in range(1, len(finite_gamma) - 1):
-        if finite_gamma[i] > finite_gamma[i-1] and finite_gamma[i] > finite_gamma[i+1]:
-            peaks.append({
-                'dimension': finite_d[i],
-                'value': finite_gamma[i]
-            })
+        if (
+            finite_gamma[i] > finite_gamma[i - 1]
+            and finite_gamma[i] > finite_gamma[i + 1]
+        ):
+            peaks.append({"dimension": finite_d[i], "value": finite_gamma[i]})
 
-    return {'peaks': peaks, 'd_values': finite_d, 'gamma_values': finite_gamma}
+    return {"peaks": peaks, "d_values": finite_d, "gamma_values": finite_gamma}
 
 
 if __name__ == "__main__":
@@ -332,9 +351,9 @@ if __name__ == "__main__":
     results = quick_gamma_analysis(test_vals)
 
     print("Test values:", test_vals)
-    print("Γ(z):", results['gamma'])
-    print("ln Γ(z):", results['ln_gamma'])
-    print("ψ(z):", results['digamma'])
+    print("Γ(z):", results["gamma"])
+    print("ln Γ(z):", results["ln_gamma"])
+    print("ψ(z):", results["digamma"])
 
     print("\n✅ Gamma function consolidation successful!")
     print("Core functions imported from ../core/gamma")

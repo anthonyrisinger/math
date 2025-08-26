@@ -15,9 +15,8 @@ import numpy as np
 
 # Import existing modules
 from dimensional_landscape import DimensionalLandscape
-from matplotlib.widgets import Slider
-
 from emergence_cascade import EmergenceCascade, EmergenceCascadeVisualizer
+from matplotlib.widgets import Slider
 
 # Import topo_viz functionality
 try:

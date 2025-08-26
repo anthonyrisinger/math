@@ -17,7 +17,7 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.widgets import Button, CheckButtons, Slider
 
-from core.constants import PHI, PI, PSI, E
+from core.constants import PHI, PI, PSI
 from core.measures import DimensionalMeasures
 from core.view import setup_3d_axis
 

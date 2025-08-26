@@ -4,6 +4,14 @@ CLI Enhancement Suggestions for dimensional/cli.py
 These are optional enhancements to make the CLI even more AI-friendly:
 """
 
+from typing import Any, Optional
+
+import typer
+
+# This would be imported from the main CLI module
+app = typer.Typer()
+console = None  # Would be imported from rich.console
+
 
 # 1. Add global error handling
 @app.callback()

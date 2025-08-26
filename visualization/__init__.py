@@ -17,37 +17,34 @@ MATPLOTLIB IS DEAD. LONG LIVE MODERN VISUALIZATION.
 """
 
 # Import modern backends
-from .backends import KingdonRenderer, PlotlyDashboard, VisualizationBackend
+# Legacy compatibility layer (DEPRECATED)
+import warnings
 
-# Import modernized dashboard
-from .modernized_dashboard import (
-    ModernDashboard, 
-    BackendType, 
-    create_modern_dashboard
-)
+from .backends import KingdonRenderer, PlotlyDashboard, VisualizationBackend
 
 # Import CLI interface
 from .cli_interface import viz as cli
 
-# Legacy compatibility layer (DEPRECATED)
-import warnings
+# Import modernized dashboard
+from .modernized_dashboard import BackendType, ModernDashboard, create_modern_dashboard
+
 
 class LegacyDashboardWrapper:
     """
     DEPRECATED: Legacy matplotlib-based dashboard wrapper.
     Provided for compatibility only. Use ModernDashboard instead.
     """
-    
+
     def __init__(self, *args, **kwargs):
         warnings.warn(
             "LegacyDashboardWrapper is DEPRECATED and will be removed. "
             "Use ModernDashboard with Kingdon or Plotly backends instead. "
             "Matplotlib dependencies have been ELIMINATED WITH EXTREME PREJUDICE.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         self.modern_dashboard = ModernDashboard(backend="auto")
-    
+
     def launch(self, *args, **kwargs):
         """Launch modern dashboard instead of legacy matplotlib version."""
         print("⚠️ LEGACY METHOD DEPRECATED - Redirecting to modern dashboard")
@@ -64,42 +61,44 @@ def DimensionalDashboard(*args, **kwargs):
         "DimensionalDashboard is DEPRECATED. Use create_modern_dashboard() instead. "
         "Matplotlib has been ELIMINATED WITH EXTREME PREJUDICE.",
         DeprecationWarning,
-        stacklevel=2
+        stacklevel=2,
     )
     return create_modern_dashboard(backend="auto")
 
 
 # Legacy imports (DEPRECATED)
 try:
+    from .themes import apply_theme, get_theme
     from .topology import TopologyVisualizer
-    from .themes import get_theme, apply_theme
 except ImportError:
     # Graceful degradation if legacy modules unavailable
     TopologyVisualizer = None
-    get_theme = lambda: "modern"
-    apply_theme = lambda x: None
+
+    def get_theme():
+        return "modern"
+
+    def apply_theme(x):
+        return None
+
 
 # Public API exports
 __all__ = [
     # Modern backends
-    'KingdonRenderer',
-    'PlotlyDashboard', 
-    'VisualizationBackend',
-    
+    "KingdonRenderer",
+    "PlotlyDashboard",
+    "VisualizationBackend",
     # Modern dashboard
-    'ModernDashboard',
-    'BackendType',
-    'create_modern_dashboard',
-    
+    "ModernDashboard",
+    "BackendType",
+    "create_modern_dashboard",
     # CLI interface
-    'cli',
-    
+    "cli",
     # Legacy compatibility (DEPRECATED)
-    'DimensionalDashboard',  # DEPRECATED - redirects to ModernDashboard
-    'LegacyDashboardWrapper',  # DEPRECATED
-    'TopologyVisualizer',  # DEPRECATED
-    'get_theme',  # DEPRECATED
-    'apply_theme'  # DEPRECATED
+    "DimensionalDashboard",  # DEPRECATED - redirects to ModernDashboard
+    "LegacyDashboardWrapper",  # DEPRECATED
+    "TopologyVisualizer",  # DEPRECATED
+    "get_theme",  # DEPRECATED
+    "apply_theme",  # DEPRECATED
 ]
 
 # Module metadata

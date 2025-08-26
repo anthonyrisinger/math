@@ -29,21 +29,14 @@ from rich.panel import Panel
 from rich.progress import track
 from rich.table import Table
 
-# Import our consolidated modules with correct function names
-from .gamma import (
-    c,
-    demo,
-    explore,
-    gamma_safe,
-    instant,
-    lab,
-    live,
-    peaks,
-    qplot,
-    s,
-    v,
-)
-from .phase import PhaseDynamicsEngine
+# Import our consolidated modules
+from .gamma import gamma_safe, γ, ln_γ, ψ, gamma_explorer, quick_gamma_analysis
+from .phase import PhaseDynamicsEngine, quick_emergence_analysis
+from .measures import ball_volume, sphere_surface, complexity_measure, V, S, C, Λ
+
+# Import visualization modules
+from visualization import PlotlyDashboard, KingdonRenderer
+from visualization.modernized_dashboard import create_modern_dashboard
 
 # Initialize rich console for beautiful output
 console = Console()
@@ -714,8 +707,8 @@ def cli_visualize_gamma_landscape(
     # Create complex grid
     real_vals = np.linspace(dim_range[0], dim_range[1], resolution)
     imag_vals = np.linspace(-complex_range, complex_range, resolution)
-    R, Im = np.meshgrid(real_vals, imag_vals)
-    Z = R + 1j * Im
+    R, I = np.meshgrid(real_vals, imag_vals)
+    Z = R + 1j * I
 
     with console.status("🔄 Computing 3D gamma landscape..."):
         # Compute gamma function over complex plane
@@ -734,7 +727,7 @@ def cli_visualize_gamma_landscape(
     fig.add_trace(
         go.Surface(
             x=R,
-            y=Im,
+            y=I,
             z=np.real(gamma_vals),
             name="Re(Γ(z))",
             colorscale="Viridis",

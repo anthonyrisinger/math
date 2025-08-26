@@ -25,24 +25,40 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 try:
     from dimensional.gamma import (
+        PHI,
         # Constants
-        PI, PHI, PSI, E,
-        # Core gamma functions
-        gamma_safe, gammaln_safe, digamma_safe,
-        # Dimensional measures
-        v, s, c, r, ρ,
-        # Peak finders
-        v_peak, s_peak, c_peak,
-        # Unicode aliases
-        γ, abs_γ,
-        # Visualization
-        qplot, instant,
-        # Exploration tools
-        explore, peaks,
+        PI,
+        PSI,
+        E,
         # Interactive tools
-        GammaLab, LiveGamma,
+        GammaLab,
+        LiveGamma,
+        abs_γ,
+        c,
+        c_peak,
+        demo,
+        digamma_safe,
+        # Exploration tools
+        explore,
+        # Core gamma functions
+        gamma_safe,
+        gammaln_safe,
+        instant,
         # CLI tools
-        lab, demo
+        lab,
+        peaks,
+        # Visualization
+        qplot,
+        r,
+        s,
+        s_peak,
+        # Dimensional measures
+        v,
+        # Peak finders
+        v_peak,
+        # Unicode aliases
+        γ,
+        ρ,
     )
 
     IMPORT_SUCCESS = True
