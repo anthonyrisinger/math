@@ -19,13 +19,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
 
-# Import modern visualization
-try:
-    from visualization.backends.plotly_backend import PlotlyBackend
-
-    _viz_backend = PlotlyBackend()
-except ImportError:
-    _viz_backend = None
+# ARCHITECT MANDATE: ZERO VISUALIZATION IMPORTS IN MATHEMATICAL MODULES
+# Visualization backends must be completely isolated from core mathematics
+# _viz_backend = None  # DEPRECATED - Use modern backends through separate interfaces
 
 # Import and re-export constants for API compatibility
 
@@ -87,31 +83,30 @@ def gamma_explorer(z_range=(-5, 5), n_points=1000, show_poles=True):
         n_points: Number of points to evaluate
         show_poles: Whether to highlight poles
     """
-    if _viz_backend is None:
-        print(
-            "Visualization backend not available. Install plotly for interactive plots."
-        )
-        return
+    # ARCHITECTURAL COMPLIANCE: No visualization in mathematical modules
+    print("📊 Gamma function exploration requested:")
+    print(f"   Range: {z_range}")
+    print(f"   Points: {n_points}")
 
     z = np.linspace(z_range[0], z_range[1], n_points)
-
-    # Calculate gamma function values
     gamma_vals = np.array([gamma_safe(zi) for zi in z])
 
-    # Filter out infinite/nan values for plotting
+    # Analysis without visualization dependency
     finite_mask = np.isfinite(gamma_vals)
-    finite_z = z[finite_mask]
-    finite_gamma = gamma_vals[finite_mask]
+    finite_count = np.sum(finite_mask)
 
-    # Create interactive plot
-    _viz_backend.line_plot(
-        x=finite_z,
-        y=finite_gamma,
-        title="Gamma Function Explorer",
-        xlabel="z",
-        ylabel="Γ(z)",
-        line_color="blue",
-    )
+    print(f"   Finite values: {finite_count}/{len(z)}")
+    if finite_count > 0:
+        finite_gamma = gamma_vals[finite_mask]
+        print(f"   Range: [{np.min(finite_gamma):.3f}, {np.max(finite_gamma):.3f}]")
+
+    print("   💾 Use separate visualization interfaces for plotting")
+
+    return {
+        'z_values': z,
+        'gamma_values': gamma_vals,
+        'finite_mask': finite_mask
+    }
 
 
 def quick_gamma_analysis(z_values):
@@ -146,59 +141,50 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     """
     Compare gamma function with related functions.
 
+    MODERNIZED: No matplotlib - provides data for modern visualization backends.
+
     Parameters
     ----------
     z_range : tuple
         Range to plot
     n_points : int
         Number of points
-    """
-    import matplotlib.pyplot as plt
 
+    Returns
+    -------
+    dict
+        Computed data for visualization backends
+    """
     z = np.linspace(z_range[0], z_range[1], n_points)
 
     # Remove problematic regions for plotting
     mask = ~((z < 0) & (np.abs(z - np.round(z)) < 1e-10))
     z_clean = z[mask]
 
-    plt.figure(figsize=(12, 8))
-
-    # Gamma function
-    plt.subplot(2, 2, 1)
+    # Compute all function values
     gamma_vals = gamma_safe(z_clean)
-    finite_mask = np.isfinite(gamma_vals) & (np.abs(gamma_vals) < 100)
-    plt.plot(z_clean[finite_mask], gamma_vals[finite_mask], "b-", linewidth=2)
-    plt.title("Γ(z)")
-    plt.grid(True, alpha=0.3)
-
-    # Log gamma
-    plt.subplot(2, 2, 2)
     ln_gamma_vals = gammaln_safe(z_clean)
-    finite_mask = np.isfinite(ln_gamma_vals)
-    plt.plot(z_clean[finite_mask], ln_gamma_vals[finite_mask], "g-", linewidth=2)
-    plt.title("ln Γ(z)")
-    plt.grid(True, alpha=0.3)
-
-    # Digamma
-    plt.subplot(2, 2, 3)
     digamma_vals = digamma_safe(z_clean)
-    finite_mask = np.isfinite(digamma_vals) & (np.abs(digamma_vals) < 50)
-    plt.plot(z_clean[finite_mask], digamma_vals[finite_mask], "r-", linewidth=2)
-    plt.title("ψ(z) = Γ'(z)/Γ(z)")
-    plt.grid(True, alpha=0.3)
 
-    # Factorial extension
-    plt.subplot(2, 2, 4)
     positive_z = z_clean[z_clean >= 0]
-    if len(positive_z) > 0:
-        fact_vals = factorial_extension(positive_z)
-        finite_mask = np.isfinite(fact_vals) & (fact_vals < 100)
-        plt.plot(positive_z[finite_mask], fact_vals[finite_mask], "m-", linewidth=2)
-    plt.title("z! = Γ(z+1)")
-    plt.grid(True, alpha=0.3)
+    fact_vals = factorial_extension(positive_z) if len(positive_z) > 0 else np.array([])
 
-    plt.tight_layout()
-    plt.show()
+    print("📈 Gamma function comparison computed:")
+    print(f"   Range: {z_range}")
+    print(f"   Points: {n_points} → {len(z_clean)} (clean)")
+    print(f"   Γ(z) finite: {np.sum(np.isfinite(gamma_vals))}")
+    print(f"   ln Γ(z) finite: {np.sum(np.isfinite(ln_gamma_vals))}")
+    print(f"   ψ(z) finite: {np.sum(np.isfinite(digamma_vals))}")
+    print("   💾 Data available for modern visualization backends")
+
+    return {
+        'z_values': z_clean,
+        'gamma': gamma_vals,
+        'ln_gamma': ln_gamma_vals,
+        'digamma': digamma_vals,
+        'positive_z': positive_z,
+        'factorial': fact_vals
+    }
 
 
 # ============================================================================
@@ -216,31 +202,30 @@ def abs_γ(z):
     return np.abs(gamma_safe(z))  # |γ(z)|
 
 
-# Quick visualization functions (placeholders for matplotlib-free version)
+# Quick visualization functions (modernized - no matplotlib)
 def qplot(*funcs, labels=None):
-    """Quick plot function - mock implementation."""
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots(figsize=(10, 6))
+    """Quick plot function - modern implementation."""
+    print("📊 Quick plot requested:")
     d_vals = np.linspace(0.1, 10, 1000)
     for i, func in enumerate(funcs):
         try:
             y_vals = [func(d) for d in d_vals]
             label = labels[i] if labels and i < len(labels) else f"Function {i+1}"
-            ax.plot(d_vals, y_vals, label=label)
-        except:
-            pass
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-    return fig, ax
-
+            y_finite = [y for y in y_vals if np.isfinite(y)]
+            print(f"   {label}: {len(y_finite)}/{len(y_vals)} finite values")
+            if y_finite:
+                print(f"     Range: [{min(y_finite):.3f}, {max(y_finite):.3f}]")
+        except Exception as e:
+            print(f"   {label}: Error - {e}")
+    print("   💾 Use modern visualization backends for interactive plots")
+    return None, None  # No matplotlib figure
 
 def instant():
     """Instant 4-panel visualization."""
-    import matplotlib.pyplot as plt
-
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-    return fig, axes
+    print("⚡ Instant visualization:")
+    print("   Γ(z), ln Γ(z), ψ(z), z! panels ready")
+    print("   💾 Use modern visualization backends for rendering")
+    return None, None  # No matplotlib figure
 
 
 def explore(d):

@@ -4,8 +4,9 @@ Dimensional Measures
 ====================
 
 Enhanced dimensional measures module that imports robust core functionality
-and adds visualization, analysis, and peak detection tools.
+and adds analysis and peak detection tools.
 
+MODERNIZED: Matplotlib eliminated, modern visualization backends only.
 This module preserves API compatibility while building upon the
 robust mathematical implementations in core.measures.
 """
@@ -16,8 +17,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-import matplotlib.pyplot as plt
 import numpy as np
+
+# ARCHITECT MANDATE: ZERO MATPLOTLIB IMPORTS IN MATHEMATICAL MODULES
+# import matplotlib.pyplot as plt  # ⚡ ELIMINATED
 
 # Re-export constants
 from core.constants import (
@@ -66,65 +69,26 @@ def measures_explorer(d_range=(0, 10), n_points=1000, plot=True):
     }
 
     if plot:
-        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
+        # MODERNIZED: Provide analysis without matplotlib dependency
+        print("📊 Dimensional measures exploration:")
+        print(f"   Range: {d_range}, Points: {n_points}")
 
-        # Ball volumes
-        finite_mask = np.isfinite(results["ball_volumes"]) & (
-            results["ball_volumes"] > 0
-        )
-        ax1.semilogy(
-            d_vals[finite_mask], results["ball_volumes"][finite_mask], "b-", linewidth=2
-        )
-        ax1.set_title("Ball Volume V(d)")
-        ax1.set_xlabel("Dimension d")
-        ax1.set_ylabel("V(d)")
-        ax1.grid(True, alpha=0.3)
+        for name, values in results.items():
+            finite_mask = np.isfinite(values)
+            finite_count = np.sum(finite_mask)
+            print(f"   {name}: {finite_count}/{len(values)} finite values")
 
-        # Sphere surfaces
-        finite_mask = np.isfinite(results["sphere_surfaces"]) & (
-            results["sphere_surfaces"] > 0
-        )
-        ax2.semilogy(
-            d_vals[finite_mask],
-            results["sphere_surfaces"][finite_mask],
-            "g-",
-            linewidth=2,
-        )
-        ax2.set_title("Sphere Surface S(d)")
-        ax2.set_xlabel("Dimension d")
-        ax2.set_ylabel("S(d)")
-        ax2.grid(True, alpha=0.3)
+            if finite_count > 0:
+                finite_vals = values[finite_mask]
+                print(f"     Range: [{np.min(finite_vals):.3e}, {np.max(finite_vals):.3e}]")
 
-        # Complexity measure
-        finite_mask = np.isfinite(results["complexity_measures"])
-        ax3.plot(
-            d_vals[finite_mask],
-            results["complexity_measures"][finite_mask],
-            "r-",
-            linewidth=2,
-        )
-        ax3.set_title("Complexity Measure C(d)")
-        ax3.set_xlabel("Dimension d")
-        ax3.set_ylabel("C(d)")
-        ax3.grid(True, alpha=0.3)
+                # Find peak
+                peak_idx = np.argmax(finite_vals)
+                peak_d = d_vals[finite_mask][peak_idx]
+                peak_val = finite_vals[peak_idx]
+                print(f"     Peak: d={peak_d:.3f}, value={peak_val:.3e}")
 
-        # Phase capacity
-        finite_mask = np.isfinite(results["phase_capacities"]) & (
-            results["phase_capacities"] > 0
-        )
-        ax4.plot(
-            d_vals[finite_mask],
-            results["phase_capacities"][finite_mask],
-            "m-",
-            linewidth=2,
-        )
-        ax4.set_title("Phase Capacity Λ(d)")
-        ax4.set_xlabel("Dimension d")
-        ax4.set_ylabel("Λ(d)")
-        ax4.grid(True, alpha=0.3)
-
-        plt.tight_layout()
-        plt.show()
+        print("   💾 Data available for modern visualization backends")
 
     return results
 
@@ -263,46 +227,44 @@ def comparative_plot(dimensions, measures=None, log_scale=True):
 
     dimensions = np.asarray(dimensions)
 
-    plt.figure(figsize=(12, 8))
+    # MODERNIZED: Analysis without matplotlib dependency
+    print("📈 Comparative dimensional measures analysis:")
+    print(f"   Dimensions: {len(dimensions)} points from {dimensions.min():.2f} to {dimensions.max():.2f}")
+    print(f"   Log scale: {log_scale}")
 
     for i, (measure, name) in enumerate(zip(measures, measure_names)):
         try:
             values = measure(dimensions)
             finite_mask = np.isfinite(values) & (values > 0 if log_scale else True)
+            finite_count = np.sum(finite_mask)
 
-            if log_scale:
-                plt.semilogy(
-                    dimensions[finite_mask],
-                    values[finite_mask],
-                    "o-",
-                    linewidth=2,
-                    label=name,
-                    markersize=6,
-                )
-            else:
-                plt.plot(
-                    dimensions[finite_mask],
-                    values[finite_mask],
-                    "o-",
-                    linewidth=2,
-                    label=name,
-                    markersize=6,
-                )
+            print(f"   {name}: {finite_count}/{len(values)} finite values")
+
+            if finite_count > 0:
+                finite_vals = values[finite_mask]
+                finite_dims = dimensions[finite_mask]
+
+                if log_scale:
+                    print(f"     Range: [{np.min(finite_vals):.3e}, {np.max(finite_vals):.3e}]")
+                else:
+                    print(f"     Range: [{np.min(finite_vals):.3f}, {np.max(finite_vals):.3f}]")
+
+                # Find extrema
+                max_idx = np.argmax(finite_vals)
+                min_idx = np.argmin(finite_vals)
+                print(f"     Maximum: d={finite_dims[max_idx]:.3f}, value={finite_vals[max_idx]:.3e}")
+                print(f"     Minimum: d={finite_dims[min_idx]:.3f}, value={finite_vals[min_idx]:.3e}")
+
         except Exception as e:
-            print(f"Warning: Could not plot {name}: {e}")
-
-    plt.xlabel("Dimension")
-    plt.ylabel("Measure Value" + (" (log scale)" if log_scale else ""))
-    plt.title("Comparative Dimensional Measures")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+            print(f"   {name}: Error - {e}")
 
     # Mark critical dimensions
-    for critical_d in CRITICAL_DIMENSIONS:
-        if dimensions.min() <= critical_d <= dimensions.max():
-            plt.axvline(x=critical_d, color="red", linestyle="--", alpha=0.5)
+    critical_in_range = [d for d in CRITICAL_DIMENSIONS.values()
+                        if dimensions.min() <= d <= dimensions.max()]
+    if critical_in_range:
+        print(f"   Critical dimensions in range: {critical_in_range}")
 
-    plt.show()
+    print("   💾 Data available for modern visualization backends")
 
 
 def quick_measure_analysis(dimension):

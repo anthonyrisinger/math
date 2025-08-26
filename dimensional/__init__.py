@@ -93,3 +93,21 @@ def quick_start():
 # Import lowercase aliases for CLI compatibility
 from .gamma import demo, explore, instant, lab, live, peaks, qplot
 from .measures import c, s, v
+
+# ARCHITECTURAL BYPASS: Direct constants export to avoid contamination
+PHI = 1.618033988749895  # Golden ratio φ = (1+√5)/2
+PSI = 0.618033988749895  # Golden conjugate ψ = 1/φ
+PI = 3.141592653589793   # π
+E = 2.718281828459045    # Euler's number e
+
+# Critical dimensions for convenience
+CRITICAL_D_PI = PI                    # π ≈ 3.14159
+CRITICAL_D_E = E                      # e ≈ 2.71828  
+CRITICAL_D_PHI_SQ = PHI * PHI         # φ² ≈ 2.618
+CRITICAL_D_2PI = 2 * PI               # 2π ≈ 6.283
+
+# ARCHITECTURAL WORKAROUND: Restore stdout (contamination bypass complete)
+try:
+    sys.stdout = _original_stdout
+except:
+    pass  # Already restored or not redirected

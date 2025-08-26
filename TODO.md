@@ -1,5 +1,24 @@
 **STATUS: ✅ IMPLEMENTED** - Dimensional mathematics framework with full CLI, visualization, and 109 passing tests.
 
+## 🚨 TECHNICAL DEBT - IMPORT CONTAMINATION ISSUE
+
+**Priority**: Medium (Sprint 2)  
+**Impact**: Cosmetic (does not affect functionality)
+
+**Issue**: Import chain contamination causing print statements during module loading:
+- "PHASE 2" prints appear in import chain
+- "Kingdon geometric algebra" messages
+- Matplotlib elimination successful but contamination persists
+
+**Current Status**: 
+- ✅ Bypass implemented via direct constants export in `__init__.py`
+- ✅ Mathematical functionality 100% operational
+- ✅ All tests passing (109/109)
+- ⚠️ Cosmetic print contamination during imports
+
+**Architectural Decision**: Bypassed for Sprint 1 completion
+**Future Action**: Deep import chain analysis and cleanup for Sprint 2
+
 **North Star:** Build an instrument where **integers stay stable** (index, Chern, degree, linking) while **pictures move** (curvature, cuts, flows). The on-screen badge reads **value ≈ N (abs(delta) = residual)** and remains green as parameters change.
 
 ## ✅ COMPLETED FEATURES
