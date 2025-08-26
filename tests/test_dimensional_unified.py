@@ -36,7 +36,6 @@ def test_unified_dimensional_package():
     except Exception as e:
         print(f"❌ Import failed: {e}")
         assert False, f"Import failed: {e}"
-        return False
 
     print("\n📊 TESTING GAMMA FUNCTIONS:")
     print("-" * 40)
@@ -48,7 +47,6 @@ def test_unified_dimensional_package():
     except Exception as e:
         print(f"  ❌ Gamma functions failed: {e}")
         assert False, f"Gamma functions failed: {e}"
-        return False
 
     print("\n📐 TESTING DIMENSIONAL MEASURES:")
     print("-" * 40)
@@ -65,7 +63,6 @@ def test_unified_dimensional_package():
     except Exception as e:
         print(f"  ❌ Dimensional measures failed: {e}")
         assert False, f"Dimensional measures failed: {e}"
-        return False
 
     print("\n⚡ TESTING PHASE DYNAMICS:")
     print("-" * 40)
@@ -87,7 +84,6 @@ def test_unified_dimensional_package():
     except Exception as e:
         print(f"  ❌ Phase dynamics failed: {e}")
         assert False, f"Phase dynamics failed: {e}"
-        return False
 
     print("\n🔬 TESTING INTEGRATION:")
     print("-" * 40)
@@ -103,7 +99,6 @@ def test_unified_dimensional_package():
     except Exception as e:
         print(f"  ❌ Integration failed: {e}")
         assert False, f"Integration failed: {e}"
-        return False
 
     print("\n🚀 TESTING CONVENIENCE FUNCTIONS:")
     print("-" * 40)
@@ -117,7 +112,6 @@ def test_unified_dimensional_package():
     except Exception as e:
         print(f"  ❌ Convenience functions failed: {e}")
         assert False, f"Convenience functions failed: {e}"
-        return False
 
     print("\n✨ SUMMARY:")
     print("=" * 60)
@@ -127,7 +121,6 @@ def test_unified_dimensional_package():
     print("⚡ Ready for advanced mathematical exploration!")
     
     assert True, "Unified dimensional package test completed successfully"
-    return True
 
 
 def demo_unified_capabilities():

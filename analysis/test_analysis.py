@@ -56,13 +56,11 @@ def test_geometric_measures():
 
         print("  ✅ Geometric measures tests passed")
         assert True, "Geometric measures tests completed successfully"
-        return True
 
     except Exception as e:
         print(f"  ❌ Geometric measures test failed: {e}")
         traceback.print_exc()
         assert False, f"Geometric measures test failed: {e}"
-        return False
 
 
 def test_emergence_framework():
@@ -103,13 +101,11 @@ def test_emergence_framework():
 
         print("  ✅ Emergence framework tests passed")
         assert True, "Emergence framework tests completed successfully"
-        return True
 
     except Exception as e:
         print(f"  ❌ Emergence framework test failed: {e}")
         traceback.print_exc()
         assert False, f"Emergence framework test failed: {e}"
-        return False
 
 
 def test_reality_modeling():
@@ -161,13 +157,11 @@ def test_reality_modeling():
 
         print("  ✅ Reality modeling tests passed")
         assert True, "Reality modeling tests completed successfully"
-        return True
 
     except Exception as e:
         print(f"  ❌ Reality modeling test failed: {e}")
         traceback.print_exc()
         assert False, f"Reality modeling test failed: {e}"
-        return False
 
 
 def test_package_integration():
@@ -210,13 +204,11 @@ def test_package_integration():
 
         print("  ✅ Package integration tests passed")
         assert True, "Package integration tests completed successfully"
-        return True
 
     except Exception as e:
         print(f"  ❌ Package integration test failed: {e}")
         traceback.print_exc()
         assert False, f"Package integration test failed: {e}"
-        return False
 
 
 def test_mathematical_consistency():
@@ -256,13 +248,11 @@ def test_mathematical_consistency():
 
         print("  ✅ Mathematical consistency tests passed")
         assert True, "Mathematical consistency tests completed successfully"
-        return True
 
     except Exception as e:
         print(f"  ❌ Mathematical consistency test failed: {e}")
         traceback.print_exc()
         assert False, f"Mathematical consistency test failed: {e}"
-        return False
 
 
 def run_all_tests():
@@ -281,8 +271,8 @@ def run_all_tests():
     results = []
     for test in tests:
         try:
-            success = test()
-            results.append(success)
+            test()  # Test functions now only assert, don't return
+            results.append(True)  # If no exception, test passed
         except Exception as e:
             print(f"❌ Test {test.__name__} crashed: {e}")
             results.append(False)
