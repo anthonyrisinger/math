@@ -105,63 +105,84 @@ from .view import (
 __version__ = "1.0.0"
 __author__ = "Dimensional Emergence Framework"
 
-# Module metadata
-__all__ = [
-    # Constants
-    "PI",
-    "E",
-    "PHI",
-    "PSI",
-    "VARPI",
-    "CRITICAL_DIMENSIONS",
-    "VIEW_ELEV",
-    "VIEW_AZIM",
-    "BOX_ASPECT",
-    "get_critical_dimension",
-    "is_near_critical",
-    # Gamma functions
-    "gamma_safe",
-    "gammaln_safe",
-    "digamma_safe",
-    "polygamma_safe",
-    "gamma_ratio_safe",
-    "factorial_extension",
-    "beta_function",
-    # Dimensional measures
-    "ball_volume",
-    "sphere_surface",
-    "complexity_measure",
-    "ratio_measure",
-    "phase_capacity",
-    "find_peak",
-    "find_all_peaks",
-    "integrated_measures",
-    # Phase dynamics
-    "sap_rate",
-    "phase_evolution_step",
-    "emergence_threshold",
-    "total_phase_energy",
-    "phase_coherence",
-    "dimensional_time",
+# Module metadata - TIERED NAMESPACE ARCHITECTURE
+# TIER 1: Essential API (most commonly used functions)
+_ESSENTIAL_API = [
+    # Core constants
+    "PI", "E", "PHI", "PSI",
+    # Essential functions
+    "gamma_safe", "ball_volume", "sphere_surface", "complexity_measure", 
+    # Core engine
     "PhaseDynamicsEngine",
-    # Morphic mathematics
-    "morphic_polynomial_roots",
-    "discriminant",
-    "k_perfect_circle",
-    "k_discriminant_zero",
-    "golden_ratio_properties",
-    "morphic_scaling_factor",
-    "stability_regions",
-    "MorphicAnalyzer",
-    # 3D visualization
-    "setup_3d_axis",
-    "create_3d_figure",
-    "set_equal_aspect_3d",
-    "golden_view_rotation",
-    "add_coordinate_frame",
-    "add_integer_badge",
-    "View3DManager",
 ]
+
+# TIER 2: Extended API (specialized functions)
+_EXTENDED_API = [
+    "VARPI", "CRITICAL_DIMENSIONS",
+    "gammaln_safe", "digamma_safe", "beta_function",
+    "ratio_measure", "phase_capacity", "find_peak", "find_all_peaks",
+    "sap_rate", "phase_evolution_step", "emergence_threshold",
+    "morphic_polynomial_roots", "golden_ratio_properties", "MorphicAnalyzer",
+]
+
+# TIER 3: Complete API (visualization and advanced features)
+_COMPLETE_API = [
+    "VIEW_ELEV", "VIEW_AZIM", "BOX_ASPECT",
+    "get_critical_dimension", "is_near_critical",
+    "polygamma_safe", "gamma_ratio_safe", "factorial_extension",
+    "integrated_measures", "total_phase_energy", "phase_coherence", "dimensional_time",
+    "discriminant", "k_perfect_circle", "k_discriminant_zero", 
+    "morphic_scaling_factor", "stability_regions",
+    "setup_3d_axis", "create_3d_figure", "set_equal_aspect_3d",
+    "golden_view_rotation", "add_coordinate_frame", "add_integer_badge", "View3DManager",
+]
+
+# Export based on scope (default: ESSENTIAL for clean imports)
+import os
+_EXPORT_SCOPE = os.environ.get('CORE_EXPORT_SCOPE', 'ESSENTIAL').upper()
+
+if _EXPORT_SCOPE == 'COMPLETE':
+    __all__ = _ESSENTIAL_API + _EXTENDED_API + _COMPLETE_API
+elif _EXPORT_SCOPE == 'EXTENDED': 
+    __all__ = _ESSENTIAL_API + _EXTENDED_API
+else:  # ESSENTIAL (default)
+    __all__ = _ESSENTIAL_API
+
+
+def expand_namespace(scope='COMPLETE'):
+    """
+    Dynamically expand the core namespace to include more symbols.
+    
+    Parameters:
+    -----------
+    scope : str
+        'ESSENTIAL' (9 symbols), 'EXTENDED' (28 symbols), 'COMPLETE' (53+ symbols)
+    
+    Usage:
+    ------
+    from core import expand_namespace
+    expand_namespace('COMPLETE')  # Now all symbols available
+    from core import *  # Gets everything
+    """
+    import os
+    original_scope = os.environ.get('CORE_EXPORT_SCOPE', 'ESSENTIAL')
+    os.environ['CORE_EXPORT_SCOPE'] = scope.upper()
+    
+    # Re-import to update __all__
+    import importlib
+    import sys
+    if 'core' in sys.modules:
+        importlib.reload(sys.modules['core'])
+    
+    print(f"📈 Core namespace expanded to {scope} scope")
+    if scope.upper() == 'ESSENTIAL':
+        symbols_count = len(_ESSENTIAL_API)
+    elif scope.upper() == 'EXTENDED':
+        symbols_count = len(_ESSENTIAL_API) + len(_EXTENDED_API) 
+    else:
+        symbols_count = len(_ESSENTIAL_API) + len(_EXTENDED_API) + len(_COMPLETE_API)
+    
+    print(f"   {symbols_count} symbols now available for import")
 
 
 def print_library_info():

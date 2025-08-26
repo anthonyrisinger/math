@@ -18,8 +18,18 @@ Quick start:
 # from . import cli  # Temporarily disabled due to consolidation
 from .gamma import *
 
-# ARCHITECTURAL BYPASS: Direct constants export (resolves import contamination)
-from core.constants import PI, PHI, PSI, E, SQRT_PI, NUMERICAL_EPSILON
+# Import core constants through proper package hierarchy  
+# This maintains clean import boundaries: core -> dimensional
+try:
+    from ..core import PI, PHI, PSI, E, VARPI
+    from ..core.constants import SQRT_PI, NUMERICAL_EPSILON
+except ImportError:
+    # Fallback for when package is run without proper installation
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+    from core import PI, PHI, PSI, E, VARPI
+    from core.constants import SQRT_PI, NUMERICAL_EPSILON
 
 # Import everything from measures module
 from .measures import *
