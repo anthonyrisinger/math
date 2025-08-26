@@ -62,16 +62,22 @@ def gamma_safe(z):
             # Only exponentiate if the log value isn't too large
             exp_mask = log_gamma_vals < LOG_SPACE_THRESHOLD
             if np.any(exp_mask):
-                large_indices = np.where(large_mask)[0]
-                safe_indices = large_indices[exp_mask]
-                result[safe_indices] = np.exp(log_gamma_vals[exp_mask])
+                if large_mask.ndim > 0:
+                    large_indices = np.where(large_mask)[0]
+                    safe_indices = large_indices[exp_mask]
+                    result[safe_indices] = np.exp(log_gamma_vals[exp_mask])
+                else:
+                    result[()] = np.exp(log_gamma_vals)
 
             # For extremely large values, return inf
             inf_mask = log_gamma_vals >= LOG_SPACE_THRESHOLD
             if np.any(inf_mask):
-                large_indices = np.where(large_mask)[0]
-                inf_indices = large_indices[inf_mask]
-                result[inf_indices] = np.inf
+                if large_mask.ndim > 0:
+                    large_indices = np.where(large_mask)[0]
+                    inf_indices = large_indices[inf_mask]
+                    result[inf_indices] = np.inf
+                else:
+                    result[()] = np.inf
 
         return result if z.ndim > 0 else float(result)
 
