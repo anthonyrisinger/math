@@ -40,7 +40,7 @@ def test_imports():
 def test_constants():
     """Test fundamental constants."""
 
-    from core import CRITICAL_DIMENSIONS, PHI, PI, PSI, VARPI
+    from dimensional.mathematics import CRITICAL_DIMENSIONS, PHI, PI, PSI, VARPI
 
     # Test PHI (golden ratio)
     assert 1.6 < PHI < 1.7, f"PHI = {PHI:.6f} (expected ~1.618)"
@@ -74,7 +74,7 @@ def test_constants():
 def test_gamma_functions():
     """Test gamma functions."""
 
-    from core import gamma_safe
+    from dimensional.mathematics import gamma_safe
 
     # Test Γ(1) = 1
     assert (
@@ -127,7 +127,7 @@ def test_gamma_functions():
 def test_dimensional_measures():
     """Test dimensional measures."""
 
-    from core import ball_volume, complexity_measure, sphere_surface
+    from dimensional.mathematics import ball_volume, complexity_measure, sphere_surface
 
     # Test V₀ = 1 (point)
     assert abs(ball_volume(0) - 1.0) < 1e-10, f"V₀ should be 1, got {ball_volume(0)}"
@@ -196,7 +196,7 @@ def test_dimensional_measures():
 def test_phase_dynamics():
     """Test phase dynamics."""
 
-    from core import PhaseDynamicsEngine, sap_rate
+    from dimensional.mathematics import PhaseDynamicsEngine, sap_rate
 
     all_passed = True
 
@@ -289,8 +289,8 @@ def test_phase_dynamics():
 def test_morphic_mathematics():
     """Test morphic mathematics."""
 
-    from core import morphic_polynomial_roots
-    from core.morphic import golden_ratio_properties, k_perfect_circle
+    from dimensional.mathematics import morphic_polynomial_roots
+    from dimensional.mathematics import morphic import golden_ratio_properties, k_perfect_circle
 
     all_passed = True
 
@@ -344,15 +344,15 @@ def test_api_usability():
 
     # Test star import
     try:
-        exec("from core import *")
-        print("✅ Star import (from core import *) works")
+        exec("from dimensional.mathematics import *")
+        print("✅ Star import (from dimensional.mathematics import *) works")
     except Exception as e:
         print(f"❌ Star import failed: {e}")
         all_passed = False
 
     # Test common workflow
     try:
-        from core import ball_volume, complexity_measure, sphere_surface
+        from dimensional.mathematics import ball_volume, complexity_measure, sphere_surface
 
         # Calculate for range of dimensions
         dimensions = np.linspace(0.1, 5, 20)
@@ -388,7 +388,7 @@ def test_api_usability():
 def test_performance():
     """Test performance."""
 
-    from core import PhaseDynamicsEngine, ball_volume
+    from dimensional.mathematics import PhaseDynamicsEngine, ball_volume
 
     # Ball volume calculation speed
     dimensions = np.linspace(0.1, 10, 1000)

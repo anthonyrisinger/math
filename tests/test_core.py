@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 # Test imports - this will immediately reveal import issues
 try:
     import core
-    from core import (
+    from dimensional.mathematics import (
         CRITICAL_DIMENSIONS,
         PHI,
         PI,
@@ -188,7 +188,7 @@ class TestDimensionalMeasures:
         if not IMPORT_SUCCESS:
             pytest.skip("Import failed")
 
-        from core.measures import find_all_peaks
+        from dimensional.mathematics import measures import find_all_peaks
 
         peaks = find_all_peaks()
 
@@ -288,7 +288,7 @@ class TestMorphicMathematics:
         if not IMPORT_SUCCESS:
             pytest.skip("Import failed")
 
-        from core.morphic import golden_ratio_properties
+        from dimensional.mathematics import morphic import golden_ratio_properties
 
         props = golden_ratio_properties()
 
@@ -325,7 +325,7 @@ class TestMorphicMathematics:
         if not IMPORT_SUCCESS:
             pytest.skip("Import failed")
 
-        from core.morphic import discriminant, k_discriminant_zero
+        from dimensional.mathematics import morphic import discriminant, k_discriminant_zero
 
         # At critical k, discriminant should be zero
         k_critical = k_discriminant_zero("shifted")
@@ -380,12 +380,12 @@ class TestAPIUsability:
     """Test API usability and common usage patterns."""
 
     def test_star_import(self):
-        """Test that 'from core import *' works."""
+        """Test that 'from dimensional.mathematics import *' works."""
         if not IMPORT_SUCCESS:
             pytest.skip("Import failed")
 
         # This should work without issues
-        exec("from core import *")
+        exec("from dimensional.mathematics import *")
 
     def test_common_workflow(self):
         """Test a common mathematical workflow."""
@@ -437,7 +437,7 @@ class TestAPIUsability:
 
         # Phase capacity should equal ball volume
         for d in [1, 2, 3, 4, 5]:
-            from core.measures import phase_capacity
+            from dimensional.mathematics import measures import phase_capacity
 
             capacity = phase_capacity(d)
             volume = ball_volume(d)

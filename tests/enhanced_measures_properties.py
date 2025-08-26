@@ -16,14 +16,10 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from core.constants import NUMERICAL_EPSILON, PI
-from core.gamma import gamma_safe
-from core.measures import (
-    ball_volume,
-    complexity_measure,
-    phase_capacity,
-    ratio_measure,
-    sphere_surface,
+from dimensional.mathematics import (
+    NUMERICAL_EPSILON, PI, gamma_safe,
+    ball_volume, complexity_measure, phase_capacity,
+    ratio_measure, sphere_surface
 )
 
 
