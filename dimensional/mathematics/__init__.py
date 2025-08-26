@@ -82,6 +82,9 @@ from .functions import (
     total_phase_energy,
     # Add lowercase aliases explicitly
     v,
+    # Visualization functions
+    setup_3d_axis,
+    create_3d_figure,
 )
 from .validation import (
     NumericalStabilityTester,

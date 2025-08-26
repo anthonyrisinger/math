@@ -17,7 +17,17 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import dimensional as dm
-from dimensional.mathematics import NUMERICAL_EPSILON, PHI, PI, beta_function, gamma_safe, gammaln_safe, ball_volume, complexity_measure, sphere_surface
+from dimensional.mathematics import (
+    NUMERICAL_EPSILON,
+    PHI,
+    PI,
+    ball_volume,
+    beta_function,
+    complexity_measure,
+    gamma_safe,
+    gammaln_safe,
+    sphere_surface,
+)
 
 
 class InvariantValidator:

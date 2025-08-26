@@ -645,7 +645,7 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
     results = []
     for step in range(time_steps):
         engine.step(0.01)
-        
+
         if step % 50 == 0:  # Sample every 50 steps
             state = engine.get_state()
             results.append({
@@ -655,7 +655,7 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
                 "effective_dimension": state["effective_dimension"],
                 "total_energy": state["total_energy"]
             })
-    
+
     return {
         "results": results,
         "final_state": engine.get_state(),
@@ -667,12 +667,12 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
 def quick_phase_analysis(dimensions=None):
     """
     Quick analysis of phase capacities and sapping rates.
-    
+
     Parameters
     ----------
     dimensions : list, optional
         Dimensions to analyze. Defaults to [0, 1, 2, 3, 4, 5]
-    
+
     Returns
     -------
     dict
@@ -680,10 +680,10 @@ def quick_phase_analysis(dimensions=None):
     """
     if dimensions is None:
         dimensions = [0, 1, 2, 3, 4, 5]
-    
+
     # Create sample phase density
     phase_density = np.array([1.0 + 0.1j * i for i in range(max(dimensions) + 1)])
-    
+
     results = {}
     for d in dimensions:
         results[f"dimension_{d}"] = {
@@ -691,7 +691,7 @@ def quick_phase_analysis(dimensions=None):
             "current_phase": abs(phase_density[d]),
             "emergence_status": emergence_threshold(d, phase_density),
         }
-        
+
         # Calculate sapping rates to higher dimensions
         sapping_rates = {}
         for target in range(d + 1, len(phase_density)):
@@ -699,9 +699,9 @@ def quick_phase_analysis(dimensions=None):
                 rate = sap_rate(d, target, phase_density)
                 if rate > 1e-12:
                     sapping_rates[f"to_dim_{target}"] = rate
-        
+
         results[f"dimension_{d}"]["sapping_rates"] = sapping_rates
-    
+
     return results
 
 

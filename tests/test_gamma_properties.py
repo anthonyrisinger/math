@@ -12,8 +12,13 @@ from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
-from dimensional.mathematics import constants import NUMERICAL_EPSILON
-from dimensional.mathematics import gamma import beta_function, factorial_extension, gamma_safe, gammaln_safe
+from dimensional.mathematics.constants import NUMERICAL_EPSILON
+from dimensional.mathematics.functions import (
+    beta_function,
+    factorial_extension,
+    gamma_safe,
+    gammaln_safe,
+)
 
 
 class TestGammaRecurrenceRelations:

@@ -89,9 +89,10 @@ def test_unified_dimensional_package():
     print("-" * 40)
     try:
         # Run integrated analysis
-        analysis = quick_phase_analysis(dimensions=[4])
-        print(f"  Analysis dimensions: {list(analysis.keys())}")
-        print(f"  Dimension 4 phase capacity: {analysis['dimension_4']['phase_capacity']:.3f}")
+        analysis = quick_phase_analysis(max_dimensions=8)  # Use correct parameter name
+        print(f"  Analysis keys: {list(analysis.keys())}")
+        print(f"  Effective dimension: {analysis['effective_dimension']:.3f}")
+        print(f"  Final energy: {analysis['final_energy']:.3f}")
         print("  ✅ Phase analysis complete")
         print("  ✅ Integration working")
     except Exception as e:
@@ -127,7 +128,15 @@ def demo_unified_capabilities():
     print("\n\n🌟 UNIFIED PACKAGE DEMONSTRATION")
     print("=" * 60)
 
-    from dimensional.mathematics import PI, C, R, S, V, find_all_peaks, run_emergence_simulation
+    from dimensional.mathematics import (
+        PI,
+        C,
+        R,
+        S,
+        V,
+        find_all_peaks,
+        run_emergence_simulation,
+    )
 
     print("📈 DIMENSIONAL ANALYSIS WORKFLOW:")
     print("-" * 50)

@@ -17,9 +17,14 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from dimensional.mathematics import (
-    NUMERICAL_EPSILON, PI, gamma_safe,
-    ball_volume, complexity_measure, phase_capacity,
-    ratio_measure, sphere_surface
+    NUMERICAL_EPSILON,
+    PI,
+    ball_volume,
+    complexity_measure,
+    gamma_safe,
+    phase_capacity,
+    ratio_measure,
+    sphere_surface,
 )
 
 

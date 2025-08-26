@@ -304,7 +304,11 @@ class MeasuresInvariantTester(InvariantTester):
     @settings(max_examples=200)
     def test_complexity_factorization(self, d):
         """Test C_d = V_d × S_d"""
-        from dimensional.mathematics import ball_volume, complexity_measure, sphere_surface
+        from dimensional.mathematics import (
+            ball_volume,
+            complexity_measure,
+            sphere_surface,
+        )
 
         vol = ball_volume(d)
         surf = sphere_surface(d)
@@ -431,8 +435,7 @@ class CrossModuleValidator:
 
     def _test_measure_gamma_consistency(self, d: float) -> InvariantTestResult:
         """Test V_d = π^{d/2} / Γ(d/2 + 1)"""
-        from dimensional.mathematics import gamma_safe
-        from dimensional.mathematics import ball_volume
+        from dimensional.mathematics import ball_volume, gamma_safe
 
         try:
             measured_volume = ball_volume(d)

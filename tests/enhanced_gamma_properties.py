@@ -21,8 +21,8 @@ import pytest
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 
-from dimensional.mathematics import constants import NUMERICAL_EPSILON, PI, E
-from dimensional.mathematics import gamma import (
+from dimensional.mathematics.constants import NUMERICAL_EPSILON, PI, E
+from dimensional.mathematics.functions import (
     beta_function,
     digamma_safe,
     gamma_safe,

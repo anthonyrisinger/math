@@ -11,8 +11,8 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from dimensional.mathematics import constants import NUMERICAL_EPSILON, PI
-from dimensional.mathematics import measures import (
+from dimensional.mathematics.constants import NUMERICAL_EPSILON, PI
+from dimensional.mathematics.functions import (
     ball_volume,
     complexity_measure,
     sphere_surface,

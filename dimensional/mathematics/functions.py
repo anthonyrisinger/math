@@ -539,6 +539,7 @@ def golden_ratio_properties():
         "psi_squared_equals_one_minus_psi": abs(psi**2 - (1 - psi)) < NUMERICAL_EPSILON,
         "phi_times_psi_equals_one": abs(phi * psi - 1) < NUMERICAL_EPSILON,
         "phi_minus_psi_equals_one": abs((phi - psi) - 1.0) < NUMERICAL_EPSILON,
+        "phi_plus_psi_equals_sqrt5": abs((phi + psi) - np.sqrt(5)) < NUMERICAL_EPSILON,
     }
 
 
@@ -622,6 +623,11 @@ class PhaseDynamicsEngine:
 
         return float(weighted_sum)
 
+    def inject(self, dimension, energy):
+        """Inject energy into a dimension."""
+        if dimension < len(self.phase_density):
+            self.phase_density[dimension] += energy
+
     def get_state(self):
         """Get current state summary."""
         return {
@@ -696,3 +702,84 @@ if __name__ == "__main__":
     assert props["phi_squared_equals_phi_plus_one"], "Golden ratio property failed"
 
     print("All mathematical validations passed!")
+
+
+# =============================================================================
+# VISUALIZATION FUNCTIONS
+# =============================================================================
+
+
+def setup_3d_axis(
+    ax, title="", xlim=None, ylim=None, zlim=None, grid=True, grid_alpha=0.3
+):
+    """
+    Set up 3D axis with standard orthographic projection and golden viewing angle.
+
+    Parameters
+    ----------
+    ax : Axes3D
+        Matplotlib 3D axis object
+    title : str
+        Axis title
+    xlim, ylim, zlim : tuple, optional
+        Axis limits as (min, max)
+    grid : bool
+        Whether to show grid
+    grid_alpha : float
+        Grid transparency
+
+    Returns
+    -------
+    Axes3D
+        Configured 3D axis
+    """
+    # Set orthographic projection
+    ax.set_proj_type("ortho")
+
+    # Set golden ratio viewing angle (from constants)
+    from .constants import VIEW_AZIM, VIEW_ELEV, BOX_ASPECT
+    ax.view_init(elev=VIEW_ELEV, azim=VIEW_AZIM)
+
+    # Set box aspect ratio for accurate spatial representation
+    ax.set_box_aspect(BOX_ASPECT)
+
+    # Set title
+    if title:
+        ax.set_title(title, fontsize=12, pad=15)
+
+    # Set limits if provided
+    if xlim:
+        ax.set_xlim(xlim)
+    if ylim:
+        ax.set_ylim(ylim)
+    if zlim:
+        ax.set_zlim(zlim)
+
+    # Configure grid
+    if grid:
+        ax.grid(True, alpha=grid_alpha)
+
+    return ax
+
+
+def create_3d_figure(figsize=(10, 8), dpi=100):
+    """
+    Create figure with 3D axis using standard settings.
+
+    Parameters
+    ----------
+    figsize : tuple
+        Figure size in inches
+    dpi : int
+        Dots per inch resolution
+
+    Returns
+    -------
+    tuple
+        (figure, axis) pair
+    """
+    import matplotlib.pyplot as plt
+    
+    fig = plt.figure(figsize=figsize, dpi=dpi)
+    ax = fig.add_subplot(111, projection="3d")
+    return fig, setup_3d_axis(ax)

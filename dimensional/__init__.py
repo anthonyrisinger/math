@@ -17,27 +17,21 @@ Quick start:
 # Import all mathematical functions from consolidated modules
 
 # Import core constants and mathematical framework
-from .mathematics import (
-    PHI, PSI, PI, E, VARPI,
-    NUMERICAL_EPSILON, CRITICAL_DIMENSIONS,
-    PhaseDynamicsEngine, quick_phase_analysis
-)
 from .gamma import (
-    # Core mathematical functions
-    gamma_safe,
-    gammaln_safe, 
-    digamma_safe,
-    factorial_extension,
-    beta_function,
-    # Dimensional measure aliases
-    v, s, c, r,
     # Interactive functions
     abs_γ,
+    beta_function,
+    c,
     c_peak,
     demo,
+    digamma_safe,
     explore,
+    factorial_extension,
     gamma_comparison_plot,
     gamma_explorer,
+    # Core mathematical functions
+    gamma_safe,
+    gammaln_safe,
     instant,
     lab,
     live,
@@ -46,7 +40,11 @@ from .gamma import (
     peaks_analysis,
     qplot,
     quick_gamma_analysis,
+    r,
+    s,
     s_peak,
+    # Dimensional measure aliases
+    v,
     v_peak,
     # Greek letter aliases
     γ,
@@ -54,44 +52,56 @@ from .gamma import (
     ρ,
     ψ,
 )
+from .mathematics import (
+    CRITICAL_DIMENSIONS,
+    NUMERICAL_EPSILON,
+    PHI,
+    PI,
+    PSI,
+    VARPI,
+    E,
+)
 
 # Import all consolidated measure functions
 from .measures import (
+    C,
+    R,
+    S,
+    # Aliases
+    V,
     # Core mathematical functions
     ball_volume,
-    sphere_surface, 
-    complexity_measure,
-    ratio_measure,
-    phase_capacity,
-    find_peak,
-    find_all_peaks,
-    # Aliases
-    V, S, C, R,
     # Enhanced analysis tools
     comparative_plot,
+    complexity_measure,
     critical_analysis,
+    find_all_peaks,
+    find_peak,
     measures_explorer,
     peak_finder,
+    phase_capacity,
+    ratio_measure,
+    sphere_surface,
     surface_ratio,
     volume_ratio,
 )
 
 # Import all consolidated phase functions
 from .phase import (
-    # Core mathematical functions
-    sap_rate,
-    phase_evolution_step,
-    emergence_threshold,
-    total_phase_energy,
-    phase_coherence,
-    dimensional_time,
+    ConvergenceDiagnostics,
     # Classes
     PhaseDynamicsEngine,
-    ConvergenceDiagnostics,
     TopologicalInvariants,
+    dimensional_time,
+    emergence_threshold,
+    phase_coherence,
+    phase_evolution_step,
     # Enhanced analysis tools
     quick_emergence_analysis,
     quick_phase_analysis,
+    # Core mathematical functions
+    sap_rate,
+    total_phase_energy,
 )
 
 # Import emergence simulation with fallback

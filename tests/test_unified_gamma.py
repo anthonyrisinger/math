@@ -26,7 +26,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 try:
     # Import core mathematical functions that MUST be available
     # Import constants directly from core - ARCHITECTURAL DECISION: BYPASS BROKEN EXPORTS
-    from dimensional.mathematics import constants import PHI, PI, PSI, E
     from dimensional.gamma import (
         c,
         c_peak,
@@ -50,6 +49,7 @@ try:
         γ,
         ρ,
     )
+    from dimensional.mathematics.constants import PHI, PI, PSI, E
 
     # Try to import additional tools that may or may not be available
     try:

@@ -15,6 +15,7 @@ from matplotlib.widgets import Button, Slider
 from scipy.special import gamma
 
 from .mathematics import PHI, PI
+
 # Note: setup_3d_axis functionality moved to visualization/
 
 
@@ -160,7 +161,7 @@ class PreGeometryVisualizer:
 
         # Basic 3D axis setup (replacing setup_3d_axis functionality)
         self.ax3d.set_xlabel('x')
-        self.ax3d.set_ylabel('y') 
+        self.ax3d.set_ylabel('y')
         self.ax3d.set_zlabel('Pre-Geometric Potential')
         self.ax3d.set_title("Pre-Geometric Potential Field")
 

@@ -8,29 +8,33 @@ Consolidated mathematical implementation with enhanced exploration tools.
 """
 
 import numpy as np
-from scipy.special import digamma, gamma, gammaln, polygamma
+from scipy.special import digamma, gamma, gammaln
 
 # Import constants from consolidated mathematics module
-from .mathematics import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON, SQRT_PI
+from .mathematics import (
+    GAMMA_OVERFLOW_THRESHOLD,
+    LOG_SPACE_THRESHOLD,
+    NUMERICAL_EPSILON,
+)
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
 def gamma_safe(z):
     """
     Numerically stable gamma function.
-    
+
     Parameters
     ----------
     z : float or array-like
         Input values
-    
+
     Returns
     -------
     float or array
         Γ(z) with proper handling of edge cases and overflow
     """
     z = np.asarray(z)
-    
+
     # Handle edge cases
     if np.any(z == 0):
         result = np.full_like(z, np.inf, dtype=float)
@@ -38,7 +42,7 @@ def gamma_safe(z):
         if np.any(mask):
             result[mask] = gamma_safe(z[mask])
         return result if z.ndim > 0 else float(result)
-    
+
     # Handle negative integers (poles)
     if np.any((z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON)):
         result = np.full_like(z, np.inf, dtype=float)
@@ -46,15 +50,15 @@ def gamma_safe(z):
         if np.any(mask):
             result[mask] = gamma_safe(z[mask])
         return result if z.ndim > 0 else float(result)
-    
+
     # Use log-space for large values
     if np.any(np.abs(z) > GAMMA_OVERFLOW_THRESHOLD):
         large_mask = np.abs(z) > GAMMA_OVERFLOW_THRESHOLD
         result = np.zeros_like(z, dtype=float)
-        
+
         if np.any(~large_mask):
             result[~large_mask] = gamma(z[~large_mask])
-        
+
         if np.any(large_mask):
             log_gamma_vals = gammaln(z[large_mask])
             exp_mask = log_gamma_vals < LOG_SPACE_THRESHOLD
@@ -65,7 +69,7 @@ def gamma_safe(z):
                     result[safe_indices] = np.exp(log_gamma_vals[exp_mask])
                 else:
                     result[()] = np.exp(log_gamma_vals)
-            
+
             inf_mask = log_gamma_vals >= LOG_SPACE_THRESHOLD
             if np.any(inf_mask):
                 if large_mask.ndim > 0:
@@ -74,28 +78,28 @@ def gamma_safe(z):
                     result[inf_indices] = np.inf
                 else:
                     result[()] = np.inf
-        
+
         return result if z.ndim > 0 else float(result)
-    
+
     return gamma(z)
 
 
 def gammaln_safe(z):
     """
     Safe log-gamma function.
-    
+
     Parameters
     ----------
     z : float or array-like
         Input values
-    
+
     Returns
     -------
     float or array
         log(Γ(z)) with proper handling of edge cases
     """
     z = np.asarray(z)
-    
+
     if np.any(z <= 0):
         if np.any(np.abs(z - np.round(z)) < NUMERICAL_EPSILON):
             result = np.full_like(z, -np.inf, dtype=float)
@@ -103,7 +107,7 @@ def gammaln_safe(z):
             if np.any(mask):
                 result[mask] = gammaln_safe(z[mask])
             return result if z.ndim > 0 else float(result)
-    
+
     return gammaln(z)
 
 
@@ -111,19 +115,19 @@ def digamma_safe(z):
     """
     Safe digamma function (psi function).
     ψ(z) = d/dz log(Γ(z)) = Γ'(z)/Γ(z)
-    
+
     Parameters
     ----------
     z : float or array-like
         Input values
-    
+
     Returns
     -------
     float or array
         ψ(z) with proper handling of edge cases
     """
     z = np.asarray(z)
-    
+
     if np.any(z <= 0):
         if np.any(np.abs(z - np.round(z)) < NUMERICAL_EPSILON):
             result = np.full_like(z, -np.inf, dtype=float)
@@ -131,7 +135,7 @@ def digamma_safe(z):
             if np.any(mask):
                 result[mask] = digamma_safe(z[mask])
             return result if z.ndim > 0 else float(result)
-    
+
     return digamma(z)
 
 
@@ -139,12 +143,12 @@ def factorial_extension(n):
     """
     Factorial extension for non-negative real numbers.
     n! = Γ(n+1)
-    
+
     Parameters
     ----------
     n : float or array-like
         Non-negative real numbers
-    
+
     Returns
     -------
     float or array
@@ -156,12 +160,12 @@ def factorial_extension(n):
 def beta_function(a, b):
     """
     Beta function B(a,b) = Γ(a)Γ(b)/Γ(a+b).
-    
+
     Parameters
     ----------
     a, b : float or array-like
         Beta function parameters
-    
+
     Returns
     -------
     float or array
