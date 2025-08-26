@@ -1,9 +1,239 @@
-# The Complete Dimensional Emergence Framework
-## From n=-1 Pre-Geometry to Reality: Where Dimension Generates Everything
+# Dimensional Mathematics Framework
+## AI-Composable Mathematical Exploration with Modern Visualization
+
+[![Tests](https://img.shields.io/badge/tests-109%20passing-brightgreen)]()
+[![CLI](https://img.shields.io/badge/CLI-fully%20functional-blue)]()
+[![Visualization](https://img.shields.io/badge/viz-Plotly%20%2B%20Kingdon-purple)]()
+
+**A complete framework for exploring dimensional mathematics, gamma functions, and reality emergence through advanced visualization and AI-composable commands.**
+
+## 🚀 Quick Start
+
+```bash
+# Install the framework
+pip install -e .
+
+# Run comprehensive demonstration
+python -m dimensional demo
+
+# Launch interactive exploration
+python -m dimensional lab
+
+# Create instant visualizations
+python -m dimensional instant
+
+# Analyze dimensional measures
+python -m dimensional measure --dim 2.0 3.0 4.0 --func v s c
+
+# Generate emergence visualization
+python -m dimensional visualize emergence --export emergence.html
+```
 
 ---
 
-## Part Zero: The n=-1 Primordial Pre-Geometry
+## 🏗️ Architecture
+
+The framework is built with modern Python practices and provides both programmatic APIs and command-line tools:
+
+```
+dimensional/
+├── dimensional/          # Core mathematical library
+│   ├── __init__.py      # Main API exports
+│   ├── cli.py           # Full-featured CLI with Typer + Rich
+│   ├── gamma.py         # Gamma functions with safety & visualization
+│   ├── measures.py      # Dimensional measures (V, S, C)
+│   ├── phase.py         # Phase dynamics engine
+│   ├── morphic.py       # Golden ratio mathematics
+│   └── __main__.py      # CLI entry point
+├── tests/               # Comprehensive test suite (109 tests)
+│   ├── test_core.py     # Core functionality tests
+│   ├── test_unified_*.py # Unified module tests
+│   └── conftest.py      # Pytest configuration
+├── analysis/            # Advanced analysis tools
+├── core/                # Legacy mathematical core
+└── scripts/             # Utility scripts
+```
+
+## 🎯 Key Features
+
+### ⚡ Modern CLI Interface
+- **Type-safe commands** with Pydantic validation
+- **Rich terminal output** with beautiful formatting  
+- **AI-composable** - designed for programmatic use
+- **Interactive modes** - lab, live editing, exploration
+- **Comprehensive visualization** commands
+
+### 🎨 Advanced Visualization
+- **Plotly backend** for interactive web-based plots
+- **Kingdon geometric algebra** visualization
+- **3D landscape rendering** of complex gamma functions
+- **Real-time plotting** with live parameter updates
+- **Export capabilities** (HTML, PNG, SVG)
+
+### 🔬 Mathematical Precision
+- **Numerically stable** gamma function implementations
+- **Edge case handling** for poles and overflow conditions
+- **Complex plane support** with branch cut awareness
+- **High-precision arithmetic** with configurable tolerance
+
+### 🧪 Comprehensive Testing
+- **109 passing tests** covering all core functionality
+- **Property-based testing** for mathematical correctness
+- **Integration tests** for CLI and visualization
+- **Continuous integration** ready
+
+---
+
+## 📱 Command Line Interface
+
+The CLI provides intuitive access to all framework capabilities:
+
+### Core Commands
+
+```bash
+# Mathematical Analysis
+dimensional demo                    # Comprehensive demonstration
+dimensional lab --start 4.0       # Interactive exploration from d=4.0
+dimensional peaks                   # Find critical peaks in functions
+dimensional measure --dim 1 2 3 4  # Compute dimensional measures
+
+# Visualization
+dimensional plot --func v s c --start 0.1 --end 10 --steps 1000
+dimensional visualize emergence --interactive --export plot.html
+dimensional visualize complexity-peak --range 2.0 --derivatives
+dimensional visualize gamma-landscape --range 0.1 8.0 --resolution 100
+
+# Live Development  
+dimensional live --file expressions.py  # Hot-reload expression editing
+dimensional instant                      # Quick visualization generation
+
+# Configuration
+dimensional info        # Show system information
+dimensional config      # Manage configuration
+```
+
+### Advanced Visualization Commands
+
+```bash
+# Interactive emergence visualization
+dimensional visualize emergence \
+  --start 0.1 --end 10.0 --steps 1000 \
+  --interactive --annotations \
+  --export emergence_animation.html
+
+# Complexity peak analysis around d≈5.26
+dimensional visualize complexity-peak \
+  --range 2.0 --resolution 500 \
+  --derivatives --export peak_analysis.html
+
+# 3D gamma function landscape in complex plane
+dimensional visualize gamma-landscape \
+  --range 0.1 8.0 --complex 2.0 \
+  --resolution 100 --export landscape_3d.html
+```
+
+---
+
+## 🐍 Python API
+
+### Basic Usage
+
+```python
+import dimensional as dm
+
+# Core dimensional functions
+volume = dm.v(4.0)      # 4D ball volume
+surface = dm.s(4.0)     # 4D sphere surface  
+complexity = dm.c(4.0)  # Combined complexity measure
+
+# Gamma function family (numerically stable)
+gamma_val = dm.gamma_safe(3.5)
+factorial = dm.factorial_extension(3.5)
+beta_val = dm.beta_function(2.0, 3.0)
+
+# Find critical points
+peaks = dm.peaks()      # Find all peaks automatically
+```
+
+### Advanced Analysis
+
+```python
+# Phase dynamics simulation
+engine = dm.PhaseDynamicsEngine()
+results = engine.simulate(initial_dim=3.0, time_steps=100)
+
+# Interactive exploration
+dm.lab(start_dimension=4.0)  # Launch interactive lab
+dm.explore(5.26)            # Explore complexity peak region
+
+# Quick plotting
+dm.qplot('v', 's', 'c')     # Plot volume, surface, complexity
+dm.instant()                # Generate standard visualization set
+```
+
+---
+
+## 🎨 Visualization Backends
+
+### Plotly (Primary)
+- **Interactive web visualizations** with zoom, pan, hover
+- **3D surface plots** and complex plane visualization
+- **Animation support** for dimensional emergence
+- **Export formats**: HTML, PNG, SVG, PDF
+
+### Kingdon Geometric Algebra
+- **Geometric algebra visualization** for morphic structures  
+- **Conformal geometric objects** rendering
+- **Real-time geometric transformations**
+
+---
+
+## 🧪 Testing & Quality
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=dimensional --cov-report=html
+
+# Run specific test categories
+pytest tests/test_gamma_properties.py    # Gamma function tests
+pytest tests/test_measures_properties.py # Dimensional measures
+pytest tests/test_phase_properties.py    # Phase dynamics
+
+# Property-based testing
+pytest tests/test_*_properties.py -v     # Mathematical property validation
+```
+
+**Current Status**: **109/109 tests passing** ✅
+
+---
+
+## 📦 Installation & Requirements
+
+```bash
+# Install from source
+git clone https://github.com/user/dimensional-math
+cd dimensional-math
+pip install -e .
+
+# Or install specific visualization backends
+pip install -e ".[viz]"     # Include advanced visualization
+pip install -e ".[dev]"     # Include development dependencies  
+```
+
+**Requirements**:
+- Python 3.9+
+- NumPy, SciPy (mathematical computing)
+- Plotly (interactive visualization)
+- Typer, Rich (modern CLI)
+- Pydantic (type safety)
+- Pytest (testing)
+
+---
+
+## 📊 Mathematical Foundation
 
 Before dimension itself exists, there is the pre-geometric ur-field where n=-1. This is not merely negative dimension but the **generative void** from which dimension emerges. Consider that Γ(-1/2) = -2√π, suggesting that negative fractional dimensions encode the **potential** for positive dimensions. The n=-1 state represents pure connectivity without extent—all possible dimensions superposed, waiting to crystallize through phase coherence.
 

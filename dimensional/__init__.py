@@ -32,7 +32,7 @@ from .pregeometry import *
 
 # Import modern visualization components
 try:
-    from visualization import PlotlyDashboard, KingdonRenderer
+    from visualization import KingdonRenderer, PlotlyDashboard
     from visualization.modernized_dashboard import create_modern_dashboard
     VISUALIZATION_AVAILABLE = True
 except ImportError:
