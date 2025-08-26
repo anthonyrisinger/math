@@ -51,13 +51,13 @@ except ImportError:
         return None
 
 
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import Literal
+
+from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import track, Progress, SpinnerColumn, BarColumn, TaskProgressColumn, TextColumn
+from rich.progress import track
 from rich.table import Table
-from rich import box
-from typing import Annotated, Literal
 
 # Import our consolidated modules
 from .gamma import (
@@ -351,44 +351,6 @@ def _eval_function(func, args_str):
     else:
         return func(float(args_str.strip()))
 
-
-# ============================================================================
-# PYDANTIC MODELS FOR TYPE SAFETY
-# ============================================================================
-
-
-class DimensionRange(BaseModel):
-    """Type-safe dimension range specification."""
-
-    start: float = Field(default=0.1, ge=0.001, le=100.0)
-    end: float = Field(default=10.0, ge=0.001, le=100.0)
-    steps: int = Field(default=1000, ge=10, le=10000)
-
-    @field_validator("end")
-    @classmethod
-    def end_must_be_greater_than_start(cls, v, info):
-        if "start" in info.data and v <= info.data["start"]:
-            raise ValueError("end must be greater than start")
-        return v
-
-
-class PlotConfig(BaseModel):
-    """Type-safe plot configuration."""
-
-    width: int = Field(default=12, ge=4, le=20)
-    height: int = Field(default=8, ge=4, le=20)
-    dpi: int = Field(default=150, ge=72, le=300)
-    style: str = Field(default="seaborn-v0_8", pattern=r"^[a-zA-Z0-9_-]+$")
-    save: bool = Field(default=False)
-    format: str = Field(default="png", pattern=r"^(png|pdf|svg|eps)$")
-
-
-class AnalysisConfig(BaseModel):
-    """Type-safe analysis configuration."""
-
-    precision: int = Field(default=15, ge=6, le=20)
-    tolerance: float = Field(default=1e-10, ge=1e-15, le=1e-5)
-    max_iterations: int = Field(default=1000, ge=100, le=10000)
 
 
 # ============================================================================

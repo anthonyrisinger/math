@@ -29,6 +29,7 @@ from .gamma import (
     peaks,
     peaks_analysis,
     qplot,
+    quick_gamma_analysis,
     s_peak,
     v_peak,
     # Greek letter aliases
@@ -37,7 +38,6 @@ from .gamma import (
     ρ,
     ψ,
 )
-from .mathematics import *
 
 # Import emergence simulation with fallback
 try:
