@@ -13,45 +13,34 @@ Quick start:
     lab()          # Interactive lab
 """
 
-# Import specific functions from modules to avoid star imports
-from .gamma import (
-    digamma_safe,
-    factorial_extension,
-    gamma_comparison_plot,
-    gamma_explorer,
-    gamma_safe,
-    gammaln_safe,
-    quick_gamma_analysis,
-)
-from .measures import (
-    C,  # Convenience aliases
-    S,
-    V,
-    ball_volume,
-    complexity_measure,
-    find_all_peaks,
-    sphere_surface,
-)
-from .morphic import (
-    MorphicAnalyzer,
-    golden_ratio_properties,
-    morphic_polynomial_roots,
-    stability_regions,
-)
-from .phase import (
-    PhaseDynamicsEngine,
-    dimensional_explorer,
-    quick_emergence_analysis,
-)
+# Import everything from gamma module
+# Import CLI for programmatic access
+# from . import cli  # Temporarily disabled due to consolidation
+from .gamma import *
+
+# ARCHITECTURAL BYPASS: Direct constants export (resolves import contamination)
+from core.constants import PI, PHI, PSI, E, SQRT_PI, NUMERICAL_EPSILON
+
+# Import everything from measures module
+from .measures import *
+
+# Import everything from morphic module
+from .morphic import *
+
+# Import everything from phase module
+from .phase import *
+
+# Import pregeometry module
+from .pregeometry import *
 
 # Import modern visualization components
-try:
-    from visualization import KingdonRenderer, PlotlyDashboard
-    from visualization.modernized_dashboard import create_modern_dashboard
-
-    VISUALIZATION_AVAILABLE = True
-except ImportError:
-    VISUALIZATION_AVAILABLE = False
+# TEMPORARILY DISABLED - BLOCKING GAMMA MODULE IMPORTS
+# try:
+#     from visualization import PlotlyDashboard, KingdonRenderer
+#     from visualization.modernized_dashboard import create_modern_dashboard
+#     VISUALIZATION_AVAILABLE = True
+# except ImportError:
+VISUALIZATION_AVAILABLE = False
 
 # Package metadata
 __version__ = "1.0.0"
@@ -86,28 +75,9 @@ def quick_start():
     print("  MorphicAnalyzer()             # Full analyzer")
 
 
-# Convenience aliases
-γ_explorer = gamma_explorer
-γ_analysis = quick_gamma_analysis
-
-# Import lowercase aliases for CLI compatibility
-from .gamma import demo, explore, instant, lab, live, peaks, qplot
-from .measures import c, s, v
-
-# ARCHITECTURAL BYPASS: Direct constants export to avoid contamination
-PHI = 1.618033988749895  # Golden ratio φ = (1+√5)/2
-PSI = 0.618033988749895  # Golden conjugate ψ = 1/φ
-PI = 3.141592653589793   # π
-E = 2.718281828459045    # Euler's number e
-
-# Critical dimensions for convenience
-CRITICAL_D_PI = PI                    # π ≈ 3.14159
-CRITICAL_D_E = E                      # e ≈ 2.71828  
-CRITICAL_D_PHI_SQ = PHI * PHI         # φ² ≈ 2.618
-CRITICAL_D_2PI = 2 * PI               # 2π ≈ 6.283
-
-# ARCHITECTURAL WORKAROUND: Restore stdout (contamination bypass complete)
+# Convenience aliases (only include functions that exist)
 try:
-    sys.stdout = _original_stdout
-except:
-    pass  # Already restored or not redirected
+    γ_explorer = gamma_explorer
+    γ_analysis = quick_gamma_analysis
+except NameError:
+    pass
