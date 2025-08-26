@@ -12,28 +12,37 @@ robust mathematical implementations in core.measures.
 """
 
 # Import all robust core functionality
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
 
 # ARCHITECT MANDATE: ZERO MATPLOTLIB IMPORTS IN MATHEMATICAL MODULES
 # import matplotlib.pyplot as plt  # ⚡ ELIMINATED
 
-# Re-export constants
-from core.constants import (
-    CRITICAL_DIMENSIONS,
-)
-from core.measures import *  # noqa: F401,F403
-from core.measures import (
-    ball_volume,
-    complexity_measure,
-    phase_capacity,
-    ratio_measure,
-    sphere_surface,
-)
+# Re-export constants - hybrid import for flexibility
+try:
+    from ..core.constants import (
+        CRITICAL_DIMENSIONS,
+    )
+    from ..core.measures import *  # noqa: F401,F403
+    from ..core.measures import (
+        ball_volume,
+        complexity_measure,
+        phase_capacity,
+        ratio_measure,
+        sphere_surface,
+    )
+except ImportError:
+    from core.constants import (
+        CRITICAL_DIMENSIONS,
+    )
+    from core.measures import *  # noqa: F401,F403
+    from core.measures import (
+        ball_volume,
+        complexity_measure,
+        phase_capacity,
+        ratio_measure,
+        sphere_surface,
+    )
 
 # ============================================================================
 # ENHANCED VISUALIZATION AND ANALYSIS TOOLS

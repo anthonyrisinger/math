@@ -39,7 +39,6 @@ try:
     from .performance import PerformanceProfiler, PropertyValidator
 except ImportError:
     import os
-    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
     from dimensional.gamma import gamma_safe, factorial_extension
     from dimensional.measures import ball_volume, sphere_surface, complexity_measure
     from dimensional.performance import PerformanceProfiler, PropertyValidator

@@ -29,8 +29,10 @@ import functools
 # Import mathematical constants
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from core.constants import PI, NUMERICAL_EPSILON
+try:
+    from ..core.constants import PI, NUMERICAL_EPSILON
+except ImportError:
+    from core.constants import PI, NUMERICAL_EPSILON
 
 
 @dataclass
@@ -584,8 +586,8 @@ class SymbolicMathematicalCompressor:
         return float(np.max(relative_error))
 
 
-def test_symbolic_compression():
-    """Test the symbolic compression system."""
+def run_symbolic_compression_test():
+    """Run symbolic compression test and return results for analysis."""
     print("🧮 TESTING SYMBOLIC MATHEMATICAL COMPRESSION")
     print("=" * 60)
     
@@ -682,6 +684,15 @@ def test_symbolic_compression():
     }
 
 
+def test_symbolic_compression():
+    """Pytest-compatible test function for symbolic compression."""
+    results = run_symbolic_compression_test()
+    
+    # Assert for pytest compatibility
+    assert results['target_achieved'], f"Compression target not met: {results['overall_compression_ratio']:.2f}x < 2.0x required"
+    assert results['successful_tests'] == results['total_tests'], f"Some accuracy tests failed: {results['successful_tests']}/{results['total_tests']}"
+
+
 if __name__ == "__main__":
     print("🔬 SYMBOLIC MATHEMATICAL COMPRESSION SYSTEM")
     print("=" * 80)
@@ -689,7 +700,7 @@ if __name__ == "__main__":
     print("TARGET: Achieve 2.0x+ compression ratio with precision preservation")
     
     try:
-        test_results = test_symbolic_compression()
+        test_results = run_symbolic_compression_test()
         
         if test_results['target_achieved']:
             print("\n🎉 SYMBOLIC COMPRESSION SUCCESS!")

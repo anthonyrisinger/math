@@ -47,10 +47,14 @@ import threading
 import functools
 
 # Import core mathematical functions
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from core.gamma import gamma_safe, gammaln_safe
-from core.measures import ball_volume, sphere_surface, complexity_measure
-from core.constants import PI, NUMERICAL_EPSILON
+try:
+    from ..core.gamma import gamma_safe, gammaln_safe
+    from ..core.measures import ball_volume, sphere_surface, complexity_measure
+    from ..core.constants import PI, NUMERICAL_EPSILON
+except ImportError:
+    from core.gamma import gamma_safe, gammaln_safe
+    from core.measures import ball_volume, sphere_surface, complexity_measure
+    from core.constants import PI, NUMERICAL_EPSILON
 
 
 @dataclass
@@ -561,7 +565,7 @@ class TechnicalDebtCleanupSystem:
             "lazy_imports_implemented": ["visualization modules", "optional dependencies"],
             "startup_time_impact": "Minimal - core imports optimized",
             "recommendations": [
-                "Continue using sys.path.append pattern for flexibility",
+                "Eliminated sys.path.append - using proper Python imports",
                 "Keep heavy imports (plotly, typer) optional",
                 "Maintain clean separation between core and enhanced modules"
             ],

@@ -15,10 +15,8 @@ import time
 import sys
 import os
 
-# Add path for imports
-sys.path.append(os.path.dirname(__file__))
 from dimensional.sprint3_production import UltraHighPerformanceComputing, TechnicalDebtCleanupSystem
-from dimensional.symbolic import SymbolicMathematicalCompressor, test_symbolic_compression
+from dimensional.symbolic import SymbolicMathematicalCompressor, run_symbolic_compression_test
 
 
 def final_sprint3_validation():
@@ -51,7 +49,7 @@ def final_sprint3_validation():
     print("-" * 60)
     
     # Run comprehensive symbolic compression test
-    compression_test_results = test_symbolic_compression()
+    compression_test_results = run_symbolic_compression_test()
     
     compression_ratio = compression_test_results['overall_compression_ratio']
     compression_achieved = compression_test_results['target_achieved']

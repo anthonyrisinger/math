@@ -78,7 +78,7 @@ def test_unified_dimensional_package():
         print(f"  Effective dimension: {engine.calculate_effective_dimension():.3f}")
 
         # Test sapping rates
-        rate = sap_rate(2, 4)
+        rate = sap_rate(2, 4, engine.phase_density)
         print(f"  Sap rate 2→4: {rate:.6f}")
         print("  ✅ Phase dynamics working")
     except Exception as e:

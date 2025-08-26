@@ -549,6 +549,68 @@ class PhaseDynamicsEngine:
         if dimension < len(self.phase_density):
             self.phase_density[dimension] += energy
 
+    def evolve(self, n_steps, dt=0.01):
+        """
+        Evolve the system for n_steps with given time step.
+        
+        Parameters
+        ----------
+        n_steps : int
+            Number of evolution steps to take
+        dt : float, optional
+            Time step size (default: 0.01)
+            
+        Returns
+        -------
+        dict
+            Evolution results with current_emerged and final state
+        """
+        initial_emerged = self.emerged.copy()
+        initial_energy = total_phase_energy(self.phase_density)
+        
+        for _ in range(n_steps):
+            self.step(dt)
+            
+        final_energy = total_phase_energy(self.phase_density)
+        
+        return {
+            "n_steps": n_steps,
+            "dt": dt,
+            "total_time": n_steps * dt,
+            "current_emerged": sorted(list(self.emerged)),
+            "initial_emerged": sorted(list(initial_emerged)),
+            "initial_energy": initial_energy,
+            "final_energy": final_energy,
+            "energy_conservation": abs(final_energy - initial_energy),
+            "final_state": self.get_state()
+        }
+        
+    def calculate_effective_dimension(self):
+        """
+        Calculate effective dimension based on phase density distribution.
+        
+        The effective dimension is the weighted average of dimensions
+        based on their phase densities (energies).
+        
+        Returns
+        -------
+        float
+            Effective dimension
+        """
+        energies = np.abs(self.phase_density) ** 2
+        total_energy = np.sum(energies)
+        
+        if total_energy < NUMERICAL_EPSILON:
+            return 0.0
+            
+        # Weight each dimension by its energy
+        weighted_sum = 0.0
+        for d in range(len(energies)):
+            weight = energies[d] / total_energy
+            weighted_sum += d * weight
+            
+        return float(weighted_sum)
+
     def get_state(self):
         """Get current state summary."""
         return {
@@ -558,6 +620,7 @@ class PhaseDynamicsEngine:
             "coherence": phase_coherence(self.phase_density),
             "phase_densities": self.phase_density.copy(),
             "diagnostics": self.diagnostics.get_diagnostics(),
+            "effective_dimension": self.calculate_effective_dimension(),
         }
 
 

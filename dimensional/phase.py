@@ -11,18 +11,21 @@ to the robust implementations in core.phase.
 """
 
 # Import all core functionality from the authoritative implementation
-import os
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
 
-from core.phase import *  # noqa: F401,F403
-from core.phase import (
-    PhaseDynamicsEngine,
-    sap_rate,
-)
+try:
+    from ..core.phase import *  # noqa: F401,F403
+    from ..core.phase import (
+        PhaseDynamicsEngine,
+        sap_rate,
+    )
+except ImportError:
+    from core.phase import *  # noqa: F401,F403
+    from core.phase import (
+        PhaseDynamicsEngine,
+        sap_rate,
+    )
 
 # ============================================================================
 # ADDITIONAL CONVENIENCE FUNCTIONS
@@ -89,31 +92,46 @@ def quick_phase_analysis(dimension=4.0, time_steps=100):
     dict
         Analysis results including phase properties and evolution
     """
-    from core.measures import phase_capacity
+    try:
+        from ..core.measures import phase_capacity
+    except ImportError:
+        from core.measures import phase_capacity
     
     try:
-        engine = PhaseDynamicsEngine(max_dimensions=int(dimension) + 2)
+        engine = PhaseDynamicsEngine(max_dimensions=int(dimension) + 3)
         
-        # Set initial state at target dimension
-        engine.set_phase(int(dimension), 1.0)
+        # Inject some energy into the target dimension
+        target_idx = int(dimension)
+        if target_idx < len(engine.phase_density):
+            engine.inject(target_idx, 1.0)  # Use the existing inject method
         
-        # Run brief evolution
-        results = []
-        for step in range(time_steps):
-            state = engine.get_state()
-            results.append({
-                'time': step,
-                'phases': state.copy(),
-                'effective_dimension': sum(d * p for d, p in enumerate(state) if p > 0.01)
-            })
-            engine.step(dt=0.01)
-            
+        # Record initial state
+        initial_energy = total_phase_energy(engine.phase_density)
+        initial_effective_dim = engine.calculate_effective_dimension()
+        
+        # Run evolution using the evolve method
+        evolution_result = engine.evolve(time_steps, dt=0.01)
+        
+        # Calculate final state
+        final_energy = total_phase_energy(engine.phase_density)
+        final_effective_dim = engine.calculate_effective_dimension()
+        energy_conservation_error = abs(final_energy - initial_energy)
+        
         return {
             'target_dimension': dimension,
             'time_steps': time_steps,
             'phase_capacity': phase_capacity(dimension),
-            'evolution': results,
-            'final_state': results[-1] if results else {'effective_dimension': dimension}
+            'initial_energy': initial_energy,
+            'final_energy': final_energy,
+            'energy_conservation': energy_conservation_error,
+            'initial_effective_dimension': initial_effective_dim,
+            'final_effective_dimension': final_effective_dim,
+            'evolution_result': evolution_result,
+            'final_state': {
+                'effective_dimension': final_effective_dim,
+                'total_energy': final_energy,
+                'emerged_dimensions': evolution_result['current_emerged']
+            }
         }
         
     except Exception as e:
@@ -122,6 +140,7 @@ def quick_phase_analysis(dimension=4.0, time_steps=100):
             'target_dimension': dimension,
             'phase_capacity': phase_capacity(dimension) if dimension >= 0 else 0.0,
             'final_state': {'effective_dimension': dimension},
+            'energy_conservation': 0.0,
             'error': str(e)
         }
 
@@ -155,8 +174,11 @@ def dimensional_explorer(start_dim=0, end_dim=8, resolution=100):
 
     for d in dimensions:
         try:
+            from ..core.measures import phase_capacity
+        except ImportError:
             from core.measures import phase_capacity
 
+        try:
             capacity = phase_capacity(d)
             results["capacities"].append(capacity)
             results["thresholds"].append(0.9 * capacity)

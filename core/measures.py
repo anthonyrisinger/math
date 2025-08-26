@@ -305,9 +305,16 @@ def find_peak(measure_func, d_min=0.1, d_max=15, num_points=5000):
     return finite_d[peak_idx], finite_values[peak_idx]
 
 
-def find_all_peaks():
+def find_all_peaks(d_min=0.1, d_max=15.0, resolution=10000):
     """
     Find peaks of all standard measures.
+
+    Parameters
+    ----------
+    d_min, d_max : float
+        Dimension range to search
+    resolution : int
+        Number of points to evaluate
 
     Returns
     -------
@@ -317,15 +324,15 @@ def find_all_peaks():
     results = {}
 
     # Volume peak
-    vol_peak_d, vol_peak_val = find_peak(ball_volume)
+    vol_peak_d, vol_peak_val = find_peak(ball_volume, d_min, d_max, resolution)
     results["volume_peak"] = (vol_peak_d, vol_peak_val)
 
     # Surface peak
-    surf_peak_d, surf_peak_val = find_peak(sphere_surface)
+    surf_peak_d, surf_peak_val = find_peak(sphere_surface, d_min, d_max, resolution)
     results["surface_peak"] = (surf_peak_d, surf_peak_val)
 
     # Complexity peak
-    comp_peak_d, comp_peak_val = find_peak(complexity_measure)
+    comp_peak_d, comp_peak_val = find_peak(complexity_measure, d_min, d_max, resolution)
     results["complexity_peak"] = (comp_peak_d, comp_peak_val)
 
     return results
