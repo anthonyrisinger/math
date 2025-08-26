@@ -89,3 +89,7 @@ def quick_start():
 # Convenience aliases
 γ_explorer = gamma_explorer
 γ_analysis = quick_gamma_analysis
+
+# Import lowercase aliases for CLI compatibility
+from .gamma import demo, explore, instant, lab, live, peaks, qplot
+from .measures import c, s, v

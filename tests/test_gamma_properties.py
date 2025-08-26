@@ -8,7 +8,7 @@ valid gamma function implementation across all parameter ranges.
 
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings, HealthCheck
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 

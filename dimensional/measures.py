@@ -357,6 +357,11 @@ S = sphere_surface  # S(d) - sphere surface
 C = complexity_measure  # C(d) - complexity measure
 Λ = phase_capacity  # Λ(d) - phase capacity (Greek lambda)
 
+# Additional lowercase aliases for CLI compatibility
+v = ball_volume  # v(d) - ball volume (lowercase alias)
+s = sphere_surface  # s(d) - sphere surface (lowercase alias)
+c = complexity_measure  # c(d) - complexity measure (lowercase alias)
+
 
 def peaks():
     """Find all major peaks in dimensional measures."""

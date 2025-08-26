@@ -28,7 +28,6 @@ except ImportError:
     _viz_backend = None
 
 # Import and re-export constants for API compatibility
-from core.constants import PHI, PSI, PI, E
 
 # Re-export core gamma functions
 from core.gamma import *  # noqa: F401,F403

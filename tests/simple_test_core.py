@@ -16,16 +16,9 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
 
 
-def test_section(name):
-    """Print test section header."""
-    print(f"\n{'='*50}")
-    print(f"TESTING: {name}")
-    print("=" * 50)
-
-
 def test_imports():
     """Test core library imports."""
-    test_section("IMPORTS")
+    assert True  # Section header removed for pytest compatibility
 
     try:
         print("✅ Core library imported successfully")
@@ -43,7 +36,6 @@ def test_imports():
 
 def test_constants():
     """Test fundamental constants."""
-    test_section("CONSTANTS")
 
     from core import CRITICAL_DIMENSIONS, PHI, PI, PSI, VARPI
 
@@ -73,7 +65,6 @@ def test_constants():
 
 def test_gamma_functions():
     """Test gamma functions."""
-    test_section("GAMMA FUNCTIONS")
 
     from core import gamma_safe
 
@@ -114,7 +105,6 @@ def test_gamma_functions():
 
 def test_dimensional_measures():
     """Test dimensional measures."""
-    test_section("DIMENSIONAL MEASURES")
 
     from core import ball_volume, complexity_measure, sphere_surface
 
@@ -167,7 +157,6 @@ def test_dimensional_measures():
 
 def test_phase_dynamics():
     """Test phase dynamics."""
-    test_section("PHASE DYNAMICS")
 
     from core import PhaseDynamicsEngine, sap_rate
 
@@ -261,7 +250,6 @@ def test_phase_dynamics():
 
 def test_morphic_mathematics():
     """Test morphic mathematics."""
-    test_section("MORPHIC MATHEMATICS")
 
     from core import morphic_polynomial_roots
     from core.morphic import golden_ratio_properties, k_perfect_circle
@@ -313,7 +301,6 @@ def test_morphic_mathematics():
 
 def test_api_usability():
     """Test API usability."""
-    test_section("API USABILITY")
 
     all_passed = True
 
@@ -362,7 +349,6 @@ def test_api_usability():
 
 def test_performance():
     """Test performance."""
-    test_section("PERFORMANCE")
 
     from core import PhaseDynamicsEngine, ball_volume
 
@@ -405,7 +391,6 @@ def test_performance():
 
 def test_built_in_verification():
     """Test the built-in verification system."""
-    test_section("BUILT-IN VERIFICATION")
 
     import core
 
@@ -461,7 +446,6 @@ def main():
     test_performance()
 
     # Summary
-    test_section("SUMMARY")
 
     passed = sum(1 for _, result in test_results if result)
     total = len(test_results)

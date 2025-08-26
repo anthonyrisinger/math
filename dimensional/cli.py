@@ -15,14 +15,33 @@ Key Features:
 - Consistent parameter patterns across all tools
 """
 
+import importlib.util
 import json
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
-import plotly.graph_objects as go
 import typer
-from plotly.subplots import make_subplots
+
+# Make plotly optional
+try:
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+    HAS_PLOTLY = True
+except ImportError:
+    HAS_PLOTLY = False
+    # Mock plotly objects for compatibility
+    class MockGo:
+        @staticmethod
+        def Figure(): return None
+        @staticmethod
+        def Scatter(**kwargs): return None
+        @staticmethod
+        def Surface(**kwargs): return None
+    go = MockGo()
+
+    def make_subplots(**kwargs):
+        return None
 from pydantic import BaseModel, Field, field_validator
 from rich.console import Console
 from rich.panel import Panel
@@ -30,13 +49,29 @@ from rich.progress import track
 from rich.table import Table
 
 # Import our consolidated modules
-from .gamma import gamma_safe, γ, ln_γ, ψ, gamma_explorer, quick_gamma_analysis
-from .phase import PhaseDynamicsEngine, quick_emergence_analysis
-from .measures import ball_volume, sphere_surface, complexity_measure, V, S, C, Λ
+from .gamma import (
+    demo,  # interactive functions
+    explore,
+    gamma_safe,
+    instant,
+    lab,
+    live,
+    peaks,
+    qplot,
+)
+from .measures import (  # lowercase aliases from measures.py
+    c,
+    s,
+    v,
+)
+from .phase import PhaseDynamicsEngine
 
-# Import visualization modules
-from visualization import PlotlyDashboard, KingdonRenderer
-from visualization.modernized_dashboard import create_modern_dashboard
+# Import visualization modules - make optional to avoid import errors
+try:
+    importlib.util.find_spec("visualization")
+    HAS_VISUALIZATION = True
+except (ImportError, AttributeError):
+    HAS_VISUALIZATION = False
 
 # Initialize rich console for beautiful output
 console = Console()
@@ -491,6 +526,11 @@ def cli_visualize_emergence(
         s_vals = [s(d) for d in track(dims, description="Surface")]
         c_vals = [c(d) for d in track(dims, description="Complexity")]
 
+    if not HAS_PLOTLY:
+        console.print("[red]❌ Plotly not available. Install plotly for interactive visualization.[/red]")
+        console.print("[yellow]📊 Data computed successfully. Install plotly to see plots.[/yellow]")
+        return
+
     # Create interactive plotly visualization
     fig = make_subplots(
         rows=2,
@@ -707,8 +747,8 @@ def cli_visualize_gamma_landscape(
     # Create complex grid
     real_vals = np.linspace(dim_range[0], dim_range[1], resolution)
     imag_vals = np.linspace(-complex_range, complex_range, resolution)
-    R, I = np.meshgrid(real_vals, imag_vals)
-    Z = R + 1j * I
+    real_mesh, imag_mesh = np.meshgrid(real_vals, imag_vals)
+    Z = real_mesh + 1j * imag_mesh
 
     with console.status("🔄 Computing 3D gamma landscape..."):
         # Compute gamma function over complex plane
@@ -726,8 +766,8 @@ def cli_visualize_gamma_landscape(
     # Real part surface
     fig.add_trace(
         go.Surface(
-            x=R,
-            y=I,
+            x=real_mesh,
+            y=imag_mesh,
             z=np.real(gamma_vals),
             name="Re(Γ(z))",
             colorscale="Viridis",
