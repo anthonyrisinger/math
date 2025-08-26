@@ -89,12 +89,10 @@ def test_unified_dimensional_package():
     print("-" * 40)
     try:
         # Run integrated analysis
-        analysis = quick_phase_analysis(dimension=4.0, time_steps=500)
-        print(f"  Target dimension: {analysis['target_dimension']}")
-        print(
-            f"  Final effective dim: {analysis['final_state']['effective_dimension']:.3f}"
-        )
-        print(f"  Energy: {analysis['energy_conservation']:.6f}")
+        analysis = quick_phase_analysis(dimensions=[4])
+        print(f"  Analysis dimensions: {list(analysis.keys())}")
+        print(f"  Dimension 4 phase capacity: {analysis['dimension_4']['phase_capacity']:.3f}")
+        print("  ✅ Phase analysis complete")
         print("  ✅ Integration working")
     except Exception as e:
         print(f"  ❌ Integration failed: {e}")
