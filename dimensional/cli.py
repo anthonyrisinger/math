@@ -27,21 +27,31 @@ import typer
 try:
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
+
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
+
     # Mock plotly objects for compatibility
     class MockGo:
         @staticmethod
-        def Figure(): return None
+        def Figure():
+            return None
+
         @staticmethod
-        def Scatter(**kwargs): return None
+        def Scatter(**kwargs):
+            return None
+
         @staticmethod
-        def Surface(**kwargs): return None
+        def Surface(**kwargs):
+            return None
+
     go = MockGo()
 
     def make_subplots(**kwargs):
         return None
+
+
 from pydantic import BaseModel, Field, field_validator
 from rich.console import Console
 from rich.panel import Panel
@@ -88,12 +98,14 @@ app = typer.Typer(
 # ULTRA-FAST PROTOTYPING SHORTCUTS
 # ============================================================================
 
+
 @app.command("v")
 def shortcut_volume(
     dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
 ):
     """⚡ Ultra-fast volume calculation: dim v 4"""
     _process_shortcut("volume", dims)
+
 
 @app.command("s")
 def shortcut_surface(
@@ -102,6 +114,7 @@ def shortcut_surface(
     """⚡ Ultra-fast surface calculation: dim s 4"""
     _process_shortcut("surface", dims)
 
+
 @app.command("c")
 def shortcut_complexity(
     dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
@@ -109,14 +122,17 @@ def shortcut_complexity(
     """⚡ Ultra-fast complexity calculation: dim c 4"""
     _process_shortcut("complexity", dims)
 
+
 @app.command("p")
 def shortcut_peaks():
     """⚡ Ultra-fast peak analysis: dim p"""
     from .measures import find_all_peaks
+
     console.print("🏔️ [bold cyan]Critical Peaks[/bold cyan]")
     peaks = find_all_peaks()
     for key, (location, value) in peaks.items():
         console.print(f"  {key}: d={location:.3f}, value={value:.3f}")
+
 
 @app.command("g")
 def shortcut_gamma(
@@ -124,15 +140,17 @@ def shortcut_gamma(
 ):
     """⚡ Ultra-fast gamma calculation: dim g 2.5"""
     from .gamma import gamma_safe
+
     result = gamma_safe(value)
     console.print(f"Γ({value}) = {result:.6f}")
+
 
 def _process_shortcut(func_name: str, dims_str: str):
     """Process ultra-fast shortcut commands with mathematical context."""
     # Parse dimensions - support both single values and comma-separated
     try:
-        if ',' in dims_str:
-            dims = [float(d.strip()) for d in dims_str.split(',')]
+        if "," in dims_str:
+            dims = [float(d.strip()) for d in dims_str.split(",")]
         else:
             dims = [float(dims_str)]
     except ValueError:
@@ -142,12 +160,15 @@ def _process_shortcut(func_name: str, dims_str: str):
     # Import functions
     if func_name == "volume":
         from .measures import ball_volume as func
+
         symbol = "V"
     elif func_name == "surface":
         from .measures import sphere_surface as func
+
         symbol = "S"
     elif func_name == "complexity":
         from .measures import complexity_measure as func
+
         symbol = "C"
 
     # Compute and display with mathematical context
@@ -156,14 +177,20 @@ def _process_shortcut(func_name: str, dims_str: str):
         result = func(d)
         console.print(f"  {symbol}({d}) = {result:.6f}")
 
+
 # ============================================================================
 # AI-FRIENDLY FEATURES
 # ============================================================================
 
+
 @app.command("eval")
 def ai_eval(
-    expression: str = typer.Argument(..., help="🤖 Math expression: 'V(4)', 'C(2,3,4)', 'gamma(2.5)'"),
-    format: str = typer.Option("human", "--format", "-f", help="📊 Output: human, json, csv")
+    expression: str = typer.Argument(
+        ..., help="🤖 Math expression: 'V(4)', 'C(2,3,4)', 'gamma(2.5)'"
+    ),
+    format: str = typer.Option(
+        "human", "--format", "-f", help="📊 Output: human, json, csv"
+    ),
 ):
     """🤖 AI-friendly expression evaluator: dim eval 'V(4) + C(3)'"""
     result = _evaluate_expression(expression, format)
@@ -178,13 +205,18 @@ def ai_eval(
     else:
         console.print(f"🤖 {expression} = {result}")
 
+
 @app.command("batch")
 def ai_batch(
-    expressions: str = typer.Argument(..., help="🚀 Multiple expressions: 'V(2);C(3);gamma(1.5)'"),
-    format: str = typer.Option("table", "--format", "-f", help="📊 Output: table, json, csv")
+    expressions: str = typer.Argument(
+        ..., help="🚀 Multiple expressions: 'V(2);C(3);gamma(1.5)'"
+    ),
+    format: str = typer.Option(
+        "table", "--format", "-f", help="📊 Output: table, json, csv"
+    ),
 ):
     """🚀 AI batch processing: dim batch 'V(2);C(3);S(4)'"""
-    expr_list = [expr.strip() for expr in expressions.split(';')]
+    expr_list = [expr.strip() for expr in expressions.split(";")]
     results = []
 
     for expr in expr_list:
@@ -212,9 +244,14 @@ def ai_batch(
         for r in results:
             status_color = "green" if r["status"] == "success" else "red"
             value = str(r.get("result", r.get("error", "")))
-            table.add_row(r["expression"], value, f"[{status_color}]{r['status']}[/{status_color}]")
+            table.add_row(
+                r["expression"],
+                value,
+                f"[{status_color}]{r['status']}[/{status_color}]",
+            )
 
         console.print(table)
+
 
 def _evaluate_expression(expr: str, output_format: str = "human"):
     """Evaluate mathematical expressions with AI-friendly parsing."""
@@ -224,16 +261,16 @@ def _evaluate_expression(expr: str, output_format: str = "human"):
     expr = expr.strip()
 
     # Import mathematical functions
-    from .measures import ball_volume, sphere_surface, complexity_measure
     from .gamma import gamma_safe
+    from .measures import ball_volume, complexity_measure, sphere_surface
 
     # Simple expression patterns for AI workflows
     patterns = {
-        r'V\(([0-9.,\s]+)\)': lambda m: _eval_function(ball_volume, m.group(1)),
-        r'S\(([0-9.,\s]+)\)': lambda m: _eval_function(sphere_surface, m.group(1)),
-        r'C\(([0-9.,\s]+)\)': lambda m: _eval_function(complexity_measure, m.group(1)),
-        r'gamma\(([0-9.,\s]+)\)': lambda m: _eval_function(gamma_safe, m.group(1)),
-        r'Γ\(([0-9.,\s]+)\)': lambda m: _eval_function(gamma_safe, m.group(1)),
+        r"V\(([0-9.,\s]+)\)": lambda m: _eval_function(ball_volume, m.group(1)),
+        r"S\(([0-9.,\s]+)\)": lambda m: _eval_function(sphere_surface, m.group(1)),
+        r"C\(([0-9.,\s]+)\)": lambda m: _eval_function(complexity_measure, m.group(1)),
+        r"gamma\(([0-9.,\s]+)\)": lambda m: _eval_function(gamma_safe, m.group(1)),
+        r"Γ\(([0-9.,\s]+)\)": lambda m: _eval_function(gamma_safe, m.group(1)),
     }
 
     for pattern, handler in patterns.items():
@@ -252,7 +289,7 @@ def _evaluate_expression(expr: str, output_format: str = "human"):
     # If no pattern matches, try direct evaluation for simple expressions
     try:
         # Very basic evaluation for expressions like "4.5" or simple arithmetic
-        if re.match(r'^[0-9.,\s+\-*/()]+$', expr):
+        if re.match(r"^[0-9.,\s+\-*/()]+$", expr):
             result = eval(expr)  # Safe for numeric expressions only
             if output_format == "raw":
                 return result
@@ -262,13 +299,15 @@ def _evaluate_expression(expr: str, output_format: str = "human"):
 
     raise ValueError(f"Could not evaluate expression: {expr}")
 
+
 def _eval_function(func, args_str):
     """Helper to evaluate function with parsed arguments."""
-    if ',' in args_str:
-        args = [float(x.strip()) for x in args_str.split(',')]
+    if "," in args_str:
+        args = [float(x.strip()) for x in args_str.split(",")]
         return [func(arg) for arg in args]
     else:
         return func(float(args_str.strip()))
+
 
 # ============================================================================
 # PYDANTIC MODELS FOR TYPE SAFETY
@@ -713,8 +752,12 @@ def cli_visualize_emergence(
         c_vals = [c(d) for d in track(dims, description="Complexity")]
 
     if not HAS_PLOTLY:
-        console.print("[red]❌ Plotly not available. Install plotly for interactive visualization.[/red]")
-        console.print("[yellow]📊 Data computed successfully. Install plotly to see plots.[/yellow]")
+        console.print(
+            "[red]❌ Plotly not available. Install plotly for interactive visualization.[/red]"
+        )
+        console.print(
+            "[yellow]📊 Data computed successfully. Install plotly to see plots.[/yellow]"
+        )
         return
 
     # Create interactive plotly visualization

@@ -80,32 +80,30 @@ def measures_explorer(d_range=(0, 10), n_points=1000, plot=True):
 
     if plot:
         # MODERNIZED: Return analysis data instead of printing
-        analysis_summary = {
-            'range': d_range,
-            'n_points': n_points,
-            'measures': {}
-        }
+        analysis_summary = {"range": d_range, "n_points": n_points, "measures": {}}
 
         for name, values in results.items():
             finite_mask = np.isfinite(values)
             finite_count = np.sum(finite_mask)
             measure_stats = {
-                'finite_count': finite_count,
-                'total_count': len(values),
-                'finite_ratio': finite_count / len(values) if len(values) > 0 else 0
+                "finite_count": finite_count,
+                "total_count": len(values),
+                "finite_ratio": finite_count / len(values) if len(values) > 0 else 0,
             }
 
             if finite_count > 0:
                 finite_vals = values[finite_mask]
-                measure_stats.update({
-                    'value_range': (np.min(finite_vals), np.max(finite_vals)),
-                    'peak_dimension': d_vals[finite_mask][np.argmax(finite_vals)],
-                    'peak_value': np.max(finite_vals)
-                })
+                measure_stats.update(
+                    {
+                        "value_range": (np.min(finite_vals), np.max(finite_vals)),
+                        "peak_dimension": d_vals[finite_mask][np.argmax(finite_vals)],
+                        "peak_value": np.max(finite_vals),
+                    }
+                )
 
-            analysis_summary['measures'][name] = measure_stats
+            analysis_summary["measures"][name] = measure_stats
 
-        results['_analysis_summary'] = analysis_summary
+        results["_analysis_summary"] = analysis_summary
 
     return results
 
@@ -246,13 +244,13 @@ def comparative_plot(dimensions, measures=None, log_scale=True):
 
     # MODERNIZED: Return analysis data instead of printing
     analysis = {
-        'dimensions': dimensions,
-        'log_scale': log_scale,
-        'measures': {},
-        'summary': {
-            'dimension_count': len(dimensions),
-            'dimension_range': (dimensions.min(), dimensions.max())
-        }
+        "dimensions": dimensions,
+        "log_scale": log_scale,
+        "measures": {},
+        "summary": {
+            "dimension_count": len(dimensions),
+            "dimension_range": (dimensions.min(), dimensions.max()),
+        },
     }
 
     for i, (measure, name) in enumerate(zip(measures, measure_names)):
@@ -262,32 +260,37 @@ def comparative_plot(dimensions, measures=None, log_scale=True):
             finite_count = np.sum(finite_mask)
 
             measure_stats = {
-                'finite_count': finite_count,
-                'total_count': len(values),
-                'finite_ratio': finite_count / len(values) if len(values) > 0 else 0
+                "finite_count": finite_count,
+                "total_count": len(values),
+                "finite_ratio": finite_count / len(values) if len(values) > 0 else 0,
             }
 
             if finite_count > 0:
                 finite_vals = values[finite_mask]
                 finite_dims = dimensions[finite_mask]
 
-                measure_stats.update({
-                    'value_range': (np.min(finite_vals), np.max(finite_vals)),
-                    'max_dimension': finite_dims[np.argmax(finite_vals)],
-                    'max_value': np.max(finite_vals),
-                    'min_dimension': finite_dims[np.argmin(finite_vals)],
-                    'min_value': np.min(finite_vals)
-                })
+                measure_stats.update(
+                    {
+                        "value_range": (np.min(finite_vals), np.max(finite_vals)),
+                        "max_dimension": finite_dims[np.argmax(finite_vals)],
+                        "max_value": np.max(finite_vals),
+                        "min_dimension": finite_dims[np.argmin(finite_vals)],
+                        "min_value": np.min(finite_vals),
+                    }
+                )
 
-            analysis['measures'][name] = measure_stats
+            analysis["measures"][name] = measure_stats
 
         except Exception as e:
-            analysis['measures'][name] = {'error': str(e)}
+            analysis["measures"][name] = {"error": str(e)}
 
     # Mark critical dimensions
-    critical_in_range = [d for d in CRITICAL_DIMENSIONS.values()
-                        if dimensions.min() <= d <= dimensions.max()]
-    analysis['critical_dimensions_in_range'] = critical_in_range
+    critical_in_range = [
+        d
+        for d in CRITICAL_DIMENSIONS.values()
+        if dimensions.min() <= d <= dimensions.max()
+    ]
+    analysis["critical_dimensions_in_range"] = critical_in_range
 
     return analysis
 
@@ -360,17 +363,17 @@ def peaks():
 
     # Organize peak data for return
     peak_summary = {
-        'volume_peaks': analysis['summary']['total_volume_peaks'],
-        'surface_peaks': analysis['summary']['total_surface_peaks'],
-        'complexity_peaks': analysis['summary']['total_complexity_peaks'],
-        'known_critical_dimensions': analysis['known_critical_dimensions'],
-        'top_peaks': {}
+        "volume_peaks": analysis["summary"]["total_volume_peaks"],
+        "surface_peaks": analysis["summary"]["total_surface_peaks"],
+        "complexity_peaks": analysis["summary"]["total_complexity_peaks"],
+        "known_critical_dimensions": analysis["known_critical_dimensions"],
+        "top_peaks": {},
     }
 
     # Collect top peaks for each measure
     for measure_type in ["volume", "surface", "complexity"]:
         peaks_data = analysis[f"{measure_type}_analysis"]["peaks"][:3]  # Top 3
-        peak_summary['top_peaks'][measure_type] = peaks_data
+        peak_summary["top_peaks"][measure_type] = peaks_data
 
     return peak_summary
 
@@ -383,6 +386,8 @@ if __name__ == "__main__":
     for d in test_dims:
         result = quick_measure_analysis(d)
         # Validate mathematical properties
-        assert result['ball_volume'] > 0, f"Invalid volume for d={d}"
-        assert result['sphere_surface'] > 0, f"Invalid surface for d={d}"
-        assert np.isfinite(result['complexity_measure']), f"Invalid complexity for d={d}"
+        assert result["ball_volume"] > 0, f"Invalid volume for d={d}"
+        assert result["sphere_surface"] > 0, f"Invalid surface for d={d}"
+        assert np.isfinite(
+            result["complexity_measure"]
+        ), f"Invalid complexity for d={d}"

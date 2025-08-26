@@ -25,32 +25,31 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 try:
     # Import core mathematical functions that MUST be available
+    # Import constants directly from core - ARCHITECTURAL DECISION: BYPASS BROKEN EXPORTS
+    from core.constants import PHI, PI, PSI, E
     from dimensional.gamma import (
+        c,
+        c_peak,
+        digamma_safe,
+        explore,
         # Core gamma functions
         gamma_safe,
         gammaln_safe,
-        digamma_safe,
-        # Dimensional measures
-        v,
-        s,
-        c,
-        r,
-        ρ,
-        # Peak finders
-        v_peak,
-        s_peak,
-        c_peak,
         # Interactive tools
         instant,
-        explore,
-        qplot,
         peaks,
+        qplot,
+        r,
+        s,
+        s_peak,
+        # Dimensional measures
+        v,
+        # Peak finders
+        v_peak,
         # Unicode aliases
         γ,
+        ρ,
     )
-
-    # Import constants directly from core - ARCHITECTURAL DECISION: BYPASS BROKEN EXPORTS
-    from core.constants import PI, PHI, PSI, E
 
     # Try to import additional tools that may or may not be available
     try:
@@ -269,7 +268,7 @@ class TestVisualizationTools:
         result = qplot(v, s, c, labels=["Volume", "Surface", "Complexity"])
         # Modern implementation returns a dictionary with plot data
         assert isinstance(result, dict)
-        assert 'func_0' in result or len(result) >= 0  # Should contain function data
+        assert "func_0" in result or len(result) >= 0  # Should contain function data
 
     def test_instant_visualization(self):
         """Test instant 4-panel visualization - modernized."""
@@ -279,8 +278,8 @@ class TestVisualizationTools:
         result = instant()
         # Modern implementation returns a dictionary with panel configuration
         assert isinstance(result, dict)
-        assert 'panels' in result
-        assert result['panels'] == ['gamma', 'ln_gamma', 'digamma', 'factorial']
+        assert "panels" in result
+        assert result["panels"] == ["gamma", "ln_gamma", "digamma", "factorial"]
 
     def test_explore_function(self):
         """Test explore function (prints output)."""
@@ -290,10 +289,10 @@ class TestVisualizationTools:
         # Should not crash and return dimensional analysis data
         result = explore(4.0)
         assert isinstance(result, dict)
-        assert 'dimension' in result
-        assert result['dimension'] == 4.0
-        assert 'volume' in result
-        assert 'surface' in result
+        assert "dimension" in result
+        assert result["dimension"] == 4.0
+        assert "volume" in result
+        assert "surface" in result
 
     def test_peaks_function(self):
         """Test peaks function (prints output)."""
@@ -303,9 +302,9 @@ class TestVisualizationTools:
         # Should not crash and return peaks data
         result = peaks()
         assert isinstance(result, dict)
-        assert 'volume_peak' in result
-        assert 'surface_peak' in result
-        assert 'complexity_peak' in result
+        assert "volume_peak" in result
+        assert "surface_peak" in result
+        assert "complexity_peak" in result
 
 
 class TestInteractiveClasses:
@@ -481,10 +480,10 @@ class TestConvenienceFunctions:
         # Demo function returns data instead of printing
         result = demo()
         assert isinstance(result, dict)
-        assert 'demo_type' in result
-        assert result['demo_type'] == 'dimensional_gamma'
-        assert 'exploration' in result
-        assert 'visualization' in result
+        assert "demo_type" in result
+        assert result["demo_type"] == "dimensional_gamma"
+        assert "exploration" in result
+        assert "visualization" in result
 
 
 def run_manual_tests():

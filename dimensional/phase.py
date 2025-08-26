@@ -16,18 +16,12 @@ import numpy as np
 
 # Hybrid imports for flexibility
 try:
-    from ..core.phase import *  # noqa: F401,F403
-    from ..core.phase import (
-        PhaseDynamicsEngine,
-        sap_rate,
-    )
+    from ..core.measures import phase_capacity
+    from ..core.phase import PhaseDynamicsEngine, sap_rate, total_phase_energy
 except ImportError:
     # Fallback for script execution
-    from core.phase import *  # noqa: F401,F403
-    from core.phase import (
-        PhaseDynamicsEngine,
-        sap_rate,
-    )
+    from core.measures import phase_capacity
+    from core.phase import PhaseDynamicsEngine, sap_rate, total_phase_energy
 
 # ============================================================================
 # ADDITIONAL CONVENIENCE FUNCTIONS
@@ -81,75 +75,66 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
 def quick_phase_analysis(dimension=4.0, time_steps=100):
     """
     Perform quick phase analysis around a specific dimension.
-    
+
     Parameters
     ----------
     dimension : float
         Target dimension to analyze
     time_steps : int
         Number of evolution steps
-        
+
     Returns
     -------
     dict
         Analysis results including phase properties and evolution
     """
-    try:
-        try:
-            from ..core.measures import phase_capacity
-        except ImportError:
-            from core.measures import phase_capacity
-    except ImportError:
-        try:
-            from ..core.measures import phase_capacity
-        except ImportError:
-            from core.measures import phase_capacity
-    
+    # phase_capacity is already imported at module level
+
     try:
         engine = PhaseDynamicsEngine(max_dimensions=int(dimension) + 3)
-        
+
         # Inject some energy into the target dimension
         target_idx = int(dimension)
         if target_idx < len(engine.phase_density):
             engine.inject(target_idx, 1.0)  # Use the existing inject method
-        
+
         # Record initial state
         initial_energy = total_phase_energy(engine.phase_density)
         initial_effective_dim = engine.calculate_effective_dimension()
-        
+
         # Run evolution using the evolve method
         evolution_result = engine.evolve(time_steps, dt=0.01)
-        
+
         # Calculate final state
         final_energy = total_phase_energy(engine.phase_density)
         final_effective_dim = engine.calculate_effective_dimension()
         energy_conservation_error = abs(final_energy - initial_energy)
-        
+
         return {
-            'target_dimension': dimension,
-            'time_steps': time_steps,
-            'phase_capacity': phase_capacity(dimension),
-            'initial_energy': initial_energy,
-            'final_energy': final_energy,
-            'energy_conservation': energy_conservation_error,
-            'initial_effective_dimension': initial_effective_dim,
-            'final_effective_dimension': final_effective_dim,
-            'evolution_result': evolution_result,
-            'final_state': {
-                'effective_dimension': final_effective_dim,
-                'total_energy': final_energy,
-                'emerged_dimensions': evolution_result['current_emerged']
-            }
+            "target_dimension": dimension,
+            "time_steps": time_steps,
+            "phase_capacity": phase_capacity(dimension),
+            "initial_energy": initial_energy,
+            "final_energy": final_energy,
+            "energy_conservation": energy_conservation_error,
+            "initial_effective_dimension": initial_effective_dim,
+            "final_effective_dimension": final_effective_dim,
+            "evolution_result": evolution_result,
+            "final_state": {
+                "effective_dimension": final_effective_dim,
+                "total_energy": final_energy,
+                "emerged_dimensions": evolution_result["current_emerged"],
+            },
         }
-        
+
     except Exception as e:
         # Fallback analysis if engine fails
         return {
-            'target_dimension': dimension,
-            'phase_capacity': phase_capacity(dimension) if dimension >= 0 else 0.0,
-            'final_state': {'effective_dimension': dimension},
-            'energy_conservation': 0.0,
-            'error': str(e)
+            "target_dimension": dimension,
+            "phase_capacity": phase_capacity(dimension) if dimension >= 0 else 0.0,
+            "final_state": {"effective_dimension": dimension},
+            "energy_conservation": 0.0,
+            "error": str(e),
         }
 
 
@@ -180,11 +165,7 @@ def dimensional_explorer(start_dim=0, end_dim=8, resolution=100):
         "sapping_rates": [],
     }
 
-    # Import phase_capacity with hybrid pattern
-    try:
-        from ..core.measures import phase_capacity
-    except ImportError:
-        from core.measures import phase_capacity
+    # phase_capacity is already imported at module level
 
     for d in dimensions:
         try:

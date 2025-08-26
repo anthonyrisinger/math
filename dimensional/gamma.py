@@ -11,8 +11,6 @@ robust mathematical implementations in core.gamma.
 """
 
 # Import all robust core functionality
-import os
-import sys
 
 import numpy as np
 
@@ -31,6 +29,7 @@ try:
         gamma_safe,
         gammaln_safe,
     )
+
     # Import dimensional measures functions
     from ..core.measures import ball_volume as v
     from ..core.measures import complexity_measure as c
@@ -114,23 +113,21 @@ def gamma_explorer(z_range=(-5, 5), n_points=1000, show_poles=True):
     finite_count = np.sum(finite_mask)
 
     stats = {
-        'range': z_range,
-        'n_points': n_points,
-        'finite_count': finite_count,
-        'finite_ratio': finite_count / len(z) if len(z) > 0 else 0
+        "range": z_range,
+        "n_points": n_points,
+        "finite_count": finite_count,
+        "finite_ratio": finite_count / len(z) if len(z) > 0 else 0,
     }
 
     if finite_count > 0:
         finite_gamma = gamma_vals[finite_mask]
-        stats.update({
-            'value_range': (np.min(finite_gamma), np.max(finite_gamma))
-        })
+        stats.update({"value_range": (np.min(finite_gamma), np.max(finite_gamma))})
 
     return {
-        'z_values': z,
-        'gamma_values': gamma_vals,
-        'finite_mask': finite_mask,
-        'stats': stats
+        "z_values": z,
+        "gamma_values": gamma_vals,
+        "finite_mask": finite_mask,
+        "stats": stats,
     }
 
 
@@ -196,22 +193,22 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
 
     # Generate statistics without printing
     stats = {
-        'range': z_range,
-        'n_points_requested': n_points,
-        'n_points_clean': len(z_clean),
-        'gamma_finite': int(np.sum(np.isfinite(gamma_vals))),
-        'ln_gamma_finite': int(np.sum(np.isfinite(ln_gamma_vals))),
-        'digamma_finite': int(np.sum(np.isfinite(digamma_vals))),
+        "range": z_range,
+        "n_points_requested": n_points,
+        "n_points_clean": len(z_clean),
+        "gamma_finite": int(np.sum(np.isfinite(gamma_vals))),
+        "ln_gamma_finite": int(np.sum(np.isfinite(ln_gamma_vals))),
+        "digamma_finite": int(np.sum(np.isfinite(digamma_vals))),
     }
 
     return {
-        'z_values': z_clean,
-        'gamma': gamma_vals,
-        'ln_gamma': ln_gamma_vals,
-        'digamma': digamma_vals,
-        'positive_z': positive_z,
-        'stats': stats,
-        'factorial': fact_vals
+        "z_values": z_clean,
+        "gamma": gamma_vals,
+        "ln_gamma": ln_gamma_vals,
+        "digamma": digamma_vals,
+        "positive_z": positive_z,
+        "stats": stats,
+        "factorial": fact_vals,
     }
 
 
@@ -247,16 +244,17 @@ def qplot(*funcs, labels=None):
             y_finite = [y for y in y_vals if np.isfinite(y)]
 
             results[label] = {
-                'x_values': d_vals,
-                'y_values': y_vals,
-                'finite_count': len(y_finite),
-                'total_count': len(y_vals),
-                'value_range': (min(y_finite), max(y_finite)) if y_finite else None
+                "x_values": d_vals,
+                "y_values": y_vals,
+                "finite_count": len(y_finite),
+                "total_count": len(y_vals),
+                "value_range": (min(y_finite), max(y_finite)) if y_finite else None,
             }
         except Exception as e:
-            results[label] = {'error': str(e)}
+            results[label] = {"error": str(e)}
 
     return results
+
 
 def instant():
     """Instant 4-panel visualization data.
@@ -265,13 +263,13 @@ def instant():
         dict: Configuration for 4-panel gamma function visualization
     """
     return {
-        'panels': ['gamma', 'ln_gamma', 'digamma', 'factorial'],
-        'config': {
-            'gamma': {'range': (-3, 5), 'points': 1000},
-            'ln_gamma': {'range': (0.1, 10), 'points': 1000},
-            'digamma': {'range': (0.1, 10), 'points': 1000},
-            'factorial': {'range': (0, 10), 'points': 1000}
-        }
+        "panels": ["gamma", "ln_gamma", "digamma", "factorial"],
+        "config": {
+            "gamma": {"range": (-3, 5), "points": 1000},
+            "ln_gamma": {"range": (0.1, 10), "points": 1000},
+            "digamma": {"range": (0.1, 10), "points": 1000},
+            "factorial": {"range": (0, 10), "points": 1000},
+        },
     }
 
 
@@ -282,12 +280,12 @@ def explore(d):
         dict: Complete dimensional analysis at dimension d
     """
     return {
-        'dimension': d,
-        'volume': v(d),
-        'surface': s(d),
-        'complexity': c(d),
-        'ratio': r(d),
-        'density': ρ(d)
+        "dimension": d,
+        "volume": v(d),
+        "surface": s(d),
+        "complexity": c(d),
+        "ratio": r(d),
+        "density": ρ(d),
     }
 
 
@@ -298,9 +296,9 @@ def peaks():
         dict: All peak values for dimensional measures
     """
     return {
-        'volume_peak': v_peak(),
-        'surface_peak': s_peak(),
-        'complexity_peak': c_peak()
+        "volume_peak": v_peak(),
+        "surface_peak": s_peak(),
+        "complexity_peak": c_peak(),
     }
 
 
@@ -331,9 +329,9 @@ def lab(start_d=4.0):
 def demo():
     """Run demonstration - returns data instead of printing."""
     return {
-        'demo_type': 'dimensional_gamma',
-        'exploration': explore(4.0),
-        'visualization': instant()
+        "demo_type": "dimensional_gamma",
+        "exploration": explore(4.0),
+        "visualization": instant(),
     }
 
 
@@ -344,10 +342,10 @@ def live(expr_file="gamma_expr.py"):
         dict: Live mode configuration
     """
     return {
-        'mode': 'live_editing',
-        'watching_file': expr_file,
-        'features': ['file_monitoring', 'real_time_plots', 'hot_reload'],
-        'status': 'ready'
+        "mode": "live_editing",
+        "watching_file": expr_file,
+        "features": ["file_monitoring", "real_time_plots", "hot_reload"],
+        "status": "ready",
     }
 
 

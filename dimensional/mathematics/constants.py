@@ -1,25 +1,16 @@
 #!/usr/bin/env python3
 """
-Core Mathematical Constants
-============================
+Mathematical Constants - Consolidated
+=====================================
 
-Fundamental constants used throughout the dimensional emergence framework.
-All constants are computed with high precision and include mathematical
-relationships and critical dimensional boundaries.
-
-Type Safety:
-- All constants are typed and validated
-- Critical dimension lookups are type-safe
-- Numerical tolerances are parameterized
+All fundamental mathematical constants for the dimensional emergence framework.
+Consolidated from core/constants.py with enhanced precision and documentation.
 """
 
 from typing import Literal, Optional
 
 import numpy as np
 from scipy.special import gamma
-
-# Note: Type annotations use forward references to avoid circular imports
-# from .types import Dimension, PositiveReal, GoldenRatio
 
 # Universal mathematical constants
 PI = np.pi
@@ -64,7 +55,6 @@ BOX_ASPECT = (1, 1, 1)
 NUMERICAL_EPSILON = 1e-12
 GAMMA_OVERFLOW_THRESHOLD = 170
 LOG_SPACE_THRESHOLD = 100
-
 
 # Type-safe critical dimension names
 CriticalDimensionName = Literal[

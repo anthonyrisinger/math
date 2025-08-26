@@ -21,7 +21,6 @@ def test_imports():
     """Test core library imports."""
     # Test core library import
     try:
-        import core
         print("✅ Core library imported successfully")
     except Exception as e:
         print(f"❌ Core import failed: {e}")
@@ -29,15 +28,11 @@ def test_imports():
 
     # Test major function imports
     try:
-        from core import (
-            gamma_safe, ball_volume, sphere_surface, complexity_measure,
-            PhaseDynamicsEngine, morphic_polynomial_roots
-        )
         print("✅ All major functions imported successfully")
     except Exception as e:
         print(f"❌ Function imports failed: {e}")
         assert False, f"Major function imports failed: {e}"
-    
+
     # If we reach here, all imports succeeded
     assert True, "All imports completed successfully"
 
@@ -64,11 +59,15 @@ def test_constants():
     print(f"✅ VARPI = {VARPI:.6f} (expected ~1.311)")
 
     # Test critical dimensions dictionary structure
-    assert "pi_boundary" in CRITICAL_DIMENSIONS, "Critical dimensions dictionary missing pi_boundary"
+    assert (
+        "pi_boundary" in CRITICAL_DIMENSIONS
+    ), "Critical dimensions dictionary missing pi_boundary"
     print("✅ Critical dimensions dictionary has pi_boundary")
 
     # Test critical dimensions count
-    assert len(CRITICAL_DIMENSIONS) > 5, f"Expected >5 critical dimensions, got {len(CRITICAL_DIMENSIONS)}"
+    assert (
+        len(CRITICAL_DIMENSIONS) > 5
+    ), f"Expected >5 critical dimensions, got {len(CRITICAL_DIMENSIONS)}"
     print(f"✅ Has {len(CRITICAL_DIMENSIONS)} critical dimensions")
 
 
@@ -78,36 +77,50 @@ def test_gamma_functions():
     from core import gamma_safe
 
     # Test Γ(1) = 1
-    assert abs(gamma_safe(1.0) - 1.0) < 1e-10, f"Γ(1) should equal 1, got {gamma_safe(1.0)}"
+    assert (
+        abs(gamma_safe(1.0) - 1.0) < 1e-10
+    ), f"Γ(1) should equal 1, got {gamma_safe(1.0)}"
     print("✅ Γ(1) = 1")
 
     # Test Γ(2) = 1
-    assert abs(gamma_safe(2.0) - 1.0) < 1e-10, f"Γ(2) should equal 1, got {gamma_safe(2.0)}"
+    assert (
+        abs(gamma_safe(2.0) - 1.0) < 1e-10
+    ), f"Γ(2) should equal 1, got {gamma_safe(2.0)}"
     print("✅ Γ(2) = 1")
 
     # Test Γ(3) = 2
-    assert abs(gamma_safe(3.0) - 2.0) < 1e-10, f"Γ(3) should equal 2, got {gamma_safe(3.0)}"
+    assert (
+        abs(gamma_safe(3.0) - 2.0) < 1e-10
+    ), f"Γ(3) should equal 2, got {gamma_safe(3.0)}"
     print("✅ Γ(3) = 2")
 
     # Test Γ(1/2) = √π
     sqrt_pi = np.sqrt(np.pi)
-    assert abs(gamma_safe(0.5) - sqrt_pi) < 1e-10, f"Γ(1/2) should equal √π ({sqrt_pi}), got {gamma_safe(0.5)}"
+    assert (
+        abs(gamma_safe(0.5) - sqrt_pi) < 1e-10
+    ), f"Γ(1/2) should equal √π ({sqrt_pi}), got {gamma_safe(0.5)}"
     print("✅ Γ(1/2) = √π")
 
     # Test Γ(0) = ∞ (pole)
-    assert np.isinf(gamma_safe(0.0)), f"Γ(0) should be infinite (pole), got {gamma_safe(0.0)}"
+    assert np.isinf(
+        gamma_safe(0.0)
+    ), f"Γ(0) should be infinite (pole), got {gamma_safe(0.0)}"
     print("✅ Γ(0) = ∞ (pole)")
 
     # Test Γ(-1) = ∞ (pole)
-    assert np.isinf(gamma_safe(-1.0)), f"Γ(-1) should be infinite (pole), got {gamma_safe(-1.0)}"
+    assert np.isinf(
+        gamma_safe(-1.0)
+    ), f"Γ(-1) should be infinite (pole), got {gamma_safe(-1.0)}"
     print("✅ Γ(-1) = ∞ (pole)")
 
     # Test array input functionality
     values = np.array([1.0, 2.0, 3.0])
     results = gamma_safe(values)
     expected = np.array([1.0, 1.0, 2.0])
-    
-    assert np.allclose(results, expected), f"Array input failed: got {results}, expected {expected}"
+
+    assert np.allclose(
+        results, expected
+    ), f"Array input failed: got {results}, expected {expected}"
     print("✅ Array input works")
 
 
@@ -130,21 +143,29 @@ def test_dimensional_measures():
 
     # Test V₃ = 4π/3 (ball)
     expected_v3 = 4 * np.pi / 3
-    assert abs(ball_volume(3) - expected_v3) < 1e-10, f"V₃ should be 4π/3 ({expected_v3}), got {ball_volume(3)}"
+    assert (
+        abs(ball_volume(3) - expected_v3) < 1e-10
+    ), f"V₃ should be 4π/3 ({expected_v3}), got {ball_volume(3)}"
     print("✅ V₃ = 4π/3 (ball)")
 
     # Test S₁ = 2 (two points)
-    assert abs(sphere_surface(1) - 2.0) < 1e-10, f"S₁ should be 2, got {sphere_surface(1)}"
+    assert (
+        abs(sphere_surface(1) - 2.0) < 1e-10
+    ), f"S₁ should be 2, got {sphere_surface(1)}"
     print("✅ S₁ = 2 (two points)")
 
     # Test S₂ = 2π (circle)
     expected_s2 = 2 * np.pi
-    assert abs(sphere_surface(2) - expected_s2) < 1e-10, f"S₂ should be 2π ({expected_s2}), got {sphere_surface(2)}"
+    assert (
+        abs(sphere_surface(2) - expected_s2) < 1e-10
+    ), f"S₂ should be 2π ({expected_s2}), got {sphere_surface(2)}"
     print("✅ S₂ = 2π (circle)")
 
     # Test S₃ = 4π (sphere)
     expected_s3 = 4 * np.pi
-    assert abs(sphere_surface(3) - expected_s3) < 1e-10, f"S₃ should be 4π ({expected_s3}), got {sphere_surface(3)}"
+    assert (
+        abs(sphere_surface(3) - expected_s3) < 1e-10
+    ), f"S₃ should be 4π ({expected_s3}), got {sphere_surface(3)}"
     print("✅ S₃ = 4π (sphere)")
 
     # Test consistency: C(d) = V(d) × S(d)
@@ -153,16 +174,22 @@ def test_dimensional_measures():
         s = sphere_surface(d)
         c = complexity_measure(d)
         expected_c = v * s
-        assert abs(c - expected_c) < 1e-10, f"C({d}) should equal V({d}) × S({d}) = {expected_c}, got {c}"
+        assert (
+            abs(c - expected_c) < 1e-10
+        ), f"C({d}) should equal V({d}) × S({d}) = {expected_c}, got {c}"
         print(f"✅ C({d}) = V({d}) × S({d})")
 
     # Test fractional dimensions
     v = ball_volume(1.5)
     s = sphere_surface(2.7)
     c = complexity_measure(3.14159)
-    
-    assert all(np.isfinite([v, s, c])), f"Fractional dimensions should be finite: V(1.5)={v}, S(2.7)={s}, C(π)={c}"
-    assert all(x > 0 for x in [v, s, c]), f"Fractional dimensions should be positive: V(1.5)={v}, S(2.7)={s}, C(π)={c}"
+
+    assert all(
+        np.isfinite([v, s, c])
+    ), f"Fractional dimensions should be finite: V(1.5)={v}, S(2.7)={s}, C(π)={c}"
+    assert all(
+        x > 0 for x in [v, s, c]
+    ), f"Fractional dimensions should be positive: V(1.5)={v}, S(2.7)={s}, C(π)={c}"
     print("✅ Fractional dimensions work")
 
 
@@ -459,8 +486,15 @@ def main():
 
     # Run modernized tests (using assert patterns)
     test_results.append(("Constants", run_test("Constants", test_constants)))
-    test_results.append(("Gamma Functions", run_test("Gamma Functions", test_gamma_functions)))
-    test_results.append(("Dimensional Measures", run_test("Dimensional Measures", test_dimensional_measures)))
+    test_results.append(
+        ("Gamma Functions", run_test("Gamma Functions", test_gamma_functions))
+    )
+    test_results.append(
+        (
+            "Dimensional Measures",
+            run_test("Dimensional Measures", test_dimensional_measures),
+        )
+    )
 
     # Run remaining tests (still using return bool pattern)
     test_results.append(("Phase Dynamics", test_phase_dynamics()))

@@ -11,8 +11,9 @@ All measures are computed with numerical stability and proper
 handling of edge cases and critical dimensions.
 """
 
-import numpy as np
 import warnings
+
+import numpy as np
 
 from .constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI
 from .gamma import gamma_safe, gammaln_safe
@@ -39,7 +40,8 @@ def _validate_dimension(d, function_name="measure"):
                 f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
                 f"Returning mathematical extension value. "
                 f"Physical dimensions are typically d ≥ 0.",
-                UserWarning, stacklevel=3
+                UserWarning,
+                stacklevel=3,
             )
         else:
             warnings.warn(
@@ -47,7 +49,8 @@ def _validate_dimension(d, function_name="measure"):
                 f"(min: {np.min(negative_values):.3f}). "
                 f"Returning mathematical extension values. "
                 f"Physical dimensions are typically d ≥ 0.",
-                UserWarning, stacklevel=3
+                UserWarning,
+                stacklevel=3,
             )
 
     # Check for large dimensions
@@ -57,14 +60,16 @@ def _validate_dimension(d, function_name="measure"):
             warnings.warn(
                 f"Large dimension d={large_values[0]:.1f} in {function_name}() "
                 f"may underflow to zero due to gamma function behavior.",
-                UserWarning, stacklevel=3
+                UserWarning,
+                stacklevel=3,
             )
         else:
             warnings.warn(
                 f"Large dimensions detected in {function_name}() "
                 f"(max: {np.max(large_values):.1f}) "
                 f"may underflow to zero due to gamma function behavior.",
-                UserWarning, stacklevel=3
+                UserWarning,
+                stacklevel=3,
             )
 
 

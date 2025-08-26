@@ -13,68 +13,63 @@ Quick start:
     lab()          # Interactive lab
 """
 
-# Import everything from gamma module - prevent numpy gamma conflict
+# CONSOLIDATED MATHEMATICS IMPORT - Single source of truth
+# Import enhanced interface functions from legacy modules
 from .gamma import (
-    explore, peaks, demo, live, instant, qplot, lab,
-    gamma_safe, gammaln_safe, digamma_safe, factorial_extension,
-    v, s, c, r, ρ, v_peak, s_peak, c_peak,
-    γ, ln_γ, ψ, abs_γ,
-    gamma_explorer, gamma_comparison_plot,
-    quick_gamma_analysis, peaks_analysis
+    abs_γ,
+    c_peak,
+    demo,
+    explore,
+    gamma_comparison_plot,
+    gamma_explorer,
+    instant,
+    lab,
+    live,
+    ln_γ,
+    peaks,
+    peaks_analysis,
+    qplot,
+    s_peak,
+    v_peak,
+    # Greek letter aliases
+    γ,
+    # Peak aliases
+    ρ,
+    ψ,
 )
+from .mathematics import *
 
-# Import core constants with hybrid imports for flexibility
+# Import emergence simulation with fallback
 try:
-    from ..core import PI, PHI, PSI, E, VARPI
-    from ..core.constants import SQRT_PI, NUMERICAL_EPSILON
-    from ..core.measures import find_all_peaks
     from ..analysis.emergence_framework import run_emergence_simulation
 except ImportError:
-    # Fallback for script execution
-    from core import PI, PHI, PSI, E, VARPI
-    from core.constants import SQRT_PI, NUMERICAL_EPSILON
-    from core.measures import find_all_peaks
     try:
         from analysis.emergence_framework import run_emergence_simulation
     except ImportError:
-        # Create a placeholder if analysis module not available
         def run_emergence_simulation(*args, **kwargs):
             """Placeholder - analysis module not available"""
             return {"status": "analysis_module_not_available"}
 
-# Import specific functions from modules to prevent namespace conflicts
+
+# Import enhanced interface functions from specialized modules
 from .measures import (
-    measures_explorer, peak_finder, critical_analysis, comparative_plot,
-    quick_measure_analysis, is_critical_dimension, volume_ratio, surface_ratio,
-    # Uppercase aliases for backward compatibility
-    V, S, C, v, s, c,
-    # Import core functions through dimensional.measures
-    ratio_measure
+    comparative_plot,
+    critical_analysis,
+    measures_explorer,
+    peak_finder,
+    surface_ratio,
+    volume_ratio,
 )
-
-# Add uppercase alias for ratio measure
-R = ratio_measure
-
 from .morphic import (
-    morphic_polynomial_roots, real_roots, discriminant,
-    k_perfect_circle, k_discriminant_zero, golden_ratio_properties,
-    morphic_scaling_factor, generate_morphic_sequence,
-    make_rotor, sample_loop_xyz, morphic_circle_transform
+    generate_morphic_sequence,
+    make_rotor,
+    morphic_circle_transform,
+    morphic_scaling_factor,
+    real_roots,
+    sample_loop_xyz,
 )
-
-from .phase import (
-    PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis
-)
-
-# Import additional phase functions from core
-try:
-    from ..core.phase import sap_rate, total_phase_energy
-except ImportError:
-    from core.phase import sap_rate, total_phase_energy
-
-from .pregeometry import (
-    PreGeometry, PreGeometryVisualizer
-)
+from .phase import quick_emergence_analysis
+from .pregeometry import PreGeometry, PreGeometryVisualizer
 
 # Import modern visualization components
 # TEMPORARILY DISABLED - BLOCKING GAMMA MODULE IMPORTS
@@ -122,4 +117,3 @@ def quick_start():
 γ_analysis = quick_gamma_analysis
 
 # Import phase analysis functions
-from .phase import PhaseDynamicsEngine, quick_phase_analysis, quick_emergence_analysis

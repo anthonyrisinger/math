@@ -31,18 +31,6 @@ from core.view import setup_3d_axis, create_3d_figure
 """
 
 # Core types for mathematical safety (simplified version)
-from .types_simple import (
-    DimensionalParameter,
-    GammaArgument,
-    MeasureValue,
-    PhaseState,
-    MorphicPolynomial,
-    gamma_func,
-    volume_func,
-    surface_func,
-    complexity_func,
-)
-
 # Core constants - always available
 from .constants import (
     BOX_ASPECT,
@@ -103,6 +91,17 @@ from .phase import (
     sap_rate,
     total_phase_energy,
 )
+from .types_simple import (
+    DimensionalParameter,
+    GammaArgument,
+    MeasureValue,
+    MorphicPolynomial,
+    PhaseState,
+    complexity_func,
+    gamma_func,
+    surface_func,
+    volume_func,
+)
 
 # Import phase analysis functions from dimensional package for API consistency
 try:
@@ -113,7 +112,8 @@ except ImportError:
         """Placeholder - dimensional.phase module not available"""
         return {"status": "dimensional_module_not_available"}
 
-# Import emergence simulation for API consistency  
+
+# Import emergence simulation for API consistency
 try:
     from analysis.emergence_framework import run_emergence_simulation
 except ImportError:
@@ -121,6 +121,7 @@ except ImportError:
     def run_emergence_simulation(*args, **kwargs):
         """Placeholder - analysis module not available"""
         return {"status": "analysis_module_not_available"}
+
 
 # 3D visualization
 from .view import (
@@ -135,7 +136,7 @@ from .view import (
 
 # Uppercase aliases for measure functions - API consistency with dimensional package
 V = ball_volume
-S = sphere_surface  
+S = sphere_surface
 C = complexity_measure
 R = ratio_measure
 
@@ -147,55 +148,88 @@ __author__ = "Dimensional Emergence Framework"
 # TIER 1: Essential API (most commonly used functions)
 _ESSENTIAL_API = [
     # Core constants
-    "PI", "E", "PHI", "PSI",
+    "PI",
+    "E",
+    "PHI",
+    "PSI",
     # Essential functions
-    "gamma_safe", "ball_volume", "sphere_surface", "complexity_measure", 
+    "gamma_safe",
+    "ball_volume",
+    "sphere_surface",
+    "complexity_measure",
     # Core engine
     "PhaseDynamicsEngine",
 ]
 
 # TIER 2: Extended API (specialized functions)
 _EXTENDED_API = [
-    "VARPI", "CRITICAL_DIMENSIONS",
-    "gammaln_safe", "digamma_safe", "beta_function",
-    "ratio_measure", "phase_capacity", "find_peak", "find_all_peaks",
-    "sap_rate", "phase_evolution_step", "emergence_threshold",
-    "morphic_polynomial_roots", "golden_ratio_properties", "MorphicAnalyzer",
+    "VARPI",
+    "CRITICAL_DIMENSIONS",
+    "gammaln_safe",
+    "digamma_safe",
+    "beta_function",
+    "ratio_measure",
+    "phase_capacity",
+    "find_peak",
+    "find_all_peaks",
+    "sap_rate",
+    "phase_evolution_step",
+    "emergence_threshold",
+    "morphic_polynomial_roots",
+    "golden_ratio_properties",
+    "MorphicAnalyzer",
 ]
 
 # TIER 3: Complete API (visualization and advanced features)
 _COMPLETE_API = [
-    "VIEW_ELEV", "VIEW_AZIM", "BOX_ASPECT",
-    "get_critical_dimension", "is_near_critical",
-    "polygamma_safe", "gamma_ratio_safe", "factorial_extension",
-    "integrated_measures", "total_phase_energy", "phase_coherence", "dimensional_time",
-    "discriminant", "k_perfect_circle", "k_discriminant_zero", 
-    "morphic_scaling_factor", "stability_regions",
-    "setup_3d_axis", "create_3d_figure", "set_equal_aspect_3d",
-    "golden_view_rotation", "add_coordinate_frame", "add_integer_badge", "View3DManager",
+    "VIEW_ELEV",
+    "VIEW_AZIM",
+    "BOX_ASPECT",
+    "get_critical_dimension",
+    "is_near_critical",
+    "polygamma_safe",
+    "gamma_ratio_safe",
+    "factorial_extension",
+    "integrated_measures",
+    "total_phase_energy",
+    "phase_coherence",
+    "dimensional_time",
+    "discriminant",
+    "k_perfect_circle",
+    "k_discriminant_zero",
+    "morphic_scaling_factor",
+    "stability_regions",
+    "setup_3d_axis",
+    "create_3d_figure",
+    "set_equal_aspect_3d",
+    "golden_view_rotation",
+    "add_coordinate_frame",
+    "add_integer_badge",
+    "View3DManager",
 ]
 
 # Export based on scope (default: ESSENTIAL for clean imports)
 import os
-_EXPORT_SCOPE = os.environ.get('CORE_EXPORT_SCOPE', 'ESSENTIAL').upper()
 
-if _EXPORT_SCOPE == 'COMPLETE':
+_EXPORT_SCOPE = os.environ.get("CORE_EXPORT_SCOPE", "ESSENTIAL").upper()
+
+if _EXPORT_SCOPE == "COMPLETE":
     __all__ = _ESSENTIAL_API + _EXTENDED_API + _COMPLETE_API
-elif _EXPORT_SCOPE == 'EXTENDED': 
+elif _EXPORT_SCOPE == "EXTENDED":
     __all__ = _ESSENTIAL_API + _EXTENDED_API
 else:  # ESSENTIAL (default)
     __all__ = _ESSENTIAL_API
 
 
-def expand_namespace(scope='COMPLETE'):
+def expand_namespace(scope="COMPLETE"):
     """
     Dynamically expand the core namespace to include more symbols.
-    
+
     Parameters:
     -----------
     scope : str
         'ESSENTIAL' (9 symbols), 'EXTENDED' (28 symbols), 'COMPLETE' (53+ symbols)
-    
+
     Usage:
     ------
     from core import expand_namespace
@@ -203,23 +237,25 @@ def expand_namespace(scope='COMPLETE'):
     from core import *  # Gets everything
     """
     import os
-    original_scope = os.environ.get('CORE_EXPORT_SCOPE', 'ESSENTIAL')
-    os.environ['CORE_EXPORT_SCOPE'] = scope.upper()
-    
+
+    os.environ.get("CORE_EXPORT_SCOPE", "ESSENTIAL")
+    os.environ["CORE_EXPORT_SCOPE"] = scope.upper()
+
     # Re-import to update __all__
     import importlib
     import sys
-    if 'core' in sys.modules:
-        importlib.reload(sys.modules['core'])
-    
+
+    if "core" in sys.modules:
+        importlib.reload(sys.modules["core"])
+
     print(f"📈 Core namespace expanded to {scope} scope")
-    if scope.upper() == 'ESSENTIAL':
+    if scope.upper() == "ESSENTIAL":
         symbols_count = len(_ESSENTIAL_API)
-    elif scope.upper() == 'EXTENDED':
-        symbols_count = len(_ESSENTIAL_API) + len(_EXTENDED_API) 
+    elif scope.upper() == "EXTENDED":
+        symbols_count = len(_ESSENTIAL_API) + len(_EXTENDED_API)
     else:
         symbols_count = len(_ESSENTIAL_API) + len(_EXTENDED_API) + len(_COMPLETE_API)
-    
+
     print(f"   {symbols_count} symbols now available for import")
 
 

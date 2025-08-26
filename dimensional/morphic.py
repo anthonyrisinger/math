@@ -685,41 +685,49 @@ def test_morphic_module():
         dict: Test results and validation data
     """
     test_results = {
-        'ga_support': GA_AVAILABLE,
-        'golden_ratio_properties': golden_ratio_properties(),
-        'critical_points': {},
-        'polynomial_tests': {},
-        'sequence_tests': {},
-        'morphic_scaling_factor': morphic_scaling_factor()
+        "ga_support": GA_AVAILABLE,
+        "golden_ratio_properties": golden_ratio_properties(),
+        "critical_points": {},
+        "polynomial_tests": {},
+        "sequence_tests": {},
+        "morphic_scaling_factor": morphic_scaling_factor(),
     }
 
     # Critical points
     for mode in ["shifted", "simple"]:
         k_circle = k_perfect_circle(mode)
         k_disc = k_discriminant_zero(mode)
-        test_results['critical_points'][mode] = {
-            'perfect_circle': k_circle,
-            'discriminant_zero': k_disc
+        test_results["critical_points"][mode] = {
+            "perfect_circle": k_circle,
+            "discriminant_zero": k_disc,
         }
 
     # Polynomial roots test
     roots = morphic_polynomial_roots(1.5, "shifted")
-    test_results['polynomial_tests']['k_1_5_shifted'] = roots.tolist() if hasattr(roots, 'tolist') else list(roots)
+    test_results["polynomial_tests"]["k_1_5_shifted"] = (
+        roots.tolist() if hasattr(roots, "tolist") else list(roots)
+    )
 
     # Morphic sequence test
     sequence = generate_morphic_sequence(8)
-    test_results['sequence_tests']['first_8_terms'] = sequence.tolist() if hasattr(sequence, 'tolist') else list(sequence)
+    test_results["sequence_tests"]["first_8_terms"] = (
+        sequence.tolist() if hasattr(sequence, "tolist") else list(sequence)
+    )
 
     # Stability analysis
     analyzer = MorphicAnalyzer("shifted")
     analysis = analyzer.analyze_parameter(1.5)
-    test_results['parameter_analysis'] = {k: v for k, v in analysis.items() if k != "real_roots"}
+    test_results["parameter_analysis"] = {
+        k: v for k, v in analysis.items() if k != "real_roots"
+    }
 
     # Geometric transformations (if GA available)
     if GA_AVAILABLE != "mock":
         theta = np.linspace(0, 2 * np.pi, 100)
         xyz_transformed = sample_loop_xyz(1.5, theta)
-        test_results['geometric_tests'] = {'transformed_circle_shape': list(xyz_transformed.shape)}
+        test_results["geometric_tests"] = {
+            "transformed_circle_shape": list(xyz_transformed.shape)
+        }
 
     return test_results
 
@@ -729,6 +737,6 @@ if __name__ == "__main__":
     results = test_morphic_module()
 
     # Validate core functionality
-    assert 'golden_ratio_properties' in results
-    assert 'critical_points' in results
-    assert results['morphic_scaling_factor'] > 0
+    assert "golden_ratio_properties" in results
+    assert "critical_points" in results
+    assert results["morphic_scaling_factor"] > 0

@@ -15,15 +15,19 @@ This extends the basic property tests with:
 5. Analytic continuation properties
 """
 
+
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings, HealthCheck
+from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
-from hypothesis.extra.numpy import arrays
-import cmath
 
 from core.constants import NUMERICAL_EPSILON, PI, E
-from core.gamma import gamma_safe, gammaln_safe, digamma_safe, beta_function, factorial_extension
+from core.gamma import (
+    beta_function,
+    digamma_safe,
+    gamma_safe,
+    gammaln_safe,
+)
 
 
 class TestComplexGammaProperties:
@@ -31,7 +35,7 @@ class TestComplexGammaProperties:
 
     @given(
         st.floats(min_value=0.1, max_value=10.0, allow_nan=False, allow_infinity=False),
-        st.floats(min_value=-5.0, max_value=5.0, allow_nan=False, allow_infinity=False)
+        st.floats(min_value=-5.0, max_value=5.0, allow_nan=False, allow_infinity=False),
     )
     @settings(max_examples=200, suppress_health_check=[HealthCheck.filter_too_much])
     def test_gamma_complex_modulus_continuity(self, real_part, imag_part):
@@ -51,10 +55,14 @@ class TestComplexGammaProperties:
             gamma_z_perturbed = gamma_safe(z + epsilon)
             assume(np.isfinite(gamma_z_perturbed))
 
-            relative_change = abs(gamma_z_perturbed - gamma_z) / max(abs(gamma_z), NUMERICAL_EPSILON)
+            relative_change = abs(gamma_z_perturbed - gamma_z) / max(
+                abs(gamma_z), NUMERICAL_EPSILON
+            )
 
             # Continuity: small input change should produce small output change
-            assert relative_change < 1.0, f"Large discontinuity at z={z}: {relative_change}"
+            assert (
+                relative_change < 1.0
+            ), f"Large discontinuity at z={z}: {relative_change}"
 
         except (ValueError, OverflowError, TypeError):
             # Some complex evaluations may not be supported
@@ -82,7 +90,9 @@ class TestComplexGammaProperties:
 
             # Allow for numerical precision in complex operations
             relative_error = error / max(abs(expected_conjugate), NUMERICAL_EPSILON)
-            assert relative_error < 1e-10, f"Conjugate symmetry failed: {relative_error}"
+            assert (
+                relative_error < 1e-10
+            ), f"Conjugate symmetry failed: {relative_error}"
 
         except (ValueError, OverflowError, TypeError):
             # Some complex evaluations may not be supported
@@ -93,7 +103,9 @@ class TestGammaAsymptoticProperties:
     """Test asymptotic behavior and Stirling's approximation"""
 
     @given(
-        st.floats(min_value=10.0, max_value=100.0, allow_nan=False, allow_infinity=False)
+        st.floats(
+            min_value=10.0, max_value=100.0, allow_nan=False, allow_infinity=False
+        )
     )
     @settings(max_examples=50)
     def test_stirling_approximation_accuracy(self, z):
@@ -109,10 +121,14 @@ class TestGammaAsymptoticProperties:
 
         # For z ≥ 10, Stirling's approximation should be quite good
         if z >= 20:
-            assert relative_error < 0.1, f"Stirling approximation poor for z={z}: {relative_error}"
+            assert (
+                relative_error < 0.1
+            ), f"Stirling approximation poor for z={z}: {relative_error}"
         else:
             # For moderate z, just test that it's reasonable
-            assert relative_error < 0.5, f"Stirling approximation very poor for z={z}: {relative_error}"
+            assert (
+                relative_error < 0.5
+            ), f"Stirling approximation very poor for z={z}: {relative_error}"
 
     @given(
         st.floats(min_value=1.0, max_value=50.0, allow_nan=False, allow_infinity=False)
@@ -158,11 +174,11 @@ class TestSpecialGammaValues:
             error = abs(gamma_result - expected)
             relative_error = error / abs(expected)
 
-            assert relative_error < 1e-14, f"Half-integer Γ({z}) failed: {relative_error}"
+            assert (
+                relative_error < 1e-14
+            ), f"Half-integer Γ({z}) failed: {relative_error}"
 
-    @given(
-        st.integers(min_value=1, max_value=8)
-    )
+    @given(st.integers(min_value=1, max_value=8))
     @settings(max_examples=20)
     def test_rational_third_values(self, n):
         """Test gamma function at thirds: Γ(n/3)"""
@@ -181,7 +197,9 @@ class TestSpecialGammaValues:
 
             assume(np.isfinite(gamma_z_minus_one))
             relative_error = abs(gamma_result - expected_from_recurrence) / gamma_result
-            assert relative_error < 1e-12, f"Recurrence failed at z={z}: {relative_error}"
+            assert (
+                relative_error < 1e-12
+            ), f"Recurrence failed at z={z}: {relative_error}"
 
 
 class TestGammaMultiplicationFormulas:
@@ -203,14 +221,18 @@ class TestGammaMultiplicationFormulas:
         left_side = gamma_z * gamma_z_half
         right_side = np.sqrt(PI) * (2 ** (1 - 2 * z)) * gamma_2z
 
-        relative_error = abs(left_side - right_side) / max(abs(right_side), NUMERICAL_EPSILON)
+        relative_error = abs(left_side - right_side) / max(
+            abs(right_side), NUMERICAL_EPSILON
+        )
 
         # Duplication formula should hold with high precision
-        assert relative_error < 1e-10, f"Duplication formula failed at z={z}: {relative_error}"
+        assert (
+            relative_error < 1e-10
+        ), f"Duplication formula failed at z={z}: {relative_error}"
 
     @given(
         st.floats(min_value=0.2, max_value=3.0, allow_nan=False, allow_infinity=False),
-        st.integers(min_value=2, max_value=5)
+        st.integers(min_value=2, max_value=5),
     )
     @settings(max_examples=50)
     def test_multiplication_formula(self, z, n):
@@ -231,11 +253,15 @@ class TestGammaMultiplicationFormulas:
         coeff = ((2 * PI) ** ((1 - n) / 2)) * (n ** (n * z - 0.5))
         expected = coeff * product
 
-        relative_error = abs(gamma_nz - expected) / max(abs(expected), NUMERICAL_EPSILON)
+        relative_error = abs(gamma_nz - expected) / max(
+            abs(expected), NUMERICAL_EPSILON
+        )
 
         # Allow more tolerance for higher order formulas
         tolerance = 1e-8 if n <= 3 else 1e-6
-        assert relative_error < tolerance, f"Multiplication formula failed: n={n}, z={z}, error={relative_error}"
+        assert (
+            relative_error < tolerance
+        ), f"Multiplication formula failed: n={n}, z={z}, error={relative_error}"
 
 
 class TestGammaFunctionalEquations:
@@ -260,7 +286,9 @@ class TestGammaFunctionalEquations:
 
         gamma_formula = (gamma_a * gamma_b) / gamma_a_plus_b
 
-        relative_error = abs(beta_ab - gamma_formula) / max(abs(gamma_formula), NUMERICAL_EPSILON)
+        relative_error = abs(beta_ab - gamma_formula) / max(
+            abs(gamma_formula), NUMERICAL_EPSILON
+        )
         assert relative_error < 1e-12, f"Beta-gamma relation failed: {relative_error}"
 
         # Test symmetry
@@ -289,7 +317,9 @@ class TestGammaNumericalStability:
     """Test numerical stability and edge case behavior"""
 
     @given(
-        st.floats(min_value=1e-10, max_value=1e-5, allow_nan=False, allow_infinity=False)
+        st.floats(
+            min_value=1e-10, max_value=1e-5, allow_nan=False, allow_infinity=False
+        )
     )
     @settings(max_examples=50)
     def test_small_positive_values(self, z):
@@ -307,7 +337,9 @@ class TestGammaNumericalStability:
             assert relative_error < 0.1, f"Small z asymptotic failed: {relative_error}"
 
     @given(
-        st.floats(min_value=50.0, max_value=170.0, allow_nan=False, allow_infinity=False)
+        st.floats(
+            min_value=50.0, max_value=170.0, allow_nan=False, allow_infinity=False
+        )
     )
     @settings(max_examples=30)
     def test_large_values_overflow_handling(self, z):
@@ -319,10 +351,14 @@ class TestGammaNumericalStability:
             assert gamma_z > 0, f"Finite Γ({z}) should be positive: {gamma_z}"
         else:
             # If overflow occurs, should be +inf, not NaN
-            assert np.isinf(gamma_z) and gamma_z > 0, f"Overflow should give +inf: {gamma_z}"
+            assert (
+                np.isinf(gamma_z) and gamma_z > 0
+            ), f"Overflow should give +inf: {gamma_z}"
 
     @given(
-        st.floats(min_value=-50.5, max_value=-0.1, allow_nan=False, allow_infinity=False)
+        st.floats(
+            min_value=-50.5, max_value=-0.1, allow_nan=False, allow_infinity=False
+        )
     )
     @settings(max_examples=100, suppress_health_check=[HealthCheck.filter_too_much])
     def test_negative_non_integer_poles(self, z):
@@ -338,8 +374,9 @@ class TestGammaNumericalStability:
             expected_sign = (-1) ** (-n - 1)  # Sign pattern for Γ(z) with z < 0
 
             actual_sign = np.sign(gamma_z)
-            assert actual_sign == expected_sign or abs(gamma_z) < NUMERICAL_EPSILON, \
-                f"Sign error near pole: z={z}, sign={actual_sign}, expected={expected_sign}"
+            assert (
+                actual_sign == expected_sign or abs(gamma_z) < NUMERICAL_EPSILON
+            ), f"Sign error near pole: z={z}, sign={actual_sign}, expected={expected_sign}"
 
 
 if __name__ == "__main__":

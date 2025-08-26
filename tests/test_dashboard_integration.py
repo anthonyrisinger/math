@@ -14,7 +14,7 @@ sys.path.insert(0, ".")
 
 # Check for dashboard_core availability
 try:
-    import dashboard_core
+    __import__("dashboard_core")
     DASHBOARD_AVAILABLE = True
 except ImportError:
     DASHBOARD_AVAILABLE = False
@@ -33,6 +33,7 @@ def test_imports():
 
     try:
         import topo_viz
+
         print("✅ topo_viz imported successfully")
         print(f"📊 Available scenes: {len(topo_viz.list_scenes())}")
     except Exception as e:
@@ -84,6 +85,7 @@ def test_topology_controller():
         else:
             print(f"❌ TopologyViewController test failed: {e}")
             import traceback
+
             traceback.print_exc()
             assert False, f"Test failed: {e}"
 
@@ -105,7 +107,9 @@ def test_dashboard_creation():
 
         # Test state
         print(f"📊 Initial dimension: {dashboard.state.dimension}")
-        print(f"🎮 Event bus has subscribers: {len(dashboard.event_bus._subscribers) > 0}")
+        print(
+            f"🎮 Event bus has subscribers: {len(dashboard.event_bus._subscribers) > 0}"
+        )
 
         # Test topology controller integration
         scene_info = dashboard.topo_controller.get_available_scenes()
@@ -120,6 +124,7 @@ def test_dashboard_creation():
         else:
             print(f"❌ Dashboard creation test failed: {e}")
             import traceback
+
             traceback.print_exc()
             assert False, f"Test failed: {e}"
 
@@ -175,6 +180,7 @@ def test_scene_switching():
         else:
             print(f"❌ Scene switching test failed: {e}")
             import traceback
+
             traceback.print_exc()
             assert False, f"Test failed: {e}"
 
@@ -237,7 +243,7 @@ def demo_dashboard():
     """Launch the dashboard for interactive testing."""
     print("\n🎯 LAUNCHING DASHBOARD DEMO")
     print("=" * 30)
-    
+
     if not DASHBOARD_AVAILABLE:
         print("❌ Cannot launch dashboard demo - dashboard_core not available")
         print("💡 Install dashboard dependencies to run interactive demo")
@@ -252,12 +258,14 @@ def demo_dashboard():
 
     try:
         from dashboard_core import main
+
         main()
     except KeyboardInterrupt:
         print("\n⏹️ Dashboard demo skipped")
     except Exception as e:
         print(f"❌ Dashboard demo failed: {e}")
         import traceback
+
         traceback.print_exc()
 
 

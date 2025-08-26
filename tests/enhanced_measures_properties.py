@@ -13,16 +13,18 @@ Advanced mathematical property testing for dimensional measures including:
 
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings, HealthCheck
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
-from hypothesis.extra.numpy import arrays
 
-from core.constants import NUMERICAL_EPSILON, PI, E, CRITICAL_DIMENSIONS
-from core.measures import (
-    ball_volume, sphere_surface, complexity_measure,
-    phase_capacity, ratio_measure, find_peak
-)
+from core.constants import NUMERICAL_EPSILON, PI
 from core.gamma import gamma_safe
+from core.measures import (
+    ball_volume,
+    complexity_measure,
+    phase_capacity,
+    ratio_measure,
+    sphere_surface,
+)
 
 
 class TestCriticalDimensionBehavior:
@@ -37,7 +39,7 @@ class TestCriticalDimensionBehavior:
             (3.0, "physical space"),
             (4.0, "spacetime dimension"),
             (PI, "π-critical"),
-            (2*PI, "2π-critical")
+            (2 * PI, "2π-critical"),
         ]
 
         for d, description in critical_tests:
@@ -54,7 +56,9 @@ class TestCriticalDimensionBehavior:
             # Volume should be positive
             assert vol >= 0, f"Volume negative at {description} d={d}: {vol}"
 
-    @given(st.floats(min_value=0.1, max_value=20.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=0.1, max_value=20.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=200)
     def test_phase_capacity_monotonicity_regions(self, d):
         """Test phase capacity Λ(d) = V(d) behavior in different regimes"""
@@ -78,7 +82,9 @@ class TestCriticalDimensionBehavior:
             # Should generally be decreasing
             assert vol_next <= vol + 1e-10, f"Volume increasing in high-d region: d={d}"
 
-    @given(st.floats(min_value=1.0, max_value=15.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=1.0, max_value=15.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=100)
     def test_complexity_peak_localization(self, d_center):
         """Test that complexity peak is well-localized"""
@@ -100,13 +106,17 @@ class TestCriticalDimensionBehavior:
 
         # Around the actual peak (~6), variation should be significant
         if 5.0 <= d_center <= 7.0:
-            assert relative_variation > 1e-6, f"Complexity too flat near peak at d={d_center}"
+            assert (
+                relative_variation > 1e-6
+            ), f"Complexity too flat near peak at d={d_center}"
 
 
 class TestFractionalDimensionContinuity:
     """Test continuity and smoothness for fractional dimensions"""
 
-    @given(st.floats(min_value=0.1, max_value=10.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=0.1, max_value=10.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=300)
     def test_measure_continuity(self, d):
         """Test that all measures are continuous in dimension"""
@@ -122,7 +132,9 @@ class TestFractionalDimensionContinuity:
         relative_change = vol_change / max(abs(vol_d), NUMERICAL_EPSILON)
 
         # Small dimensional change should produce small measure change
-        assert relative_change < 0.1, f"Volume discontinuous at d={d}: {relative_change}"
+        assert (
+            relative_change < 0.1
+        ), f"Volume discontinuous at d={d}: {relative_change}"
 
         # Same test for surface area
         if d > 0.1:
@@ -134,11 +146,15 @@ class TestFractionalDimensionContinuity:
             surf_change = abs(surf_d_eps - surf_d)
             surf_relative_change = surf_change / max(abs(surf_d), NUMERICAL_EPSILON)
 
-            assert surf_relative_change < 0.1, f"Surface discontinuous at d={d}: {surf_relative_change}"
+            assert (
+                surf_relative_change < 0.1
+            ), f"Surface discontinuous at d={d}: {surf_relative_change}"
 
     @given(
         st.floats(min_value=0.1, max_value=5.0, allow_nan=False, allow_infinity=False),
-        st.floats(min_value=0.001, max_value=0.1, allow_nan=False, allow_infinity=False)
+        st.floats(
+            min_value=0.001, max_value=0.1, allow_nan=False, allow_infinity=False
+        ),
     )
     @settings(max_examples=100)
     def test_derivative_estimates(self, d, h):
@@ -157,13 +173,19 @@ class TestFractionalDimensionContinuity:
 
         # For V(d) = π^{d/2}/Γ(d/2+1), derivative is related to digamma function
         # Should be well-behaved for reasonable d values
-        assert abs(derivative_approx) < 1000, f"Volume derivative too large at d={d}: {derivative_approx}"
+        assert (
+            abs(derivative_approx) < 1000
+        ), f"Volume derivative too large at d={d}: {derivative_approx}"
 
 
 class TestHighDimensionalAsymptotic:
     """Test asymptotic behavior in high dimensions"""
 
-    @given(st.floats(min_value=20.0, max_value=100.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(
+            min_value=20.0, max_value=100.0, allow_nan=False, allow_infinity=False
+        )
+    )
     @settings(max_examples=50)
     def test_volume_decay_rate(self, d):
         """Test exponential decay of volume in high dimensions"""
@@ -180,17 +202,22 @@ class TestHighDimensionalAsymptotic:
         # V_{d+1}/V_d = π^{1/2} / Γ((d+1)/2+1) * Γ(d/2+1) ≈ π^{1/2} / sqrt((d+1)/2)
 
         # Should be decreasing (ratio < 1) and following expected pattern
-        assert ratio < 1.0, f"Volume not decaying in high dimensions at d={d}: ratio={ratio}"
+        assert (
+            ratio < 1.0
+        ), f"Volume not decaying in high dimensions at d={d}: ratio={ratio}"
 
         # Expected ratio for large d: approximately sqrt(π/(d/2)) = sqrt(2π/d)
         expected_ratio = np.sqrt(2 * PI / d) if d > 10 else 1.0
 
         if d > 20:
             # Allow factor of 2 tolerance for asymptotic approximation
-            assert 0.5 * expected_ratio < ratio < 2 * expected_ratio, \
-                f"Volume decay ratio off at d={d}: {ratio} vs expected {expected_ratio}"
+            assert (
+                0.5 * expected_ratio < ratio < 2 * expected_ratio
+            ), f"Volume decay ratio off at d={d}: {ratio} vs expected {expected_ratio}"
 
-    @given(st.floats(min_value=10.0, max_value=50.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=10.0, max_value=50.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=50)
     def test_surface_to_volume_ratio_growth(self, d):
         """Test S(d)/V(d) = d growth in high dimensions"""
@@ -208,9 +235,15 @@ class TestHighDimensionalAsymptotic:
         relative_error = abs(ratio - expected) / expected
 
         # Should hold with high precision
-        assert relative_error < 1e-12, f"S/V ratio wrong at d={d}: {ratio} vs {expected}, error={relative_error}"
+        assert (
+            relative_error < 1e-12
+        ), f"S/V ratio wrong at d={d}: {ratio} vs {expected}, error={relative_error}"
 
-    @given(st.floats(min_value=15.0, max_value=100.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(
+            min_value=15.0, max_value=100.0, allow_nan=False, allow_infinity=False
+        )
+    )
     @settings(max_examples=50)
     def test_complexity_high_d_behavior(self, d):
         """Test complexity measure behavior in high dimensions"""
@@ -224,7 +257,9 @@ class TestHighDimensionalAsymptotic:
         expected = vol * surf
         relative_error = abs(comp - expected) / max(abs(expected), NUMERICAL_EPSILON)
 
-        assert relative_error < 1e-12, f"Complexity factorization failed at d={d}: {relative_error}"
+        assert (
+            relative_error < 1e-12
+        ), f"Complexity factorization failed at d={d}: {relative_error}"
 
         # In high dimensions, complexity should decay (since volume decays faster than surface grows)
         if d > 20:
@@ -238,7 +273,9 @@ class TestHighDimensionalAsymptotic:
 class TestDimensionalEmergenceProperties:
     """Test properties related to dimensional emergence theory"""
 
-    @given(st.floats(min_value=0.0, max_value=2.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=0.0, max_value=2.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=100)
     def test_low_dimensional_emergence(self, d):
         """Test smooth emergence from void (d=0) to low dimensions"""
@@ -259,9 +296,13 @@ class TestDimensionalEmergenceProperties:
             discontinuity = abs(vol_right - vol_left)
             relative_discontinuity = discontinuity / max(vol, NUMERICAL_EPSILON)
 
-            assert relative_discontinuity < 0.01, f"Large discontinuity at d={d}: {relative_discontinuity}"
+            assert (
+                relative_discontinuity < 0.01
+            ), f"Large discontinuity at d={d}: {relative_discontinuity}"
 
-    @given(st.floats(min_value=0.1, max_value=10.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=0.1, max_value=10.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=100)
     def test_dimensional_scaling_consistency(self, d):
         """Test that dimensional scaling follows physical intuition"""
@@ -273,13 +314,17 @@ class TestDimensionalEmergenceProperties:
         test_scales = [0.5, 2.0, 3.0]
 
         for scale in test_scales:
-            expected_scaled = vol_unit * (scale ** d)
+            expected_scaled = vol_unit * (scale**d)
 
             # Verify scaling makes sense
             if scale > 1:
-                assert expected_scaled >= vol_unit, f"Volume should increase with scale > 1 at d={d}"
+                assert (
+                    expected_scaled >= vol_unit
+                ), f"Volume should increase with scale > 1 at d={d}"
             elif scale < 1:
-                assert expected_scaled <= vol_unit, f"Volume should decrease with scale < 1 at d={d}"
+                assert (
+                    expected_scaled <= vol_unit
+                ), f"Volume should decrease with scale < 1 at d={d}"
 
             # Test that scaling is consistent with derivative
             # d/dr (V(1) * r^d) = V(1) * d * r^{d-1}
@@ -294,14 +339,20 @@ class TestDimensionalEmergenceProperties:
             numerical_derivative = (vol_plus - vol_minus) / (2 * epsilon)
 
             if abs(expected_derivative) > NUMERICAL_EPSILON:
-                derivative_error = abs(numerical_derivative - expected_derivative) / abs(expected_derivative)
-                assert derivative_error < 0.01, f"Scaling derivative wrong at d={d}, scale={scale}: {derivative_error}"
+                derivative_error = abs(
+                    numerical_derivative - expected_derivative
+                ) / abs(expected_derivative)
+                assert (
+                    derivative_error < 0.01
+                ), f"Scaling derivative wrong at d={d}, scale={scale}: {derivative_error}"
 
 
 class TestTopologicalInvariants:
     """Test preservation of topological invariants under dimensional changes"""
 
-    @given(st.floats(min_value=0.5, max_value=8.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=0.5, max_value=8.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=100)
     def test_euler_characteristic_consistency(self, d):
         """Test that dimensional measures respect topological constraints"""
@@ -335,20 +386,29 @@ class TestTopologicalInvariants:
         assert surf > 0, f"Integer dimension d={d} surface non-positive: {surf}"
 
         # Test that volume formula V_d = π^{d/2}/Γ(d/2+1) gives clean results
-        expected_denominator = gamma_safe(d/2.0 + 1)
-        expected_numerator = PI ** (d/2.0)
+        expected_denominator = gamma_safe(d / 2.0 + 1)
+        expected_numerator = PI ** (d / 2.0)
 
-        assume(np.isfinite(expected_denominator) and expected_denominator > NUMERICAL_EPSILON)
+        assume(
+            np.isfinite(expected_denominator)
+            and expected_denominator > NUMERICAL_EPSILON
+        )
         expected_vol = expected_numerator / expected_denominator
 
-        relative_error = abs(vol - expected_vol) / max(abs(expected_vol), NUMERICAL_EPSILON)
-        assert relative_error < 1e-14, f"Integer dimension formula error at d={d}: {relative_error}"
+        relative_error = abs(vol - expected_vol) / max(
+            abs(expected_vol), NUMERICAL_EPSILON
+        )
+        assert (
+            relative_error < 1e-14
+        ), f"Integer dimension formula error at d={d}: {relative_error}"
 
 
 class TestMeasureInterrelationships:
     """Test mathematical relationships between different measures"""
 
-    @given(st.floats(min_value=0.5, max_value=15.0, allow_nan=False, allow_infinity=False))
+    @given(
+        st.floats(min_value=0.5, max_value=15.0, allow_nan=False, allow_infinity=False)
+    )
     @settings(max_examples=200)
     def test_volume_surface_derivative_relation(self, d):
         """Test that S_d is related to derivative of V_d"""
@@ -365,11 +425,13 @@ class TestMeasureInterrelationships:
         relative_error = abs(surf - expected_surface) / surf
 
         # Should hold exactly
-        assert relative_error < 1e-12, f"Surface-volume derivative relation failed at d={d}: {relative_error}"
+        assert (
+            relative_error < 1e-12
+        ), f"Surface-volume derivative relation failed at d={d}: {relative_error}"
 
     @given(
         st.floats(min_value=1.0, max_value=10.0, allow_nan=False, allow_infinity=False),
-        st.floats(min_value=1.0, max_value=10.0, allow_nan=False, allow_infinity=False)
+        st.floats(min_value=1.0, max_value=10.0, allow_nan=False, allow_infinity=False),
     )
     @settings(max_examples=100)
     def test_ratio_measure_properties(self, d1, d2):
@@ -380,12 +442,18 @@ class TestMeasureInterrelationships:
         assume(np.isfinite(ratio_d1) and np.isfinite(ratio_d2))
 
         # R(d) = d for unit sphere
-        assert abs(ratio_d1 - d1) < 1e-12, f"Ratio measure wrong at d={d1}: {ratio_d1} vs {d1}"
-        assert abs(ratio_d2 - d2) < 1e-12, f"Ratio measure wrong at d={d2}: {ratio_d2} vs {d2}"
+        assert (
+            abs(ratio_d1 - d1) < 1e-12
+        ), f"Ratio measure wrong at d={d1}: {ratio_d1} vs {d1}"
+        assert (
+            abs(ratio_d2 - d2) < 1e-12
+        ), f"Ratio measure wrong at d={d2}: {ratio_d2} vs {d2}"
 
         # Monotonicity: R(d) should increase with d
         if d2 > d1:
-            assert ratio_d2 >= ratio_d1, f"Ratio measure not monotonic: R({d1})={ratio_d1}, R({d2})={ratio_d2}"
+            assert (
+                ratio_d2 >= ratio_d1
+            ), f"Ratio measure not monotonic: R({d1})={ratio_d1}, R({d2})={ratio_d2}"
 
 
 if __name__ == "__main__":
