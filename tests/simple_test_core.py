@@ -13,25 +13,33 @@ import time
 import numpy as np
 
 # Add current directory to path
-sys.path.insert(0, os.path.dirname(__file__))
+project_root = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, project_root)
 
 
 def test_imports():
     """Test core library imports."""
-    assert True  # Section header removed for pytest compatibility
-
+    # Test core library import
     try:
+        import core
         print("✅ Core library imported successfully")
     except Exception as e:
         print(f"❌ Core import failed: {e}")
-        return False
+        assert False, f"Core library import failed: {e}"
 
+    # Test major function imports
     try:
+        from core import (
+            gamma_safe, ball_volume, sphere_surface, complexity_measure,
+            PhaseDynamicsEngine, morphic_polynomial_roots
+        )
         print("✅ All major functions imported successfully")
-        return True
     except Exception as e:
         print(f"❌ Function imports failed: {e}")
-        return False
+        assert False, f"Major function imports failed: {e}"
+    
+    # If we reach here, all imports succeeded
+    assert True, "All imports completed successfully"
 
 
 def test_constants():
