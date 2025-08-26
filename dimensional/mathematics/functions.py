@@ -737,7 +737,7 @@ def setup_3d_axis(
     ax.set_proj_type("ortho")
 
     # Set golden ratio viewing angle (from constants)
-    from .constants import VIEW_AZIM, VIEW_ELEV, BOX_ASPECT
+    from .constants import BOX_ASPECT, VIEW_AZIM, VIEW_ELEV
     ax.view_init(elev=VIEW_ELEV, azim=VIEW_AZIM)
 
     # Set box aspect ratio for accurate spatial representation
@@ -779,7 +779,7 @@ def create_3d_figure(figsize=(10, 8), dpi=100):
         (figure, axis) pair
     """
     import matplotlib.pyplot as plt
-    
+
     fig = plt.figure(figsize=figsize, dpi=dpi)
     ax = fig.add_subplot(111, projection="3d")
     return fig, setup_3d_axis(ax)

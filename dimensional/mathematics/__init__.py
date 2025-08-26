@@ -55,6 +55,7 @@ from .functions import (
     beta_function,
     c,
     complexity_measure,
+    create_3d_figure,
     digamma_safe,
     discriminant,
     emergence_threshold,
@@ -78,13 +79,12 @@ from .functions import (
     ratio_measure,
     s,
     sap_rate,
+    # Visualization functions
+    setup_3d_axis,
     sphere_surface,
     total_phase_energy,
     # Add lowercase aliases explicitly
     v,
-    # Visualization functions
-    setup_3d_axis,
-    create_3d_figure,
 )
 from .validation import (
     NumericalStabilityTester,

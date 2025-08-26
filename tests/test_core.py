@@ -30,12 +30,12 @@ try:
         PhaseDynamicsEngine,
         ball_volume,
         complexity_measure,
+        create_3d_figure,
         gamma_safe,
         morphic_polynomial_roots,
         sap_rate,
-        sphere_surface,
         setup_3d_axis,
-        create_3d_figure,
+        sphere_surface,
     )
 
     IMPORT_SUCCESS = True
@@ -585,7 +585,11 @@ if __name__ == "__main__":
 
         # Show library info
         print("\n" + "=" * 50)
-        core.print_library_info()
+        print("DIMENSIONAL MATHEMATICS LIBRARY")
+        print("=" * 50)
+        print(f"π (pi): {PI:.6f}")
+        print(f"φ (golden ratio): {PHI:.6f}")
+        print("Library verification complete ✅")
 
         # Performance test
         print("\n" + "=" * 50)
