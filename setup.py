@@ -42,13 +42,13 @@ def read_long_description():
 CORE_REQUIREMENTS = [
     "numpy>=1.21.0",
     "scipy>=1.7.0",
-    "matplotlib>=3.5.0",
     "click>=8.0.0",
     "pydantic>=2.0.0",
     "rich>=13.0.0",
     "typer>=0.9.0",
     "plotly>=5.0.0",
-    "bokeh>=3.0.0",
+    "kingdon>=0.1.0",
+    "kaleido>=0.2.1",
 ]  # Development requirements
 DEV_REQUIREMENTS = [
     "pytest>=6.0.0",
@@ -67,7 +67,6 @@ DOC_REQUIREMENTS = [
 # Advanced/optional requirements
 ADVANCED_REQUIREMENTS = [
     "sympy>=1.9.0",
-    "plotly>=5.0.0",
     "panel>=0.13.0",
     "param>=1.12.0",
 ]
@@ -95,13 +94,6 @@ setup(
     },
     # Python version
     python_requires=">=3.8",
-    # Entry points
-    entry_points={
-        "console_scripts": [
-            "dimensional=dimensional.cli:main",
-            "dim=dimensional.cli:main",
-        ],
-    },
     # Classification
     classifiers=[
         "Development Status :: 4 - Beta",

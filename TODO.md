@@ -1,4 +1,69 @@
-**North Star:** Build an instrument where **integers stay stable** (index, Chern, degree, linking) while **pictures move** (curvature, cuts, flows). The on-screen badge reads **value ≈ N (abs(delta) = residual)** and remains green as parameters change.
+# Dimensional Mathematics Project - TODO
+
+## High Priority
+
+### Mathematical Framework
+- [ ] Implement p-adic dimensional extensions
+- [ ] Add Ramanujan congruence analysis for prime dimensionality
+- [ ] Complete holographic entropy derivation from Spin(7)-holonomy residues
+- [ ] Implement time's arrow coupling to Perelman's entropy for Ricci flow
+
+### Visualization Enhancements
+- [ ] Expand Kingdon geometric algebra visualization capabilities
+- [ ] Add interactive exploration tools for complex plane gamma functions
+- [ ] Implement real-time morphic transformation visualization
+- [ ] Create phase dynamics animation system
+
+### Testing & Documentation
+- [ ] Add property-based testing for mathematical relationships
+- [ ] Expand coverage for edge cases in gamma functions
+- [ ] Document all morphic polynomial families
+- [ ] Create mathematical tutorial notebooks
+
+## Medium Priority
+
+### Performance Optimization
+- [ ] Optimize gamma function computations for large arrays
+- [ ] Implement caching for expensive dimensional calculations
+- [ ] Add parallel computation support for phase dynamics
+- [ ] Profile and optimize peak finding algorithms
+
+### CLI Improvements
+- [ ] Restore full CLI functionality with modern backends
+- [ ] Add batch processing capabilities
+- [ ] Implement configuration file support
+- [ ] Add export utilities for different formats
+
+### Integration
+- [ ] Add support for symbolic computation (SymPy integration)
+- [ ] Implement data persistence for simulation results
+- [ ] Add import/export for mathematical software formats
+- [ ] Create plugin system for custom analysis tools
+
+## Low Priority
+
+### Research Features
+- [ ] Experimental zeta function connections
+- [ ] Quantum field theory dimensional transitions
+- [ ] Gravitational structure from phase relationships
+- [ ] Modular behavior investigation
+
+### User Experience
+- [ ] Add GUI for non-technical users
+- [ ] Create web-based demonstration interface
+- [ ] Implement collaborative analysis features
+- [ ] Add educational mode with guided exploration
+
+## Completed ✅
+
+- [x] Complete architectural consolidation
+- [x] Migrate from matplotlib to modern visualization stack
+- [x] Eliminate code duplication between core/ and dimensional/
+- [x] Organize tests into proper test/ structure
+- [x] Fix NumPy 2.0 compatibility issues
+- [x] Implement proper package structure following ARCHITECTURE.md
+- [x] Preserve mathematical integrity during refactoring
+- [x] Achieve 100% test pass rate
 
 ## Fast Decision Tree (intent → archetype)
 
