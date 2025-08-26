@@ -3,391 +3,584 @@
 Dimensional Measures
 ====================
 
-Enhanced dimensional measures module that imports robust core functionality
-and adds analysis and peak detection tools.
+Complete dimensional measures with numerical stability and analysis tools.
+Consolidated mathematical implementation with enhanced exploration capabilities.
 
-MODERNIZED: Matplotlib eliminated, modern visualization backends only.
-This module preserves API compatibility while building upon the
-robust mathematical implementations in core.measures.
+Core geometric measures for any real dimension d, based on gamma function 
+extensions of sphere geometry.
 """
 
-# Import all robust core functionality
-
+import warnings
 import numpy as np
 
-# ARCHITECT MANDATE: ZERO MATPLOTLIB IMPORTS IN MATHEMATICAL MODULES
-# import matplotlib.pyplot as plt  # ⚡ ELIMINATED
-
-# Re-export constants with hybrid imports for flexibility
+# Import constants and gamma functions
 try:
-    from ..core.constants import (
-        CRITICAL_DIMENSIONS,
-    )
-    from ..core.measures import *  # noqa: F401,F403
-    from ..core.measures import (
-        ball_volume,
-        complexity_measure,
-        phase_capacity,
-        ratio_measure,
-        sphere_surface,
-    )
+    from ..core.constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI, E
+    from .gamma import gamma_safe, gammaln_safe
 except ImportError:
-    # Fallback for script execution
-    from core.constants import (
-        CRITICAL_DIMENSIONS,
-    )
-    from core.measures import *  # noqa: F401,F403
-    from core.measures import (
-        ball_volume,
-        complexity_measure,
-        phase_capacity,
-        ratio_measure,
-        sphere_surface,
-    )
+    from core.constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI, E
+    from dimensional.gamma import gamma_safe, gammaln_safe
 
-# ============================================================================
-# ENHANCED VISUALIZATION AND ANALYSIS TOOLS
-# ============================================================================
+# CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
-
-def measures_explorer(d_range=(0, 10), n_points=1000, plot=True):
+def _validate_dimension(d, function_name="measure"):
     """
-    Explore all dimensional measures across a range with visualization.
-
+    Validate dimensional input and issue warnings for edge cases.
+    
     Parameters
     ----------
-    d_range : tuple
-        Range of dimensions to explore (min, max)
-    n_points : int
-        Number of points to sample
-    plot : bool
-        Whether to create visualization
+    d : float or array-like
+        Dimension value(s) to validate
+    function_name : str
+        Name of the calling function for warning messages
+    """
+    d_array = np.asarray(d)
+    
+    # Check for negative dimensions
+    if np.any(d_array < 0):
+        negative_values = d_array[d_array < 0]
+        if len(negative_values) == 1:
+            warnings.warn(
+                f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
+                f"Returning mathematical extension value. "
+                f"Physical dimensions are typically d ≥ 0.",
+                UserWarning,
+                stacklevel=3,
+            )
+        else:
+            warnings.warn(
+                f"Negative dimensions detected in {function_name}() "
+                f"(min: {np.min(negative_values):.3f}). "
+                f"Returning mathematical extension values. "
+                f"Physical dimensions are typically d ≥ 0.",
+                UserWarning,
+                stacklevel=3,
+            )
+    
+    # Check for large dimensions
+    if np.any(d_array > 100):
+        large_values = d_array[d_array > 100]
+        if len(large_values) == 1:
+            warnings.warn(
+                f"Large dimension d={large_values[0]:.1f} in {function_name}() "
+                f"may underflow to zero due to gamma function behavior.",
+                UserWarning,
+                stacklevel=3,
+            )
+        else:
+            warnings.warn(
+                f"Large dimensions detected in {function_name}() "
+                f"(max: {np.max(large_values):.1f}) "
+                f"may underflow to zero due to gamma function behavior.",
+                UserWarning,
+                stacklevel=3,
+            )
 
+
+def ball_volume(d):
+    """
+    Volume of unit d-dimensional ball.
+    
+    V_d = π^(d/2) / Γ(d/2 + 1)
+    
+    Parameters
+    ----------
+    d : float or array-like
+        Dimension (can be fractional)
+    
     Returns
     -------
-    dict
-        Exploration results with all measure values
+    float or array
+        Volume of unit d-ball
+    
+    Notes
+    -----
+    Special cases:
+    - V_0 = 1 (point)
+    - V_1 = 2 (line segment) 
+    - V_2 = π (disk)
+    - V_3 = 4π/3 (sphere)
     """
-    d_vals = np.linspace(d_range[0], d_range[1], n_points)
-
-    results = {
-        "dimensions": d_vals,
-        "ball_volumes": ball_volume(d_vals),
-        "sphere_surfaces": sphere_surface(d_vals),
-        "complexity_measures": complexity_measure(d_vals),
-        "phase_capacities": phase_capacity(d_vals),
-    }
-
-    if plot:
-        # MODERNIZED: Return analysis data instead of printing
-        analysis_summary = {"range": d_range, "n_points": n_points, "measures": {}}
-
-        for name, values in results.items():
-            finite_mask = np.isfinite(values)
-            finite_count = np.sum(finite_mask)
-            measure_stats = {
-                "finite_count": finite_count,
-                "total_count": len(values),
-                "finite_ratio": finite_count / len(values) if len(values) > 0 else 0,
-            }
-
-            if finite_count > 0:
-                finite_vals = values[finite_mask]
-                measure_stats.update(
-                    {
-                        "value_range": (np.min(finite_vals), np.max(finite_vals)),
-                        "peak_dimension": d_vals[finite_mask][np.argmax(finite_vals)],
-                        "peak_value": np.max(finite_vals),
-                    }
-                )
-
-            analysis_summary["measures"][name] = measure_stats
-
-        results["_analysis_summary"] = analysis_summary
-
-    return results
+    # Validate input and issue warnings
+    _validate_dimension(d, "ball_volume")
+    
+    d = np.asarray(d)
+    
+    # Handle d = 0 exactly
+    if np.any(np.abs(d) < NUMERICAL_EPSILON):
+        result = np.ones_like(d, dtype=float)
+        mask = np.abs(d) >= NUMERICAL_EPSILON
+        if np.any(mask):
+            result[mask] = ball_volume(d[mask])
+        return result if d.ndim > 0 else float(result)
+    
+    # Use log space for numerical stability when d is large
+    if np.any(d > 170):
+        large_mask = d > 170
+        result = np.zeros_like(d, dtype=float)
+        
+        # Small values: direct computation
+        if np.any(~large_mask):
+            d_small = d[~large_mask]
+            log_vol = (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2 + 1)
+            result[~large_mask] = np.exp(log_vol)
+        
+        # Large values: use log space
+        if np.any(large_mask):
+            d_large = d[large_mask]
+            log_vol = (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2 + 1)
+            result[large_mask] = np.exp(np.real(log_vol))
+        
+        return result if d.ndim > 0 else float(result)
+    
+    # Normal computation
+    return PI ** (d / 2) / gamma_safe(d / 2 + 1)
 
 
-def peak_finder(measure_func, d_range=(0, 15), resolution=10000):
+def sphere_surface(d):
     """
-    Find peaks in a dimensional measure function.
+    Surface area of unit (d-1)-dimensional sphere in d-dimensional space.
+    
+    S_d = 2π^(d/2) / Γ(d/2)
+    
+    Parameters
+    ----------
+    d : float or array-like
+        Dimension (can be fractional)
+    
+    Returns
+    -------
+    float or array
+        Surface area of (d-1)-sphere
+    
+    Notes
+    -----
+    Special cases:
+    - S_1 = 2 (two points, boundary of line segment)
+    - S_2 = 2π (circle, boundary of disk)
+    - S_3 = 4π (sphere, boundary of ball)
+    """
+    # Validate input and issue warnings
+    _validate_dimension(d, "sphere_surface")
+    
+    d = np.asarray(d)
+    
+    # Handle d = 0 (convention: S_0 = 2)
+    if np.any(np.abs(d) < NUMERICAL_EPSILON):
+        result = np.full_like(d, 2.0, dtype=float)
+        mask = np.abs(d) >= NUMERICAL_EPSILON
+        if np.any(mask):
+            result[mask] = sphere_surface(d[mask])
+        return result if d.ndim > 0 else float(result)
+    
+    # Handle d = 1 exactly
+    if np.any(np.abs(d - 1) < NUMERICAL_EPSILON):
+        result = np.full_like(d, 2.0, dtype=float)
+        mask = np.abs(d - 1) >= NUMERICAL_EPSILON
+        if np.any(mask):
+            result[mask] = sphere_surface(d[mask])
+        return result if d.ndim > 0 else float(result)
+    
+    # Use log space for large d
+    if np.any(d > 170):
+        large_mask = d > 170
+        result = np.zeros_like(d, dtype=float)
+        
+        # Small values
+        if np.any(~large_mask):
+            d_small = d[~large_mask]
+            log_surf = (
+                np.log(2) + (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2)
+            )
+            result[~large_mask] = np.exp(log_surf)
+        
+        # Large values
+        if np.any(large_mask):
+            d_large = d[large_mask]
+            log_surf = (
+                np.log(2) + (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2)
+            )
+            result[large_mask] = np.exp(np.real(log_surf))
+        
+        return result if d.ndim > 0 else float(result)
+    
+    # Normal computation
+    return 2 * PI ** (d / 2) / gamma_safe(d / 2)
 
+
+def complexity_measure(d):
+    """
+    V×S complexity measure: C_d = V_d × S_d
+    
+    This measure captures the total "information capacity" of d-dimensional
+    space, combining interior volume and boundary surface area.
+    Peaks at d ≈ 6, the "complexity peak" of dimensional space.
+    
+    Parameters
+    ----------
+    d : float or array-like
+        Dimension
+    
+    Returns
+    -------
+    float or array
+        Complexity measure C_d = V_d × S_d
+    """
+    # Validate input and issue warnings
+    _validate_dimension(d, "complexity_measure")
+    
+    return ball_volume(d) * sphere_surface(d)
+
+
+def ratio_measure(d):
+    """
+    Surface/Volume ratio: R_d = S_d / V_d
+    
+    Measures the relative importance of boundary vs interior.
+    Increases without bound as d → ∞.
+    
+    Parameters
+    ----------
+    d : float or array-like
+        Dimension
+    
+    Returns
+    -------
+    float or array
+        Ratio S_d / V_d
+    """
+    # Validate input and issue warnings
+    _validate_dimension(d, "ratio_measure")
+    
+    v = ball_volume(d)
+    s = sphere_surface(d)
+    # Avoid division by zero
+    return s / np.maximum(v, NUMERICAL_EPSILON)
+
+
+def phase_capacity(d):
+    """
+    Phase capacity at dimension d.
+    
+    In the dimensional emergence framework, this represents the maximum
+    phase density that dimension d can sustain. Defined as the ball volume.
+    
+    Parameters
+    ----------
+    d : float or array-like
+        Dimension
+    
+    Returns
+    -------
+    float or array
+        Phase capacity Λ(d) = V_d
+    """
+    # Validate input and issue warnings
+    _validate_dimension(d, "phase_capacity")
+    
+    return ball_volume(np.maximum(d, 0.01))  # Avoid d = 0 issues
+
+
+def find_peak(measure_func, d_min=0.1, d_max=15, num_points=5000):
+    """
+    Find the peak (maximum) of a measure function.
+    
     Parameters
     ----------
     measure_func : callable
-        Function to analyze (e.g., ball_volume, complexity_measure)
-    d_range : tuple
-        Range of dimensions to search
-    resolution : int
-        Number of points to sample
-
+        Function to find peak of
+    d_min, d_max : float
+        Search range for dimension
+    num_points : int
+        Number of sample points
+    
     Returns
     -------
-    dict
-        Peak locations and properties
+    tuple
+        (d_peak, value_peak) - dimension and value at peak
     """
-    d_vals = np.linspace(d_range[0], d_range[1], resolution)
-
-    try:
-        measure_vals = measure_func(d_vals)
-    except Exception as e:
-        return {"error": f"Function evaluation failed: {e}", "peaks": []}
-
-    # Filter out non-finite values
-    finite_mask = np.isfinite(measure_vals)
+    d_range = np.linspace(d_min, d_max, num_points)
+    values = np.array([measure_func(d) for d in d_range])
+    
+    # Find peak, handling NaN values
+    finite_mask = np.isfinite(values)
     if not np.any(finite_mask):
-        return {"peaks": [], "message": "No finite values found"}
-
-    finite_d = d_vals[finite_mask]
-    finite_measures = measure_vals[finite_mask]
-
-    # Find local maxima using simple peak detection
-    peaks = []
-    for i in range(1, len(finite_measures) - 1):
-        if (
-            finite_measures[i] > finite_measures[i - 1]
-            and finite_measures[i] > finite_measures[i + 1]
-            and finite_measures[i] > np.max(finite_measures) * 0.1
-        ):  # Significant peaks only
-            peaks.append(
-                {
-                    "dimension": finite_d[i],
-                    "value": finite_measures[i],
-                    "prominence": finite_measures[i]
-                    - min(finite_measures[i - 1], finite_measures[i + 1]),
-                }
-            )
-
-    # Sort by prominence
-    peaks.sort(key=lambda x: x["prominence"], reverse=True)
-
-    return {
-        "peaks": peaks,
-        "d_values": finite_d,
-        "measure_values": finite_measures,
-        "function_name": getattr(measure_func, "__name__", "unknown"),
-    }
+        return np.nan, np.nan
+    
+    finite_values = values[finite_mask]
+    finite_d = d_range[finite_mask]
+    peak_idx = np.argmax(finite_values)
+    
+    return finite_d[peak_idx], finite_values[peak_idx]
 
 
-def critical_analysis(d_range=(0, 20), resolution=5000):
+def find_all_peaks(d_min=0.1, d_max=15.0, resolution=10000):
     """
-    Comprehensive analysis of critical dimensions and transitions.
-
+    Find peaks of all standard measures.
+    
     Parameters
     ----------
-    d_range : tuple
-        Range to analyze
+    d_min, d_max : float
+        Dimension range to search
     resolution : int
-        Sampling resolution
-
+        Number of points to evaluate
+    
     Returns
     -------
     dict
-        Complete critical dimension analysis
+        Dictionary with peak locations and values
     """
-    d_vals = np.linspace(d_range[0], d_range[1], resolution)
-
-    # Calculate all measures
-    ball_volume(d_vals)
-    sphere_surface(d_vals)
-    complexity_measure(d_vals)
-    phase_capacity(d_vals)
-
-    # Find critical points for each measure
-    volume_peaks = peak_finder(ball_volume, d_range, resolution)
-    surface_peaks = peak_finder(sphere_surface, d_range, resolution)
-    complexity_peaks = peak_finder(complexity_measure, d_range, resolution)
-
-    # Find known critical dimensions in range
-    known_critical = [d for d in CRITICAL_DIMENSIONS if d_range[0] <= d <= d_range[1]]
-
-    return {
-        "dimension_range": d_range,
-        "known_critical_dimensions": known_critical,
-        "volume_analysis": volume_peaks,
-        "surface_analysis": surface_peaks,
-        "complexity_analysis": complexity_peaks,
-        "summary": {
-            "total_volume_peaks": len(volume_peaks["peaks"]),
-            "total_surface_peaks": len(surface_peaks["peaks"]),
-            "total_complexity_peaks": len(complexity_peaks["peaks"]),
-            "known_critical_count": len(known_critical),
-        },
-    }
+    results = {}
+    
+    # Volume peak
+    vol_peak_d, vol_peak_val = find_peak(ball_volume, d_min, d_max, resolution)
+    results["volume_peak"] = (vol_peak_d, vol_peak_val)
+    
+    # Surface peak
+    surf_peak_d, surf_peak_val = find_peak(sphere_surface, d_min, d_max, resolution)
+    results["surface_peak"] = (surf_peak_d, surf_peak_val)
+    
+    # Complexity peak
+    comp_peak_d, comp_peak_val = find_peak(complexity_measure, d_min, d_max, resolution)
+    results["complexity_peak"] = (comp_peak_d, comp_peak_val)
+    
+    return results
 
 
-def comparative_plot(dimensions, measures=None, log_scale=True):
+# DIMENSIONAL MEASURE ALIASES
+v = ball_volume
+s = sphere_surface
+c = complexity_measure
+r = ratio_measure
+
+# Uppercase aliases for backward compatibility
+V = ball_volume
+S = sphere_surface
+C = complexity_measure
+R = ratio_measure
+
+# ENHANCED ANALYSIS TOOLS (previously in dimensional/measures.py)
+
+def measures_explorer(d_range=(0.1, 10), num_points=1000, show_peaks=True):
     """
-    Create comparative plots of multiple measures for specific dimensions.
-
+    Enhanced measures exploration with peak analysis.
+    
     Parameters
     ----------
-    dimensions : array-like
-        Specific dimensions to compare
+    d_range : tuple
+        (d_min, d_max) range to explore
+    num_points : int
+        Number of evaluation points
+    show_peaks : bool
+        Whether to highlight peaks
+    
+    Returns
+    -------
+    dict
+        Comprehensive measures analysis
+    """
+    d_min, d_max = d_range
+    dimensions = np.linspace(d_min, d_max, num_points)
+    
+    # Compute all measures
+    volumes = np.array([ball_volume(d) for d in dimensions])
+    surfaces = np.array([sphere_surface(d) for d in dimensions])
+    complexities = np.array([complexity_measure(d) for d in dimensions])
+    ratios = np.array([ratio_measure(d) for d in dimensions])
+    
+    results = {
+        "dimensions": dimensions,
+        "volume": volumes,
+        "surface": surfaces,
+        "complexity": complexities,
+        "ratio": ratios,
+    }
+    
+    if show_peaks:
+        # Find and include peaks
+        peaks = find_all_peaks(d_min, d_max, num_points)
+        results["peaks"] = peaks
+    
+    return results
+
+
+def peak_finder(measure_name, d_range=(0.1, 15), resolution=10000):
+    """
+    Find peak of specific measure with high resolution.
+    
+    Parameters
+    ----------
+    measure_name : str
+        Name of measure ('volume', 'surface', 'complexity', 'ratio')
+    d_range : tuple
+        Search range (d_min, d_max)
+    resolution : int
+        Number of evaluation points
+    
+    Returns
+    -------
+    tuple
+        (peak_dimension, peak_value)
+    """
+    measure_funcs = {
+        "volume": ball_volume,
+        "surface": sphere_surface,
+        "complexity": complexity_measure,
+        "ratio": ratio_measure,
+    }
+    
+    if measure_name not in measure_funcs:
+        raise ValueError(f"Unknown measure: {measure_name}. Choose from {list(measure_funcs.keys())}")
+    
+    return find_peak(measure_funcs[measure_name], d_range[0], d_range[1], resolution)
+
+
+def critical_analysis(d_values=None):
+    """
+    Analyze measures at critical dimensional values.
+    
+    Parameters
+    ----------
+    d_values : list, optional
+        Specific dimensions to analyze. Uses CRITICAL_DIMENSIONS if None.
+    
+    Returns
+    -------
+    dict
+        Analysis results at critical dimensions
+    """
+    if d_values is None:
+        # Use predefined critical dimensions
+        d_values = list(CRITICAL_DIMENSIONS.values())
+    
+    results = {}
+    
+    for d in d_values:
+        results[f"d={d:.3f}"] = {
+            "volume": ball_volume(d),
+            "surface": sphere_surface(d),
+            "complexity": complexity_measure(d),
+            "ratio": ratio_measure(d),
+            "phase_capacity": phase_capacity(d),
+        }
+    
+    return results
+
+
+def comparative_plot(measures=None, d_range=(0.1, 10), num_points=1000):
+    """
+    Generate comparative analysis data for multiple measures.
+    
+    Parameters
+    ----------
     measures : list, optional
-        List of measure functions to include
-    log_scale : bool
-        Whether to use logarithmic scale
+        List of measure names. Defaults to all standard measures.
+    d_range : tuple
+        Dimension range (d_min, d_max)
+    num_points : int
+        Number of evaluation points
+    
+    Returns
+    -------
+    dict
+        Comparative data for plotting
     """
     if measures is None:
-        measures = [ball_volume, sphere_surface, complexity_measure, phase_capacity]
-        measure_names = [
-            "Ball Volume",
-            "Sphere Surface",
-            "Complexity",
-            "Phase Capacity",
-        ]
-    else:
-        measure_names = [getattr(f, "__name__", str(f)) for f in measures]
-
-    dimensions = np.asarray(dimensions)
-
-    # MODERNIZED: Return analysis data instead of printing
-    analysis = {
-        "dimensions": dimensions,
-        "log_scale": log_scale,
-        "measures": {},
-        "summary": {
-            "dimension_count": len(dimensions),
-            "dimension_range": (dimensions.min(), dimensions.max()),
-        },
+        measures = ["volume", "surface", "complexity", "ratio"]
+    
+    measure_funcs = {
+        "volume": ball_volume,
+        "surface": sphere_surface,
+        "complexity": complexity_measure,
+        "ratio": ratio_measure,
     }
-
-    for i, (measure, name) in enumerate(zip(measures, measure_names)):
-        try:
-            values = measure(dimensions)
-            finite_mask = np.isfinite(values) & (values > 0 if log_scale else True)
-            finite_count = np.sum(finite_mask)
-
-            measure_stats = {
-                "finite_count": finite_count,
-                "total_count": len(values),
-                "finite_ratio": finite_count / len(values) if len(values) > 0 else 0,
-            }
-
-            if finite_count > 0:
-                finite_vals = values[finite_mask]
-                finite_dims = dimensions[finite_mask]
-
-                measure_stats.update(
-                    {
-                        "value_range": (np.min(finite_vals), np.max(finite_vals)),
-                        "max_dimension": finite_dims[np.argmax(finite_vals)],
-                        "max_value": np.max(finite_vals),
-                        "min_dimension": finite_dims[np.argmin(finite_vals)],
-                        "min_value": np.min(finite_vals),
-                    }
-                )
-
-            analysis["measures"][name] = measure_stats
-
-        except Exception as e:
-            analysis["measures"][name] = {"error": str(e)}
-
-    # Mark critical dimensions
-    critical_in_range = [
-        d
-        for d in CRITICAL_DIMENSIONS.values()
-        if dimensions.min() <= d <= dimensions.max()
-    ]
-    analysis["critical_dimensions_in_range"] = critical_in_range
-
-    return analysis
+    
+    d_min, d_max = d_range
+    dimensions = np.linspace(d_min, d_max, num_points)
+    
+    results = {"dimensions": dimensions}
+    
+    for measure in measures:
+        if measure in measure_funcs:
+            values = np.array([measure_funcs[measure](d) for d in dimensions])
+            results[measure] = values
+    
+    return results
 
 
-def quick_measure_analysis(dimension):
+def quick_measure_analysis(d):
     """
-    Quick analysis of all measures at a specific dimension.
-
+    Quick analysis of all measures at a single dimension.
+    
     Parameters
     ----------
-    dimension : float
+    d : float
         Dimension to analyze
-
+    
     Returns
     -------
     dict
-        All measure values and properties
+        All measure values at dimension d
     """
     return {
-        "dimension": dimension,
-        "ball_volume": ball_volume(dimension),
-        "sphere_surface": sphere_surface(dimension),
-        "complexity_measure": complexity_measure(dimension),
-        "phase_capacity": phase_capacity(dimension),
-        "is_critical": dimension in CRITICAL_DIMENSIONS,
-        "ratio_measure": ratio_measure(dimension),
+        "dimension": d,
+        "volume": ball_volume(d),
+        "surface": sphere_surface(d),
+        "complexity": complexity_measure(d),
+        "ratio": ratio_measure(d),
+        "phase_capacity": phase_capacity(d),
     }
 
 
-def is_critical_dimension(dimension, tolerance=1e-6):
-    """Check if dimension is critical."""
-    return any(abs(dimension - cd) < tolerance for cd in CRITICAL_DIMENSIONS)
+def is_critical_dimension(d, tolerance=1e-3):
+    """
+    Check if dimension d is near a critical value.
+    
+    Parameters
+    ----------
+    d : float
+        Dimension to check
+    tolerance : float
+        Tolerance for comparison
+    
+    Returns
+    -------
+    bool or str
+        False if not critical, or name of critical dimension
+    """
+    for name, value in CRITICAL_DIMENSIONS.items():
+        if abs(d - value) < tolerance:
+            return name
+    return False
 
 
 def volume_ratio(d1, d2):
-    """Volume ratio between two dimensions."""
-    return ball_volume(d1) / ball_volume(d2) if ball_volume(d2) != 0 else np.inf
+    """Volume ratio V(d1)/V(d2)."""
+    return ball_volume(d1) / ball_volume(d2)
 
 
 def surface_ratio(d1, d2):
-    """Surface ratio between two dimensions."""
-    return (
-        sphere_surface(d1) / sphere_surface(d2) if sphere_surface(d2) != 0 else np.inf
-    )
-
-
-# ============================================================================
-# CONVENIENCE SHORTCUTS FOR INTERACTIVE USE
-# ============================================================================
-
-# Short aliases for interactive exploration
-V = ball_volume  # V(d) - ball volume
-S = sphere_surface  # S(d) - sphere surface
-C = complexity_measure  # C(d) - complexity measure
-Λ = phase_capacity  # Λ(d) - phase capacity (Greek lambda)
-
-# Additional lowercase aliases for CLI compatibility
-v = ball_volume  # v(d) - ball volume (lowercase alias)
-s = sphere_surface  # s(d) - sphere surface (lowercase alias)
-c = complexity_measure  # c(d) - complexity measure (lowercase alias)
-
-
-def peaks():
-    """Find all major peaks in dimensional measures.
-
-    Returns:
-        dict: Analysis of all peaks in dimensional measures
-    """
-    analysis = critical_analysis(d_range=(0, 15), resolution=5000)
-
-    # Organize peak data for return
-    peak_summary = {
-        "volume_peaks": analysis["summary"]["total_volume_peaks"],
-        "surface_peaks": analysis["summary"]["total_surface_peaks"],
-        "complexity_peaks": analysis["summary"]["total_complexity_peaks"],
-        "known_critical_dimensions": analysis["known_critical_dimensions"],
-        "top_peaks": {},
-    }
-
-    # Collect top peaks for each measure
-    for measure_type in ["volume", "surface", "complexity"]:
-        peaks_data = analysis[f"{measure_type}_analysis"]["peaks"][:3]  # Top 3
-        peak_summary["top_peaks"][measure_type] = peaks_data
-
-    return peak_summary
+    """Surface ratio S(d1)/S(d2)."""
+    return sphere_surface(d1) / sphere_surface(d2)
 
 
 if __name__ == "__main__":
-    # Test dimensional measures without printing
-    test_dims = [1, 2, 3, 4, 5]
-
-    # Validate functionality
-    for d in test_dims:
-        result = quick_measure_analysis(d)
+    # Validate dimensional measures
+    
+    # Test standard dimensions
+    dims = [0, 1, 2, 3, 4, 5, 6]
+    for d in dims:
+        v = ball_volume(d)
+        s = sphere_surface(d)
+        c = complexity_measure(d)
         # Validate mathematical properties
-        assert result["ball_volume"] > 0, f"Invalid volume for d={d}"
-        assert result["sphere_surface"] > 0, f"Invalid surface for d={d}"
-        assert np.isfinite(
-            result["complexity_measure"]
-        ), f"Invalid complexity for d={d}"
+        assert v > 0, f"Invalid volume for dimension {d}"
+        assert s > 0, f"Invalid surface for dimension {d}"
+        assert np.isfinite(c), f"Invalid complexity for dimension {d}"
+    
+    # Validate peak analysis
+    peaks = find_all_peaks()
+    assert len(peaks) > 0, "No peaks found"
+    for peak_name, (d_peak, val_peak) in peaks.items():
+        assert np.isfinite(d_peak), f"Invalid peak dimension for {peak_name}"
+        assert np.isfinite(val_peak), f"Invalid peak value for {peak_name}"
