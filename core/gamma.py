@@ -9,8 +9,10 @@ all gamma-related calculations used throughout the framework.
 """
 
 import numpy as np
-from scipy.special import gamma, gammaln, digamma, polygamma
-from .constants import NUMERICAL_EPSILON, GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD
+from scipy.special import digamma, gamma, gammaln, polygamma
+
+from .constants import GAMMA_OVERFLOW_THRESHOLD, LOG_SPACE_THRESHOLD, NUMERICAL_EPSILON
+
 
 def gamma_safe(z):
     """
@@ -76,6 +78,7 @@ def gamma_safe(z):
     # Normal case
     return gamma(z)
 
+
 def gammaln_safe(z):
     """
     Safe log-gamma function.
@@ -103,6 +106,7 @@ def gammaln_safe(z):
             return result if z.ndim > 0 else float(result)
 
     return gammaln(z)
+
 
 def digamma_safe(z):
     """
@@ -132,6 +136,7 @@ def digamma_safe(z):
 
     return digamma(z)
 
+
 def polygamma_safe(n, z):
     """
     Safe polygamma function.
@@ -154,13 +159,14 @@ def polygamma_safe(n, z):
     # Handle poles
     if np.any(z <= 0):
         if np.any(np.abs(z - np.round(z)) < NUMERICAL_EPSILON):
-            result = np.full_like(z, (-1)**(n+1) * np.inf, dtype=float)
+            result = np.full_like(z, (-1) ** (n + 1) * np.inf, dtype=float)
             mask = ~(np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
             if np.any(mask):
                 result[mask] = polygamma_safe(n, z[mask])
             return result if z.ndim > 0 else float(result)
 
     return polygamma(n, z)
+
 
 def gamma_ratio_safe(a, b):
     """
@@ -177,12 +183,14 @@ def gamma_ratio_safe(a, b):
         Γ(a)/Γ(b)
     """
     # Use log-space for large values
-    if (np.any(np.abs(np.asarray(a)) > GAMMA_OVERFLOW_THRESHOLD/2) or
-        np.any(np.abs(np.asarray(b)) > GAMMA_OVERFLOW_THRESHOLD/2)):
+    if np.any(np.abs(np.asarray(a)) > GAMMA_OVERFLOW_THRESHOLD / 2) or np.any(
+        np.abs(np.asarray(b)) > GAMMA_OVERFLOW_THRESHOLD / 2
+    ):
         log_ratio = gammaln_safe(a) - gammaln_safe(b)
         return np.exp(log_ratio)
 
     return gamma_safe(a) / gamma_safe(b)
+
 
 def factorial_extension(n):
     """
@@ -200,6 +208,7 @@ def factorial_extension(n):
         n! = Γ(n+1)
     """
     return gamma_safe(np.asarray(n) + 1)
+
 
 def double_factorial_extension(n):
     """
@@ -221,12 +230,15 @@ def double_factorial_extension(n):
         raise ValueError("Double factorial extension only defined for n ≥ 0")
 
     from .constants import SQRT_PI
-    return gamma_safe(n/2 + 1) * (2**(n/2)) / SQRT_PI
+
+    return gamma_safe(n / 2 + 1) * (2 ** (n / 2)) / SQRT_PI
+
 
 # Convenience functions for common gamma expressions
 def gamma_half_integer(n):
     """Γ(n + 1/2) for integer n."""
     from .constants import SQRT_PI
+
     if n < 0:
         raise ValueError("n must be non-negative")
     if n == 0:
@@ -234,7 +246,11 @@ def gamma_half_integer(n):
 
     # Use the relation Γ(n + 1/2) = (2n-1)!! * √π / 2^n
     from math import factorial
-    return factorial(2*n - 1) * SQRT_PI / (2**n * factorial(n - 1)) if n > 0 else SQRT_PI
+
+    return (
+        factorial(2 * n - 1) * SQRT_PI / (2**n * factorial(n - 1)) if n > 0 else SQRT_PI
+    )
+
 
 def beta_function(a, b):
     """
@@ -251,6 +267,7 @@ def beta_function(a, b):
         B(a,b)
     """
     return gamma_ratio_safe(a, a + b) * gamma_safe(b)
+
 
 if __name__ == "__main__":
     # Test the functions

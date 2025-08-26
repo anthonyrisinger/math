@@ -14,13 +14,16 @@ Standard settings:
 - View azimuth: -45° (symmetric diagonal view)
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from .constants import PHI, VIEW_ELEV, VIEW_AZIM, BOX_ASPECT
 
-def setup_3d_axis(ax, title="", xlim=None, ylim=None, zlim=None,
-                  grid=True, grid_alpha=0.3):
+from .constants import BOX_ASPECT, PHI, VIEW_AZIM, VIEW_ELEV
+
+
+def setup_3d_axis(
+    ax, title="", xlim=None, ylim=None, zlim=None, grid=True, grid_alpha=0.3
+):
     """
     Set up 3D axis with standard orthographic projection and golden viewing angle.
 
@@ -43,7 +46,7 @@ def setup_3d_axis(ax, title="", xlim=None, ylim=None, zlim=None,
         Configured 3D axis
     """
     # Set orthographic projection
-    ax.set_proj_type('ortho')
+    ax.set_proj_type("ortho")
 
     # Set golden ratio viewing angle
     ax.view_init(elev=VIEW_ELEV, azim=VIEW_AZIM)
@@ -69,6 +72,7 @@ def setup_3d_axis(ax, title="", xlim=None, ylim=None, zlim=None,
 
     return ax
 
+
 def create_3d_figure(figsize=(10, 8), dpi=100):
     """
     Create figure with 3D axis using standard settings.
@@ -86,8 +90,9 @@ def create_3d_figure(figsize=(10, 8), dpi=100):
         (figure, axis) pair
     """
     fig = plt.figure(figsize=figsize, dpi=dpi)
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
     return fig, setup_3d_axis(ax)
+
 
 def set_equal_aspect_3d(ax):
     """
@@ -124,6 +129,7 @@ def set_equal_aspect_3d(ax):
 
     return ax
 
+
 def golden_view_rotation(t, base_elev=VIEW_ELEV, base_azim=VIEW_AZIM, phi=PHI):
     """
     Generate rotation sequence based on golden ratio.
@@ -158,7 +164,8 @@ def golden_view_rotation(t, base_elev=VIEW_ELEV, base_azim=VIEW_AZIM, phi=PHI):
 
     return elevation, azimuth
 
-def standard_colormap(name='viridis'):
+
+def standard_colormap(name="viridis"):
     """
     Get standard colormap for consistent visualization.
 
@@ -173,6 +180,7 @@ def standard_colormap(name='viridis'):
         Matplotlib colormap object
     """
     return plt.cm.get_cmap(name)
+
 
 def add_coordinate_frame(ax, origin=(0, 0, 0), scale=1.0, alpha=0.7):
     """
@@ -197,20 +205,24 @@ def add_coordinate_frame(ax, origin=(0, 0, 0), scale=1.0, alpha=0.7):
     x0, y0, z0 = origin
 
     # X axis (red)
-    x_line = ax.plot([x0, x0 + scale], [y0, y0], [z0, z0],
-                     color='red', alpha=alpha, linewidth=2)[0]
+    x_line = ax.plot(
+        [x0, x0 + scale], [y0, y0], [z0, z0], color="red", alpha=alpha, linewidth=2
+    )[0]
 
     # Y axis (green)
-    y_line = ax.plot([x0, x0], [y0, y0 + scale], [z0, z0],
-                     color='green', alpha=alpha, linewidth=2)[0]
+    y_line = ax.plot(
+        [x0, x0], [y0, y0 + scale], [z0, z0], color="green", alpha=alpha, linewidth=2
+    )[0]
 
     # Z axis (blue)
-    z_line = ax.plot([x0, x0], [y0, y0], [z0, z0 + scale],
-                     color='blue', alpha=alpha, linewidth=2)[0]
+    z_line = ax.plot(
+        [x0, x0], [y0, y0], [z0, z0 + scale], color="blue", alpha=alpha, linewidth=2
+    )[0]
 
     return [x_line, y_line, z_line]
 
-def save_3d_figure(fig, filename, dpi=300, bbox_inches='tight'):
+
+def save_3d_figure(fig, filename, dpi=300, bbox_inches="tight"):
     """
     Save 3D figure with standard settings.
 
@@ -227,12 +239,15 @@ def save_3d_figure(fig, filename, dpi=300, bbox_inches='tight'):
     """
     # Ensure directory exists
     import os
+
     directory = os.path.dirname(filename)
     if directory and not os.path.exists(directory):
         os.makedirs(directory, exist_ok=True)
 
-    fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches,
-                facecolor='white', edgecolor='none')
+    fig.savefig(
+        filename, dpi=dpi, bbox_inches=bbox_inches, facecolor="white", edgecolor="none"
+    )
+
 
 def create_sphere_wireframe(center=(0, 0, 0), radius=1.0, resolution=20):
     """
@@ -254,7 +269,7 @@ def create_sphere_wireframe(center=(0, 0, 0), radius=1.0, resolution=20):
     """
     # Create sphere coordinates
     u = np.linspace(0, 2 * np.pi, resolution)
-    v = np.linspace(0, np.pi, resolution//2)
+    v = np.linspace(0, np.pi, resolution // 2)
     U, V = np.meshgrid(u, v)
 
     X = center[0] + radius * np.cos(U) * np.sin(V)
@@ -263,8 +278,10 @@ def create_sphere_wireframe(center=(0, 0, 0), radius=1.0, resolution=20):
 
     return X, Y, Z
 
-def plot_sphere_wireframe(ax, center=(0, 0, 0), radius=1.0,
-                          resolution=20, color='gray', alpha=0.3):
+
+def plot_sphere_wireframe(
+    ax, center=(0, 0, 0), radius=1.0, resolution=20, color="gray", alpha=0.3
+):
     """
     Plot wireframe sphere on 3D axis.
 
@@ -294,19 +311,22 @@ def plot_sphere_wireframe(ax, center=(0, 0, 0), radius=1.0,
 
     # Plot longitude lines
     for i in range(X.shape[1]):
-        line = ax.plot(X[:, i], Y[:, i], Z[:, i],
-                      color=color, alpha=alpha, linewidth=0.5)[0]
+        line = ax.plot(
+            X[:, i], Y[:, i], Z[:, i], color=color, alpha=alpha, linewidth=0.5
+        )[0]
         lines.append(line)
 
     # Plot latitude lines
     for i in range(X.shape[0]):
-        line = ax.plot(X[i, :], Y[i, :], Z[i, :],
-                      color=color, alpha=alpha, linewidth=0.5)[0]
+        line = ax.plot(
+            X[i, :], Y[i, :], Z[i, :], color=color, alpha=alpha, linewidth=0.5
+        )[0]
         lines.append(line)
 
     return lines
 
-def add_integer_badge(ax, value, tolerance=1e-6, position='upper left'):
+
+def add_integer_badge(ax, value, tolerance=1e-6, position="upper left"):
     """
     Add integer badge showing value and residual.
 
@@ -337,30 +357,39 @@ def add_integer_badge(ax, value, tolerance=1e-6, position='upper left'):
     badge_text = f"Value ≈ {nearest_int} (residual={residual:.2e})"
 
     # Choose color
-    color = 'green' if residual < tolerance else 'red'
+    color = "green" if residual < tolerance else "red"
 
     # Position mapping
     positions = {
-        'upper left': (0.02, 0.98),
-        'upper right': (0.98, 0.98),
-        'lower left': (0.02, 0.02),
-        'lower right': (0.98, 0.02)
+        "upper left": (0.02, 0.98),
+        "upper right": (0.98, 0.98),
+        "lower left": (0.02, 0.02),
+        "lower right": (0.98, 0.02),
     }
 
     if position in positions:
         x, y = positions[position]
-        ha = 'left' if 'left' in position else 'right'
-        va = 'top' if 'upper' in position else 'bottom'
+        ha = "left" if "left" in position else "right"
+        va = "top" if "upper" in position else "bottom"
     else:
-        x, y, ha, va = 0.02, 0.98, 'left', 'top'
+        x, y, ha, va = 0.02, 0.98, "left", "top"
 
     # Add text
-    text = ax.text2D(x, y, badge_text, transform=ax.transAxes,
-                     fontsize=10, color=color, weight='bold',
-                     bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.8),
-                     ha=ha, va=va)
+    text = ax.text2D(
+        x,
+        y,
+        badge_text,
+        transform=ax.transAxes,
+        fontsize=10,
+        color=color,
+        weight="bold",
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8),
+        ha=ha,
+        va=va,
+    )
 
     return text
+
 
 def view_preserving_limits(data_points, margin=0.1):
     """
@@ -396,6 +425,7 @@ def view_preserving_limits(data_points, margin=0.1):
 
     return xlim, ylim, zlim
 
+
 class View3DManager:
     """
     Manager class for 3D visualization consistency.
@@ -419,6 +449,7 @@ class View3DManager:
 
     def animate_rotation(self, ax, frames=100, phi=PHI):
         """Create rotation animation."""
+
         def update(frame):
             t = frame / frames
             elev, azim = golden_view_rotation(t, self.elev, self.azim, phi)
@@ -426,6 +457,7 @@ class View3DManager:
             return []
 
         return update
+
 
 if __name__ == "__main__":
     print("3D VISUALIZATION STANDARDS TEST")

@@ -9,25 +9,28 @@ adaptive RK45 integrator, convergence diagnostics, and topological
 invariant preservation.
 """
 
-import pytest
-import numpy as np
-import sys
 import os
+import sys
+
+import numpy as np
+import pytest
 
 from core.phase import (
-    PhaseDynamicsEngine,
-    sap_rate,
-    rk45_step,
+    NUMERICAL_EPSILON,
     ConvergenceDiagnostics,
+    PhaseDynamicsEngine,
     TopologicalInvariants,
+    rk45_step,
+    sap_rate,
     total_phase_energy,
-    NUMERICAL_EPSILON
 )
+
 
 # Canonical Test Scenarios
 def get_golden_test_engine(max_dims=8):
     """Returns a PhaseDynamicsEngine with 'golden' parameters."""
     return PhaseDynamicsEngine(max_dimensions=max_dims, use_adaptive=True)
+
 
 def get_stress_test_engine(max_dims=12):
     """Returns an engine with extreme parameters to test limits."""
@@ -36,6 +39,7 @@ def get_stress_test_engine(max_dims=12):
     engine.inject(1, 100.0)
     engine.inject(2, 50.0)
     return engine
+
 
 class TestAdvancedPhaseDynamics:
     """Advanced tests for the Phase Dynamics Engine."""
@@ -46,29 +50,39 @@ class TestAdvancedPhaseDynamics:
         initial_dt = 0.1
 
         # Get baseline step size behavior
-        _, dt_baseline, error_baseline = rk45_step(engine.phase_density, initial_dt, engine.max_dim - 1)
+        _, dt_baseline, error_baseline = rk45_step(
+            engine.phase_density, initial_dt, engine.max_dim - 1
+        )
 
         assert error_baseline >= 0, "Error estimate should be non-negative"
 
         # Test that a large disturbance increases error and affects step size
         engine.inject(1, 3.0)  # Moderate but significant injection
-        _, dt_after_shock, error_after = rk45_step(engine.phase_density, initial_dt, engine.max_dim - 1)
+        _, dt_after_shock, error_after = rk45_step(
+            engine.phase_density, initial_dt, engine.max_dim - 1
+        )
 
         # Key test: error should increase after disturbance
-        assert error_after > error_baseline, f"Error should increase: {error_baseline:.2e} -> {error_after:.2e}"
+        assert (
+            error_after > error_baseline
+        ), f"Error should increase: {error_baseline:.2e} -> {error_after:.2e}"
 
         # Step size adaptation should respond to higher error
         if error_after > 1e-12:  # Only test if meaningful error exists
             # Allow for either decrease or controlled increase based on error magnitude
             ratio = dt_after_shock / dt_baseline
-            assert 0.3 <= ratio <= 3.0, f"Step size should adapt reasonably: {dt_baseline:.6f} -> {dt_after_shock:.6f} (ratio: {ratio:.2f})"
+            assert (
+                0.3 <= ratio <= 3.0
+            ), f"Step size should adapt reasonably: {dt_baseline:.6f} -> {dt_after_shock:.6f} (ratio: {ratio:.2f})"
 
     def test_convergence_diagnostics(self):
         """Test that the system correctly reports convergence with the new energy model."""
         engine = get_golden_test_engine(max_dims=4)
 
         # Start with moderate energy distribution for faster convergence
-        engine.phase_density = np.array([0.9+0j, 0.1+0j, 0.05+0j, 0.01+0j], dtype=complex)
+        engine.phase_density = np.array(
+            [0.9 + 0j, 0.1 + 0j, 0.05 + 0j, 0.01 + 0j], dtype=complex
+        )
 
         converged = False
         max_steps = 800
@@ -79,7 +93,9 @@ class TestAdvancedPhaseDynamics:
 
             # Check convergence periodically after initial transient
             if i > 50 and i % 25 == 0:
-                if engine.diagnostics.is_converged(energy_tolerance=1e-12, rate_tolerance=1e-12):
+                if engine.diagnostics.is_converged(
+                    energy_tolerance=1e-12, rate_tolerance=1e-12
+                ):
                     converged = True
                     print(f"System converged at step {i}")
                     break
@@ -88,8 +104,10 @@ class TestAdvancedPhaseDynamics:
 
         # With the new model, we expect full convergence and strict conservation
         assert converged, "System should report convergence"
-        assert diagnostics['is_converged'], "Diagnostics should confirm convergence"
-        assert diagnostics['energy_conservation_error'] < 1e-12, f"Energy should be strictly conserved: {diagnostics['energy_conservation_error']:.2e}"
+        assert diagnostics["is_converged"], "Diagnostics should confirm convergence"
+        assert (
+            diagnostics["energy_conservation_error"] < 1e-12
+        ), f"Energy should be strictly conserved: {diagnostics['energy_conservation_error']:.2e}"
 
     def test_topological_invariants(self):
         """Test that topological invariants (Chern numbers) are preserved."""
@@ -104,7 +122,11 @@ class TestAdvancedPhaseDynamics:
 
         final_invariants = engine.invariants.chern_numbers.copy()
 
-        np.testing.assert_array_equal(initial_invariants, final_invariants, "Topological invariants should be preserved")
+        np.testing.assert_array_equal(
+            initial_invariants,
+            final_invariants,
+            "Topological invariants should be preserved",
+        )
 
     def test_numerical_stability_sap_rate(self):
         """Test the stability of the sap_rate function at small distances."""
@@ -121,7 +143,7 @@ class TestAdvancedPhaseDynamics:
         engine = get_golden_test_engine(max_dims=4)
 
         # Start with energy only in void
-        engine.phase_density = np.array([1.0+0j, 0j, 0j, 0j], dtype=complex)
+        engine.phase_density = np.array([1.0 + 0j, 0j, 0j, 0j], dtype=complex)
         initial_energy = total_phase_energy(engine.phase_density)
 
         # Run with small time steps for maximum precision
@@ -131,7 +153,9 @@ class TestAdvancedPhaseDynamics:
 
             # Check energy conservation at each step - relaxed tolerance for floating point
             energy_drift = abs(current_energy - initial_energy)
-            assert energy_drift < 1e-12, f"Energy not conserved at step {i}: drift = {energy_drift:.2e}"
+            assert (
+                energy_drift < 1e-12
+            ), f"Energy not conserved at step {i}: drift = {energy_drift:.2e}"
 
         final_energy = total_phase_energy(engine.phase_density)
         total_drift = abs(final_energy - initial_energy)
@@ -149,7 +173,9 @@ class TestAdvancedPhaseDynamics:
         engine = get_golden_test_engine(max_dims=4)
 
         # Initialize with reasonable energy distribution
-        engine.phase_density = np.array([0.8+0j, 0.2+0j, 0.1+0j, 0.02+0j], dtype=complex)
+        engine.phase_density = np.array(
+            [0.8 + 0j, 0.2 + 0j, 0.1 + 0j, 0.02 + 0j], dtype=complex
+        )
         initial_energy = total_phase_energy(engine.phase_density)
 
         energy_changes = []
@@ -164,7 +190,9 @@ class TestAdvancedPhaseDynamics:
 
             # Strict energy conservation check at every step - relaxed tolerance
             energy_drift = abs(curr_energy - initial_energy)
-            assert energy_drift < 1e-12, f"Energy conservation violated at step {i}: {energy_drift:.2e}"
+            assert (
+                energy_drift < 1e-12
+            ), f"Energy conservation violated at step {i}: {energy_drift:.2e}"
 
             # Track convergence
             energy_change = abs(curr_energy - prev_energy)
@@ -187,7 +215,9 @@ class TestAdvancedPhaseDynamics:
             recent_changes = energy_changes[-100:]
             avg_recent = np.mean(recent_changes)
             # System should at least be converging slowly
-            assert avg_recent < 1e-12, f"System should be approaching equilibrium: avg change = {avg_recent:.2e}"
+            assert (
+                avg_recent < 1e-12
+            ), f"System should be approaching equilibrium: avg change = {avg_recent:.2e}"
             print(f"System slowly converging: avg change = {avg_recent:.2e}")
         else:
             assert converged, "System should reach equilibrium"
@@ -195,11 +225,14 @@ class TestAdvancedPhaseDynamics:
     def test_clock_rate_consistency(self):
         """Test that clock rate modulation is self-consistent."""
         engine = get_golden_test_engine()
-        engine.step(0.1) # Let the system evolve a bit
+        engine.step(0.1)  # Let the system evolve a bit
 
         for d in range(engine.max_dim):
             rate = engine.clock_rate_modulation(d)
-            assert 0.1 <= rate <= 1.0, f"Clock rate for dimension {d} is out of bounds: {rate}"
+            assert (
+                0.1 <= rate <= 1.0
+            ), f"Clock rate for dimension {d} is out of bounds: {rate}"
+
 
 if __name__ == "__main__":
     pytest.main()

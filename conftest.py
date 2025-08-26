@@ -73,7 +73,7 @@ def critical_dimensions():
         'leech_limit': 24               # Leech lattice dimension
     }
 
-@pytest.fixture 
+@pytest.fixture
 def known_gamma_values():
     """Dictionary of known exact gamma function values for validation."""
     sqrt_pi = math.sqrt(math.pi)
@@ -103,7 +103,7 @@ def known_dimensional_measures():
             3: 4*pi/3,      # Ball
             4: pi**2/2,     # 4D hypersphere
         },
-        # Sphere surfaces S_d  
+        # Sphere surfaces S_d
         'sphere_surface': {
             1: 2,           # Two points
             2: 2*pi,        # Circle
@@ -136,11 +136,11 @@ def stress_test_engine():
 
 # ===== Helper Functions =====
 
-def assert_mathematical_equality(actual, expected, tolerance=MATHEMATICAL_TOLERANCE, 
+def assert_mathematical_equality(actual, expected, tolerance=MATHEMATICAL_TOLERANCE,
                                  context=""):
     """
     Assert mathematical equality with proper tolerance and informative error messages.
-    
+
     Parameters
     ----------
     actual : float
@@ -154,33 +154,33 @@ def assert_mathematical_equality(actual, expected, tolerance=MATHEMATICAL_TOLERA
     """
     if not np.isfinite(actual):
         pytest.fail(f"Non-finite result: {actual} {context}")
-    
+
     if not np.isfinite(expected):
         pytest.fail(f"Non-finite expected value: {expected} {context}")
-    
+
     error = abs(actual - expected)
     relative_error = error / abs(expected) if expected != 0 else error
-    
+
     if error > tolerance:
         pytest.fail(
             f"Mathematical equality failed {context}:\n"
-            f"  Expected: {expected}\n" 
+            f"  Expected: {expected}\n"
             f"  Actual:   {actual}\n"
             f"  Error:    {error} (tolerance: {tolerance})\n"
             f"  Relative: {relative_error:.2e}"
         )
 
-def assert_conserved_quantity(initial_value, final_value, tolerance=1e-12, 
+def assert_conserved_quantity(initial_value, final_value, tolerance=1e-12,
                               quantity_name="quantity"):
     """Assert that a physical quantity is conserved (energy, probability, etc.)."""
     drift = abs(final_value - initial_value)
     relative_drift = drift / abs(initial_value) if initial_value != 0 else drift
-    
+
     if drift > tolerance:
         pytest.fail(
             f"{quantity_name} not conserved:\n"
             f"  Initial:  {initial_value}\n"
-            f"  Final:    {final_value}\n" 
+            f"  Final:    {final_value}\n"
             f"  Drift:    {drift} (tolerance: {tolerance})\n"
             f"  Relative: {relative_drift:.2e}"
         )
@@ -189,7 +189,7 @@ def assert_integer_invariant(value, tolerance=1e-10, context=""):
     """Assert that a topological invariant remains integer-valued."""
     nearest_int = round(value)
     deviation = abs(value - nearest_int)
-    
+
     if deviation > tolerance:
         pytest.fail(
             f"Non-integer topological invariant {context}:\n"
@@ -204,7 +204,7 @@ def pytest_configure(config):
     """Configure custom pytest markers."""
     config.addinivalue_line("markers", "slow: marks tests as slow (> 5 seconds)")
     config.addinivalue_line("markers", "integration: marks integration tests")
-    config.addinivalue_line("markers", "mathematical: marks core mathematical property tests") 
+    config.addinivalue_line("markers", "mathematical: marks core mathematical property tests")
     config.addinivalue_line("markers", "numerical: marks numerical stability tests")
     config.addinivalue_line("markers", "property: marks property-based tests")
     config.addinivalue_line("markers", "benchmark: marks performance benchmark tests")
@@ -217,7 +217,7 @@ def pytest_collection_modifyitems(config, items):
     numerical_tests = []
     integration_tests = []
     other_tests = []
-    
+
     for item in items:
         if "mathematical" in item.keywords:
             mathematical_tests.append(item)
@@ -227,10 +227,10 @@ def pytest_collection_modifyitems(config, items):
             integration_tests.append(item)
         else:
             other_tests.append(item)
-    
+
     # Reorder: mathematical → numerical → other → integration (slowest last)
     items[:] = mathematical_tests + numerical_tests + other_tests + integration_tests
-    
+
     # Auto-mark slow tests
     slow_keywords = ["integration", "benchmark", "visualization"]
     for item in items:
@@ -244,7 +244,7 @@ def regression_data_path():
     """Path to golden reference data for regression tests."""
     return Path(__file__).parent / "tests" / "regression" / "golden_reference"
 
-@pytest.fixture 
+@pytest.fixture
 def temp_output_dir(tmp_path):
     """Temporary directory for test outputs (plots, data files, etc.)."""
     output_dir = tmp_path / "test_outputs"
@@ -265,12 +265,12 @@ def handle_test_warnings():
         # Convert mathematical warnings to errors
         warnings.filterwarnings('error', category=RuntimeWarning)
         warnings.filterwarnings('error', category=np.ComplexWarning)
-        
+
         # Allow some specific warnings that are expected
         warnings.filterwarnings('ignore', message='.*overflow.*', category=RuntimeWarning)
         warnings.filterwarnings('ignore', message='.*divide by zero.*', category=RuntimeWarning)
         warnings.filterwarnings('ignore', category=DeprecationWarning, module='matplotlib.*')
-        
+
         yield
 
 # ===== Performance Testing Utilities =====
@@ -280,7 +280,7 @@ def performance_threshold():
     """Performance thresholds for benchmark tests."""
     return {
         'gamma_function_1k_evals': 0.1,      # seconds
-        'phase_evolution_100_steps': 1.0,    # seconds  
+        'phase_evolution_100_steps': 1.0,    # seconds
         'visualization_render': 2.0,         # seconds
         'convergence_analysis': 5.0,         # seconds
     }

@@ -12,8 +12,10 @@ handling of edge cases and critical dimensions.
 """
 
 import numpy as np
-from .constants import PI, NUMERICAL_EPSILON, CRITICAL_DIMENSIONS
+
+from .constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI
 from .gamma import gamma_safe, gammaln_safe
+
 
 def ball_volume(d):
     """
@@ -57,19 +59,20 @@ def ball_volume(d):
         # Small values: direct computation
         if np.any(~large_mask):
             d_small = d[~large_mask]
-            log_vol = (d_small/2) * np.log(PI) - gammaln_safe(d_small/2 + 1)
+            log_vol = (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2 + 1)
             result[~large_mask] = np.exp(log_vol)
 
         # Large values: use log space
         if np.any(large_mask):
             d_large = d[large_mask]
-            log_vol = (d_large/2) * np.log(PI) - gammaln_safe(d_large/2 + 1)
+            log_vol = (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2 + 1)
             result[large_mask] = np.exp(np.real(log_vol))
 
         return result if d.ndim > 0 else float(result)
 
     # Normal computation
-    return PI**(d/2) / gamma_safe(d/2 + 1)
+    return PI ** (d / 2) / gamma_safe(d / 2 + 1)
+
 
 def sphere_surface(d):
     """
@@ -120,19 +123,24 @@ def sphere_surface(d):
         # Small values
         if np.any(~large_mask):
             d_small = d[~large_mask]
-            log_surf = np.log(2) + (d_small/2) * np.log(PI) - gammaln_safe(d_small/2)
+            log_surf = (
+                np.log(2) + (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2)
+            )
             result[~large_mask] = np.exp(log_surf)
 
         # Large values
         if np.any(large_mask):
             d_large = d[large_mask]
-            log_surf = np.log(2) + (d_large/2) * np.log(PI) - gammaln_safe(d_large/2)
+            log_surf = (
+                np.log(2) + (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2)
+            )
             result[large_mask] = np.exp(np.real(log_surf))
 
         return result if d.ndim > 0 else float(result)
 
     # Normal computation
-    return 2 * PI**(d/2) / gamma_safe(d/2)
+    return 2 * PI ** (d / 2) / gamma_safe(d / 2)
+
 
 def complexity_measure(d):
     """
@@ -153,6 +161,7 @@ def complexity_measure(d):
         Complexity measure C_d = V_d × S_d
     """
     return ball_volume(d) * sphere_surface(d)
+
 
 def ratio_measure(d):
     """
@@ -176,6 +185,7 @@ def ratio_measure(d):
     # Avoid division by zero
     return s / np.maximum(v, NUMERICAL_EPSILON)
 
+
 def phase_capacity(d):
     """
     Phase capacity at dimension d.
@@ -194,6 +204,7 @@ def phase_capacity(d):
         Phase capacity Λ(d) = V_d
     """
     return ball_volume(np.maximum(d, 0.01))  # Avoid d = 0 issues
+
 
 def find_peak(measure_func, d_min=0.1, d_max=15, num_points=5000):
     """
@@ -227,6 +238,7 @@ def find_peak(measure_func, d_min=0.1, d_max=15, num_points=5000):
 
     return finite_d[peak_idx], finite_values[peak_idx]
 
+
 def find_all_peaks():
     """
     Find peaks of all standard measures.
@@ -240,17 +252,18 @@ def find_all_peaks():
 
     # Volume peak
     vol_peak_d, vol_peak_val = find_peak(ball_volume)
-    results['volume_peak'] = (vol_peak_d, vol_peak_val)
+    results["volume_peak"] = (vol_peak_d, vol_peak_val)
 
     # Surface peak
     surf_peak_d, surf_peak_val = find_peak(sphere_surface)
-    results['surface_peak'] = (surf_peak_d, surf_peak_val)
+    results["surface_peak"] = (surf_peak_d, surf_peak_val)
 
     # Complexity peak
     comp_peak_d, comp_peak_val = find_peak(complexity_measure)
-    results['complexity_peak'] = (comp_peak_d, comp_peak_val)
+    results["complexity_peak"] = (comp_peak_d, comp_peak_val)
 
     return results
+
 
 def evaluate_at_critical_dimensions():
     """
@@ -262,11 +275,11 @@ def evaluate_at_critical_dimensions():
         Nested dictionary: {measure: {dimension: value}}
     """
     measures = {
-        'volume': ball_volume,
-        'surface': sphere_surface,
-        'complexity': complexity_measure,
-        'ratio': ratio_measure,
-        'phase_capacity': phase_capacity
+        "volume": ball_volume,
+        "surface": sphere_surface,
+        "complexity": complexity_measure,
+        "ratio": ratio_measure,
+        "phase_capacity": phase_capacity,
     }
 
     results = {}
@@ -280,6 +293,7 @@ def evaluate_at_critical_dimensions():
                 results[measure_name][dim_name] = f"Error: {e}"
 
     return results
+
 
 def integrated_measures(d_max=np.inf):
     """
@@ -301,15 +315,16 @@ def integrated_measures(d_max=np.inf):
     if d_max == np.inf:
         # Analytical values
         from .constants import E
-        vol_integral = 2 * E**(PI/4)
-        surf_integral = 2 * np.sqrt(PI) * E**(PI/4)
+
+        vol_integral = 2 * E ** (PI / 4)
+        surf_integral = 2 * np.sqrt(PI) * E ** (PI / 4)
         ratio = surf_integral / vol_integral  # Should be √π
 
         return {
-            'volume_integral': vol_integral,
-            'surface_integral': surf_integral,
-            'ratio': ratio,
-            'sqrt_pi_check': np.sqrt(PI)
+            "volume_integral": vol_integral,
+            "surface_integral": surf_integral,
+            "ratio": ratio,
+            "sqrt_pi_check": np.sqrt(PI),
         }
     else:
         # Numerical integration
@@ -325,10 +340,11 @@ def integrated_measures(d_max=np.inf):
         surf_int, _ = integrate.quad(integrand_s, 0, d_max)
 
         return {
-            'volume_integral': vol_int,
-            'surface_integral': surf_int,
-            'ratio': surf_int / vol_int if vol_int != 0 else np.inf
+            "volume_integral": vol_int,
+            "surface_integral": surf_int,
+            "ratio": surf_int / vol_int if vol_int != 0 else np.inf,
         }
+
 
 if __name__ == "__main__":
     print("DIMENSIONAL MEASURES")

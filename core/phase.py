@@ -15,8 +15,10 @@ Where R(s→t) is the sapping rate from dimension s to dimension t.
 """
 
 import numpy as np
-from .constants import PHI, PI, NUMERICAL_EPSILON
+
+from .constants import NUMERICAL_EPSILON, PHI, PI
 from .measures import phase_capacity
+
 
 def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     """
@@ -31,14 +33,14 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     # Distance calculation
     distance = target - source
     if distance < min_distance:
-        regularized_distance = min_distance + phi * (distance / min_distance)**2
+        regularized_distance = min_distance + phi * (distance / min_distance) ** 2
     else:
         regularized_distance = distance + phi
 
     # Target energy
     target_idx = int(target) if target == int(target) else None
     if target_idx is not None and 0 <= target_idx < len(phase_density):
-        target_energy = abs(phase_density[target_idx])**2
+        target_energy = abs(phase_density[target_idx]) ** 2
     else:
         target_energy = 0.0
 
@@ -73,6 +75,7 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
 
     return float(rate)
 
+
 def phase_evolution_step(phase_density, dt, max_dimension=None):
     """
     Energy-conserving phase evolution using direct energy transfers.
@@ -87,7 +90,7 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
         max_dimension = min(max_dimension, n_dims - 1)
 
     # Work with energies and phases separately for exact conservation
-    energies = np.abs(phase_density)**2
+    energies = np.abs(phase_density) ** 2
     phases = np.angle(phase_density)
 
     # Store initial total energy for verification
@@ -144,6 +147,7 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
 
     return new_phase_density, flow_matrix
 
+
 def emergence_threshold(dimension, phase_density):
     """
     Check if dimension has reached emergence threshold.
@@ -171,6 +175,7 @@ def emergence_threshold(dimension, phase_density):
 
     return current_phase >= capacity * 0.95  # 95% threshold for numerical stability
 
+
 def total_phase_energy(phase_density):
     """
     Calculate total phase energy in the system.
@@ -185,7 +190,8 @@ def total_phase_energy(phase_density):
     float
         Total energy = Σ_d |ρ_d|²
     """
-    return float(np.sum(np.abs(phase_density)**2))
+    return float(np.sum(np.abs(phase_density) ** 2))
+
 
 def phase_coherence(phase_density):
     """
@@ -215,6 +221,7 @@ def phase_coherence(phase_density):
     coherence = abs(mean_phase_vector)
 
     return float(coherence)
+
 
 def dimensional_time(dimension_trajectory, phi=PHI):
     """
@@ -247,6 +254,7 @@ def dimensional_time(dimension_trajectory, phi=PHI):
 
     return time
 
+
 def rk45_step(phase_density, dt, max_dimension=None, tol=1e-9):
     """
     Energy-conserving RK45 using energy-phase separation.
@@ -255,14 +263,15 @@ def rk45_step(phase_density, dt, max_dimension=None, tol=1e-9):
     phase_density = np.asarray(phase_density, dtype=complex)
 
     # Store initial energy for conservation check
-    initial_energy = np.sum(np.abs(phase_density)**2)
+    # (unused but kept for potential future use)
+    # initial_energy = np.sum(np.abs(phase_density) ** 2)
 
     # Always use direct method for better energy conservation and stability
     new_phase, flow_matrix = phase_evolution_step(phase_density, dt, max_dimension)
 
     # Calculate system activity-dependent error estimate
     # Higher system activity (larger phase values) should give higher error
-    system_activity = np.sum(np.abs(phase_density)**2)
+    system_activity = np.sum(np.abs(phase_density) ** 2)
     base_error = dt * 1e-6
     activity_factor = 1.0 + system_activity * 0.1  # Scale with energy
     error = base_error * activity_factor
@@ -270,6 +279,7 @@ def rk45_step(phase_density, dt, max_dimension=None, tol=1e-9):
     dt_next = dt * 1.1  # Modest increase
 
     return new_phase, dt_next, error
+
 
 class ConvergenceDiagnostics:
     """Track convergence metrics."""
@@ -310,17 +320,20 @@ class ConvergenceDiagnostics:
         """Return diagnostic dictionary."""
         # Calculate energy conservation error
         if len(self.energy_history) >= 2:
-            energy_conservation_error = abs(self.energy_history[-1] - self.energy_history[0])
+            energy_conservation_error = abs(
+                self.energy_history[-1] - self.energy_history[0]
+            )
         else:
             energy_conservation_error = 0.0
 
         return {
-            'energy_history': self.energy_history,
-            'rate_history': self.rate_history,
-            'converged': self.is_converged(),
-            'is_converged': self.is_converged(),  # Add expected key
-            'energy_conservation_error': energy_conservation_error  # Add expected key
+            "energy_history": self.energy_history,
+            "rate_history": self.rate_history,
+            "converged": self.is_converged(),
+            "is_converged": self.is_converged(),  # Add expected key
+            "energy_conservation_error": energy_conservation_error,  # Add expected key
         }
+
 
 class TopologicalInvariants:
     """Track integer topological invariants."""
@@ -356,7 +369,10 @@ class TopologicalInvariants:
         violations = []
         for d in range(self.max_dim):
             if old_cherns[d] != 0 and self.chern_numbers[d] != old_cherns[d]:
-                violations.append(f"Chern number violation at dimension {d}: {old_cherns[d]} -> {self.chern_numbers[d]}")
+                violations.append(
+                    f"Chern number violation at dimension {d}: "
+                    f"{old_cherns[d]} -> {self.chern_numbers[d]}"
+                )
         return violations
 
     def enforce_quantization(self, phase_density):
@@ -376,6 +392,7 @@ class TopologicalInvariants:
                 corrected_phase[d] = amplitude * np.exp(1j * quantized_phase)
 
         return corrected_phase
+
 
 class PhaseDynamicsEngine:
     """
@@ -397,7 +414,7 @@ class PhaseDynamicsEngine:
         self.diagnostics = ConvergenceDiagnostics()
         self.invariants = TopologicalInvariants(max_dimensions)
         self.use_adaptive = use_adaptive
-        self.dt_last = 0.1 # Initial guess for dt
+        self.dt_last = 0.1  # Initial guess for dt
 
     def step(self, dt):
         """Advance simulation by one time step."""
@@ -434,14 +451,18 @@ class PhaseDynamicsEngine:
                     energy_error = abs(new_energy - old_energy)
 
                     # If energy error is too large, reduce step size and retry
-                    if energy_error > 1e-12 and dt_try > 1e-12 and attempts < max_attempts - 5:
+                    if (
+                        energy_error > 1e-12
+                        and dt_try > 1e-12
+                        and attempts < max_attempts - 5
+                    ):
                         dt = dt_try * 0.5
                         attempts += 1
                         continue
 
                     self.phase_density = phase_new
                     dt_taken += dt_try
-                    dt = min(dt_next, 0.1, dt_remaining) # Cap maximum step
+                    dt = min(dt_next, 0.1, dt_remaining)  # Cap maximum step
 
                     self._update_emergence_and_history(dt_try)
                 else:
@@ -454,7 +475,10 @@ class PhaseDynamicsEngine:
             attempts += 1
 
         if attempts >= max_attempts:
-            print(f"Warning: Max attempts reached. Progress: {dt_taken/dt_target:.1%}")
+            print(
+                f"Warning: Max attempts reached. "
+                f"Progress: {dt_taken / dt_target:.1%}"
+            )
 
     def _update_emergence_and_history(self, dt):
         """Helper to update emergence tracking and history."""
@@ -462,10 +486,12 @@ class PhaseDynamicsEngine:
         violations = self.invariants.update_invariants(self.phase_density)
         if violations:
             print(f"Warning: Topological violations detected: {violations}")
-            self.phase_density = self.invariants.enforce_quantization(self.phase_density)
+            self.phase_density = self.invariants.enforce_quantization(
+                self.phase_density
+            )
 
         # Update diagnostics - pass total energy instead of phase array
-        total_energy = np.sum(np.abs(self.phase_density)**2)
+        total_energy = np.sum(np.abs(self.phase_density) ** 2)
         self.diagnostics.update(total_energy, self.flow_matrix)
 
         # Check for new emergences
@@ -476,13 +502,15 @@ class PhaseDynamicsEngine:
         self.time += dt
 
         # Store history
-        self.history.append({
-            'time': self.time,
-            'phase_density': self.phase_density.copy(),
-            'emerged': self.emerged.copy(),
-            'total_energy': total_phase_energy(self.phase_density),
-            'coherence': phase_coherence(self.phase_density)
-        })
+        self.history.append(
+            {
+                "time": self.time,
+                "phase_density": self.phase_density.copy(),
+                "emerged": self.emerged.copy(),
+                "total_energy": total_phase_energy(self.phase_density),
+                "coherence": phase_coherence(self.phase_density),
+            }
+        )
 
     def clock_rate_modulation(self, dimension):
         """
@@ -512,7 +540,7 @@ class PhaseDynamicsEngine:
             # Reduce clock rate based on sapping
             if abs(self.phase_density[dimension]) > NUMERICAL_EPSILON:
                 sapping_factor = rate * abs(self.phase_density[dimension])
-                clock_rate *= (1.0 - min(0.5, sapping_factor))
+                clock_rate *= 1.0 - min(0.5, sapping_factor)
 
         return max(0.1, clock_rate)  # Don't let time stop completely
 
@@ -524,13 +552,14 @@ class PhaseDynamicsEngine:
     def get_state(self):
         """Get current state summary."""
         return {
-            'time': self.time,
-            'emerged_dimensions': sorted(list(self.emerged)),
-            'total_energy': total_phase_energy(self.phase_density),
-            'coherence': phase_coherence(self.phase_density),
-            'phase_densities': self.phase_density.copy(),
-            'diagnostics': self.diagnostics.get_diagnostics()
+            "time": self.time,
+            "emerged_dimensions": sorted(list(self.emerged)),
+            "total_energy": total_phase_energy(self.phase_density),
+            "coherence": phase_coherence(self.phase_density),
+            "phase_densities": self.phase_density.copy(),
+            "diagnostics": self.diagnostics.get_diagnostics(),
         }
+
 
 if __name__ == "__main__":
     print("PHASE DYNAMICS TEST")
@@ -550,6 +579,10 @@ if __name__ == "__main__":
 
         if step % 20 == 0:
             state = engine.get_state()
-            print(f"Step {step}: t={state['time']:.2f}, emerged={state['emerged_dimensions']}, energy={state['total_energy']:.4f}")
+            print(
+                f"Step {step}: t={state['time']:.2f}, "
+                f"emerged={state['emerged_dimensions']}, "
+                f"energy={state['total_energy']:.4f}"
+            )
 
     print(f"Final state: {engine.get_state()}")
