@@ -14,8 +14,17 @@ Quick start:
 """
 
 # CONSOLIDATED MATHEMATICS IMPORT - Single source of truth
-# Import enhanced interface functions from legacy modules
+# Import all mathematical functions from consolidated modules
 from .gamma import (
+    # Core mathematical functions
+    gamma_safe,
+    gammaln_safe, 
+    digamma_safe,
+    factorial_extension,
+    beta_function,
+    # Dimensional measure aliases
+    v, s, c, r,
+    # Interactive functions
     abs_γ,
     c_peak,
     demo,
@@ -39,6 +48,45 @@ from .gamma import (
     ψ,
 )
 
+# Import all consolidated measure functions
+from .measures import (
+    # Core mathematical functions
+    ball_volume,
+    sphere_surface, 
+    complexity_measure,
+    ratio_measure,
+    phase_capacity,
+    find_peak,
+    find_all_peaks,
+    # Aliases
+    V, S, C, R,
+    # Enhanced analysis tools
+    comparative_plot,
+    critical_analysis,
+    measures_explorer,
+    peak_finder,
+    surface_ratio,
+    volume_ratio,
+)
+
+# Import all consolidated phase functions
+from .phase import (
+    # Core mathematical functions
+    sap_rate,
+    phase_evolution_step,
+    emergence_threshold,
+    total_phase_energy,
+    phase_coherence,
+    dimensional_time,
+    # Classes
+    PhaseDynamicsEngine,
+    ConvergenceDiagnostics,
+    TopologicalInvariants,
+    # Enhanced analysis tools
+    quick_emergence_analysis,
+    quick_phase_analysis,
+)
+
 # Import emergence simulation with fallback
 try:
     from ..analysis.emergence_framework import run_emergence_simulation
@@ -51,15 +99,7 @@ except ImportError:
             return {"status": "analysis_module_not_available"}
 
 
-# Import enhanced interface functions from specialized modules
-from .measures import (
-    comparative_plot,
-    critical_analysis,
-    measures_explorer,
-    peak_finder,
-    surface_ratio,
-    volume_ratio,
-)
+# Import enhanced morphic functions
 from .morphic import (
     generate_morphic_sequence,
     make_rotor,
@@ -68,7 +108,6 @@ from .morphic import (
     real_roots,
     sample_loop_xyz,
 )
-from .phase import quick_emergence_analysis
 from .pregeometry import PreGeometry, PreGeometryVisualizer
 
 # Import modern visualization components
