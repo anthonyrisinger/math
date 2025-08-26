@@ -13,7 +13,7 @@ Complete validation of all Sprint 3 funded requirements:
 
 import numpy as np
 
-from dimensional.sprint3_production import (
+from dimensional.production import (
     TechnicalDebtCleanupSystem,
     UltraHighPerformanceComputing,
 )

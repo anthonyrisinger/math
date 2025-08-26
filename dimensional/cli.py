@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """
-Dimensional Mathematics CLI
-===========================
+Consolidated Dimensional Mathematics CLI
+=======================================
 
-Unified, type-safe, AI-composable command-line interface for the dimensional
-mathematics framework. Built with modern libraries for maximum flexibility
-and AI interaction.
+Unified, type-safe, AI-composable command-line interface combining all CLI
+features into a single, production-ready interface.
 
-Key Features:
-- Type-safe commands with pydantic validation
+Architectural Features:
+- Type-safe commands with pydantic validation (from cli_enhanced.py)
 - Rich terminal output with beautiful formatting
-- Composable commands for AI-generated workflows
-- Auto-completion and help generation
-- Consistent parameter patterns across all tools
+- Complete command set with AI-friendly batch processing
+- Comprehensive mathematical function coverage
+- Production-ready error handling and validation
 """
 
 import importlib.util
@@ -52,11 +51,13 @@ except ImportError:
         return None
 
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import track
+from rich.progress import track, Progress, SpinnerColumn, BarColumn, TaskProgressColumn, TextColumn
 from rich.table import Table
+from rich import box
+from typing import Annotated, Literal
 
 # Import our consolidated modules
 from .gamma import (
@@ -93,6 +94,48 @@ app = typer.Typer(
     rich_markup_mode="rich",
     no_args_is_help=True,
 )
+
+# ============================================================================
+# TYPE-SAFE COMMAND MODELS (from cli_enhanced.py)
+# ============================================================================
+
+
+class DimensionRange(BaseModel):
+    """Type-safe dimensional range with validation."""
+
+    start: float = Field(ge=0, description="Starting dimension (≥ 0)")
+    end: float = Field(gt=0, description="Ending dimension (> 0)")
+    points: int = Field(ge=10, le=10000, default=1000, description="Number of points")
+
+    @property
+    def linspace(self) -> np.ndarray:
+        """Generate linspace array."""
+        return np.linspace(self.start, self.end, self.points)
+
+
+class AnalysisConfig(BaseModel):
+    """Type-safe analysis configuration."""
+
+    precision: int = Field(ge=6, le=20, default=15, description="Decimal precision")
+    tolerance: float = Field(
+        ge=1e-16, le=1e-6, default=1e-12, description="Numerical tolerance"
+    )
+    format: Literal["table", "json", "csv"] = Field(
+        default="table", description="Output format"
+    )
+    save: bool = Field(default=False, description="Save results to file")
+
+
+class ExplorationMode(BaseModel):
+    """Type-safe exploration mode."""
+
+    mode: Literal["basic", "detailed", "advanced"] = Field(default="basic")
+    include_peaks: bool = Field(default=True, description="Include peak analysis")
+    include_critical: bool = Field(
+        default=True, description="Include critical dimensions"
+    )
+    visualize: bool = Field(default=False, description="Generate visualizations")
+
 
 # ============================================================================
 # ULTRA-FAST PROTOTYPING SHORTCUTS
