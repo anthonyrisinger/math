@@ -15,11 +15,14 @@ and interactive research tools through a single unified interface.
 
 
 # Direct imports - no defensive fallbacks
+# Consolidated imports
 from .mathematics import CRITICAL_DIMENSIONS, PHI, PI, E
-from .measures import C as complexity_measure
-from .measures import S as sphere_surface
-from .measures import V as ball_volume
-from .measures import find_all_peaks
+from .measures import (
+    C as complexity_measure,
+    S as sphere_surface, 
+    V as ball_volume,
+    find_all_peaks,
+)
 from .phase import PhaseDynamicsEngine
 from .pregeometry import PreGeometry
 

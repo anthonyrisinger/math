@@ -25,8 +25,17 @@ from typing import Any, Callable, Optional
 import numpy as np
 
 # Import mathematical functions for benchmarking
-from .gamma import factorial_extension, gamma_safe
-from .measures import ball_volume, complexity_measure, sphere_surface
+# Import from consolidated mathematics module
+from .mathematics import (
+    ball_volume,
+    complexity_measure, 
+    sphere_surface,
+    gamma_safe,
+    gammaln_safe,
+    DimensionalError,
+    NumericalInstabilityError,
+)
+from .gamma import factorial_extension
 
 
 @dataclass
@@ -101,7 +110,8 @@ class PerformanceProfiler:
             for inp in test_inputs[:10]:  # Use subset for warmup
                 try:
                     func(inp)
-                except BaseException:
+                except (DimensionalError, NumericalInstabilityError):
+                    # Skip problematic computations during warmup
                     pass
 
         # Benchmark phase
@@ -117,7 +127,7 @@ class PerformanceProfiler:
                     # Basic sanity check
                     if not np.isfinite(result):
                         errors += 1
-                except Exception:
+                except (DimensionalError, NumericalInstabilityError, OverflowError):
                     errors += 1
 
             end_time = time.perf_counter()
@@ -705,7 +715,7 @@ class Sprint3PerformanceOptimizer:
         log_pi = np.log(np.pi)
 
         # Import gamma functions
-        from .gamma import gammaln_safe
+        # gammaln_safe already imported from mathematics module
 
         # Use vectorized gamma functions
         log_gamma_half_plus_1 = np.array(
@@ -768,9 +778,9 @@ class Sprint3PerformanceOptimizer:
             half_d = 0.5 * non_zero_dims
 
             # Import gamma functions
-            from .gamma import gammaln_safe
+            # gammaln_safe already imported from mathematics module
 
-            # Use optimized gamma computation
+            # Use optimized gamma computation  
             log_gamma_vals = np.array([gammaln_safe(hd) for hd in half_d])
             log_gamma_plus_one_vals = np.array(
                 [gammaln_safe(hd + 1) for hd in half_d]

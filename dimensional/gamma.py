@@ -10,16 +10,16 @@ Consolidated mathematical implementation with enhanced exploration tools.
 import numpy as np
 from scipy.special import digamma, gamma, gammaln
 
-# Import constants from consolidated mathematics module
+# Consolidated mathematics imports
 from .mathematics import (
     GAMMA_OVERFLOW_THRESHOLD,
     LOG_SPACE_THRESHOLD,
     NUMERICAL_EPSILON,
+    ball_volume as v,
+    complexity_measure as c,
+    ratio_measure as r,
+    sphere_surface as s,
 )
-from .mathematics import ball_volume as v
-from .mathematics import complexity_measure as c
-from .mathematics import ratio_measure as r
-from .mathematics import sphere_surface as s
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 

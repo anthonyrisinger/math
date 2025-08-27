@@ -14,41 +14,47 @@ Quick start:
 """
 
 # CONSOLIDATED MATHEMATICS IMPORT - Single source of truth
-# Import all mathematical functions from consolidated modules
+# Import all mathematical functions from consolidated mathematics module
 
-# Import core constants and mathematical framework
-from .gamma import (
-    c_peak,
-    gamma_safe,
-    gammaln_safe,
-    quick_gamma_analysis,
-    s_peak,
-    v_peak,
-)
-from .interface import UnifiedInterface
+# Import standardized exception classes and core mathematics
 from .mathematics import (
+    # Exception classes
+    DimensionalError,
+    NumericalInstabilityError,
+    ConvergenceError,
+    InvalidDimensionError,
+    # Constants
     CRITICAL_DIMENSIONS,
     PHI,
     PI,
     PSI,
     VARPI,
+    NUMERICAL_EPSILON,
+    # Core functions
     ball_volume,
     complexity_measure,
     sphere_surface,
+    gamma_safe,
+    gammaln_safe,
+    find_peak,
 )
-from .mathematics.functions import find_all_peaks, find_peak
+
+# Import module-specific functions
+from .gamma import (
+    c_peak,
+    quick_gamma_analysis,
+    s_peak,
+    v_peak,
+)
+from .interface import UnifiedInterface
+from .mathematics.functions import find_all_peaks
 from .measures import find_all_peaks as measures_find_all_peaks
 from .phase import PhaseDynamicsEngine, quick_phase_analysis
 
-# API aliases for common usage
-V = ball_volume    # V(d) = d-dimensional ball volume
-S = sphere_surface # S(d) = d-dimensional sphere surface
-C = complexity_measure # C(d) = V(d) * S(d)
-
-# Lowercase aliases for user convenience
-v = ball_volume    # v(d) = d-dimensional ball volume
-s = sphere_surface # s(d) = d-dimensional sphere surface
-c = complexity_measure # c(d) = V(d) * S(d)
+# Consolidated API aliases - both uppercase and lowercase
+V = v = ball_volume          # V(d) = v(d) = d-dimensional ball volume
+S = s = sphere_surface       # S(d) = s(d) = d-dimensional sphere surface  
+C = c = complexity_measure   # C(d) = c(d) = V(d) * S(d)
 
 
 # Direct emergence simulation import
@@ -64,13 +70,12 @@ def run_emergence_simulation(*args, **kwargs):
 # Import enhanced morphic functions
 
 # Import modern visualization components
-# TEMPORARILY DISABLED - BLOCKING GAMMA MODULE IMPORTS
-# try:
-#     from visualization import PlotlyDashboard, KingdonRenderer
-#     from visualization.modernized_dashboard import create_modern_dashboard
-#     VISUALIZATION_AVAILABLE = True
-# except ImportError:
-VISUALIZATION_AVAILABLE = False
+try:
+    from visualization import PlotlyDashboard, KingdonRenderer
+    from visualization.modernized_dashboard import create_modern_dashboard
+    VISUALIZATION_AVAILABLE = True
+except ImportError:
+    VISUALIZATION_AVAILABLE = False
 
 # Package metadata
 __version__ = "1.0.0"

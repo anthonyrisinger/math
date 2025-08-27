@@ -19,7 +19,14 @@ Where R(s→t) is the sapping rate from dimension s to dimension t.
 import numpy as np
 
 # Import constants and measures from consolidated mathematics module
-from .mathematics import NUMERICAL_EPSILON, PHI, phase_capacity
+from .mathematics import (
+    NUMERICAL_EPSILON, 
+    PHI, 
+    phase_capacity,
+    DimensionalError,
+    NumericalInstabilityError,
+    ConvergenceError,
+)
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
@@ -484,7 +491,7 @@ class PhaseDynamicsEngine:
                     # More conservative reduction
                     dt = max(dt_try * 0.7, 1e-15)
 
-            except Exception as e:
+            except (NumericalInstabilityError, ConvergenceError, OverflowError) as e:
                 dt = max(dt * 0.5, 1e-15)
                 print(f"Numerical issue in adaptive step: {e}")
 
