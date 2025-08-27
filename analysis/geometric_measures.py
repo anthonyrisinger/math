@@ -16,7 +16,6 @@ Core geometric formulas:
 import warnings
 from typing import Any, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.special import gamma, gammaln
 

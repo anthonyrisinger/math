@@ -12,9 +12,9 @@ import sys
 # Add current directory to path for imports
 sys.path.insert(0, ".")
 
-# Check for dashboard_core availability
+# Check for modernized dashboard availability  
 try:
-    __import__("dashboard_core")
+    from visualization.modernized_dashboard import ModernDashboard
     DASHBOARD_AVAILABLE = True
 except ImportError:
     DASHBOARD_AVAILABLE = False

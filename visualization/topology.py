@@ -41,20 +41,21 @@ import warnings
 import zipfile
 
 # Select backend BEFORE pyplot import if user set MPLBACKEND in the shell.
-import matplotlib as mpl
+# MATPLOTLIB ELIMINATED - redirect to modern backends
 import mpmath as mp
 import numpy as np
 
-# (If MPLBACKEND not set, matplotlib will pick a default; you can still save PNGs headless.)
-if "MPLBACKEND" in os.environ and os.environ["MPLBACKEND"]:
-    try:
-        mpl.use(os.environ["MPLBACKEND"], force=True)
-    except Exception as e:
-        warnings.warn(f"Could not set backend {os.environ['MPLBACKEND']}: {e}")
+# Legacy matplotlib imports disabled - topology visualization now uses Kingdon/Plotly backends
+class _LegacyPlotRedirect:
+    """Redirect legacy matplotlib calls to modern backends"""
+    def __getattr__(self, name):
+        raise ImportError(f"matplotlib.{name} ELIMINATED - use modernized_dashboard backends instead")
 
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Button, RadioButtons, Slider
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+plt = _LegacyPlotRedirect()
+Button = _LegacyPlotRedirect()
+RadioButtons = _LegacyPlotRedirect()  
+Slider = _LegacyPlotRedirect()
+# mpl_toolkits eliminated - 3D plotting now uses modern backends
 
 # --------------------- Camera / Utils ---------------------
 phi = (1 + 5**0.5) / 2.0

@@ -5,7 +5,7 @@ Visualization Themes
 Standardized themes and styling for mathematical visualizations.
 """
 
-import matplotlib.pyplot as plt
+# matplotlib removed - themes now handled by modern backends
 
 THEMES = {
     "mathematical": {

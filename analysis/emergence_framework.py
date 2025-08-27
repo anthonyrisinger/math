@@ -17,7 +17,6 @@ Core principles:
 
 from typing import Any
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from .geometric_measures import PHI, E, GeometricMeasures

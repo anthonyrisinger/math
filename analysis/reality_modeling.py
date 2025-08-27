@@ -17,7 +17,6 @@ Core insights:
 
 from typing import Any, Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from .emergence_framework import EmergenceFramework
