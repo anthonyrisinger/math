@@ -66,19 +66,15 @@ def DimensionalDashboard(*args, **kwargs):
     return create_modern_dashboard(backend="auto")
 
 
-# Legacy imports (DEPRECATED)
-try:
-    from .themes import apply_theme, get_theme
-    from .topology import TopologyVisualizer
-except ImportError:
-    # Graceful degradation if legacy modules unavailable
-    TopologyVisualizer = None
+# Legacy imports (DEPRECATED) - Direct implementations for astronomical SNR
+# TopologyVisualizer eliminated - use ModernDashboard instead
+TopologyVisualizer = None
 
-    def get_theme():
-        return "modern"
+def get_theme():
+    return "modern"
 
-    def apply_theme(x):
-        return None
+def apply_theme(x):
+    return None
 
 
 # Public API exports

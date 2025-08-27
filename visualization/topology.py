@@ -1274,43 +1274,97 @@ def render(
 
 
 # --------------------- Portfolio helpers ---------------------
-from matplotlib.backends.backend_pdf import PdfPages
+from PIL import Image, ImageDraw, ImageFont
 
 
 def export_portfolio_pdf(
     png_glob="fig_*.png", pdf_path="Topological_Visual_Portfolio.pdf"
 ):
     pngs = sorted(glob.glob(png_glob))
-    with PdfPages(pdf_path) as pdf:
-        fig = plt.figure(figsize=(8.5, 11))
-        ax = fig.add_subplot(111)
-        ax.axis("off")
-        ax.text(
-            0.05,
-            0.92,
-            "Topological Visual Portfolio (Orthographic 3D)",
-            fontsize=16,
-            weight="bold",
-        )
-        ax.text(
-            0,
-            0.88,
-            "Camera: orthographic • box aspect (1,1,1) • view (deg(φ−1), −45°)",
-            fontsize=10,
-        )
-        ax.text(0.05, 0.83, "Contains figures matching:", fontsize=10)
-        ax.text(0.07, 0.80, png_glob, fontsize=10, style="italic")
-        pdf.savefig(fig)
-        plt.close(fig)
-        for p in pngs:
-            img = plt.imread(p)
-            fig = plt.figure(figsize=(10, 7.5))
-            ax = fig.add_subplot(111)
-            ax.axis("off")
-            ax.imshow(img)
-            ax.set_title(os.path.basename(p), fontsize=10)
-            pdf.savefig(fig)
-            plt.close(fig)
+    
+    # Create list to hold all pages
+    pages = []
+    
+    # Create title page (8.5x11 inches at 72 DPI = 612x792 pixels)
+    title_page = Image.new('RGB', (612, 792), 'white')
+    draw = ImageDraw.Draw(title_page)
+    
+    # Try to load fonts, fallback to default if not available
+    try:
+        title_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 16)
+        body_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 10)
+        italic_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 10)
+    except (OSError, IOError):
+        title_font = ImageFont.load_default()
+        body_font = ImageFont.load_default()
+        italic_font = ImageFont.load_default()
+    
+    # Draw title page text
+    draw.text((30, 70), "Topological Visual Portfolio (Orthographic 3D)", 
+              fill='black', font=title_font)
+    draw.text((0, 105), "Camera: orthographic • box aspect (1,1,1) • view (deg(φ−1), −45°)", 
+              fill='black', font=body_font)
+    draw.text((30, 135), "Contains figures matching:", fill='black', font=body_font)
+    draw.text((42, 155), png_glob, fill='black', font=italic_font)
+    
+    pages.append(title_page)
+    
+    # Add PNG images as separate pages
+    for p in pngs:
+        try:
+            img = Image.open(p)
+            # Convert to RGB if necessary
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Create a new page (10x7.5 inches at 72 DPI = 720x540 pixels)
+            page = Image.new('RGB', (720, 540), 'white')
+            
+            # Calculate scaling to fit image on page with some margin
+            margin = 40
+            max_width = 720 - 2 * margin
+            max_height = 500  # Leave room for title
+            
+            # Scale image to fit
+            img_ratio = img.width / img.height
+            page_ratio = max_width / max_height
+            
+            if img_ratio > page_ratio:
+                # Image is wider, scale by width
+                new_width = max_width
+                new_height = int(max_width / img_ratio)
+            else:
+                # Image is taller, scale by height
+                new_height = max_height
+                new_width = int(max_height * img_ratio)
+            
+            img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            # Center the image on the page
+            x = (720 - new_width) // 2
+            y = margin
+            page.paste(img_resized, (x, y))
+            
+            # Add title below image
+            draw_page = ImageDraw.Draw(page)
+            filename = os.path.basename(p)
+            # Get text dimensions for centering
+            bbox = draw_page.textbbox((0, 0), filename, font=body_font)
+            text_width = bbox[2] - bbox[0]
+            text_x = (720 - text_width) // 2
+            text_y = y + new_height + 10
+            
+            draw_page.text((text_x, text_y), filename, fill='black', font=body_font)
+            
+            pages.append(page)
+        except Exception as e:
+            print(f"Warning: Could not process image {p}: {e}")
+            continue
+    
+    # Save all pages as PDF
+    if pages:
+        pages[0].save(pdf_path, save_all=True, append_images=pages[1:], format='PDF')
+    
     return pdf_path
 
 

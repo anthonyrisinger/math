@@ -42,7 +42,6 @@ def read_long_description():
 CORE_REQUIREMENTS = [
     "numpy>=1.21.0",
     "scipy>=1.7.0",
-    "matplotlib>=3.5.0",
     "click>=8.0.0",
     "pydantic>=2.0.0",
     "rich>=13.0.0",

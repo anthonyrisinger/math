@@ -177,16 +177,10 @@ def beta_function(a, b):
 
 
 # DIMENSIONAL MEASURE IMPORTS AND ALIASES
-try:
-    from .mathematics import ball_volume as v
-    from .mathematics import complexity_measure as c
-    from .mathematics import ratio_measure as r
-    from .mathematics import sphere_surface as s
-except ImportError:
-    from .mathematics import ball_volume as v
-    from .mathematics import complexity_measure as c
-    from .mathematics import ratio_measure as r
-    from .mathematics import sphere_surface as s
+from .mathematics import ball_volume as v
+from .mathematics import complexity_measure as c
+from .mathematics import ratio_measure as r
+from .mathematics import sphere_surface as s
 
 
 # Create density function
@@ -198,30 +192,21 @@ def ρ(d):
 # Import peak finding functions - create shortcuts
 def v_peak():
     """Find volume peak dimension."""
-    try:
-        from .mathematics import ball_volume, find_peak
-    except ImportError:
-        from .mathematics import ball_volume, find_peak
+    from .mathematics import ball_volume, find_peak
 
     return find_peak(ball_volume)[0]
 
 
 def s_peak():
     """Find surface peak dimension."""
-    try:
-        from .mathematics import find_peak, sphere_surface
-    except ImportError:
-        from .mathematics import find_peak, sphere_surface
+    from .mathematics import find_peak, sphere_surface
 
     return find_peak(sphere_surface)[0]
 
 
 def c_peak():
     """Find complexity peak dimension."""
-    try:
-        from .mathematics import complexity_measure, find_peak
-    except ImportError:
-        from .mathematics import complexity_measure, find_peak
+    from .mathematics import complexity_measure, find_peak
 
     return find_peak(complexity_measure)[0]
 
@@ -377,20 +362,17 @@ def qplot(*funcs, labels=None):
     results = {}
 
     for i, func in enumerate(funcs):
-        try:
-            y_vals = [func(d) for d in d_vals]
-            label = labels[i] if labels and i < len(labels) else f"Function {i+1}"
-            y_finite = [y for y in y_vals if np.isfinite(y)]
+        y_vals = [func(d) for d in d_vals]
+        label = labels[i] if labels and i < len(labels) else f"Function {i+1}"
+        y_finite = [y for y in y_vals if np.isfinite(y)]
 
-            results[label] = {
-                "x_values": d_vals,
-                "y_values": y_vals,
-                "finite_count": len(y_finite),
-                "total_count": len(y_vals),
-                "value_range": (min(y_finite), max(y_finite)) if y_finite else None,
-            }
-        except Exception as e:
-            results[label] = {"error": str(e)}
+        results[label] = {
+            "x_values": d_vals,
+            "y_values": y_vals,
+            "finite_count": len(y_finite),
+            "total_count": len(y_vals),
+            "value_range": (min(y_finite), max(y_finite)) if y_finite else None,
+        }
 
     return results
 

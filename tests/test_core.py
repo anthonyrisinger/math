@@ -337,25 +337,47 @@ class TestMorphicMathematics:
 class TestVisualization:
     """Test visualization functions."""
 
-    def test_3d_setup(self):
-        """Test 3D axis setup (without actually displaying)."""
+    def test_view_preserving_3d_class(self):
+        """Test ViewPreserving3D class functionality."""
         if not IMPORT_SUCCESS:
             pytest.skip("Import failed")
 
-        try:
-            import matplotlib.pyplot as plt
+        from visualization.view_3d import ViewPreserving3D
 
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection="3d")
+        # Create instance
+        view_3d = ViewPreserving3D()
 
-            # Test setup function
-            ax = setup_3d_axis(ax, title="Test")
+        # Test initial state
+        assert hasattr(view_3d, 'current_elev')
+        assert hasattr(view_3d, 'current_azim')
+        assert hasattr(view_3d, 'view_changed')
+        assert view_3d.view_changed == False
 
-            # Should not raise errors
-            plt.close(fig)
+        # Test view saving/restoring (mock object)
+        class MockAxis:
+            def __init__(self):
+                self.elev = 25.0
+                self.azim = 45.0
+            
+            def view_init(self, elev=None, azim=None):
+                if elev is not None:
+                    self.elev = elev
+                if azim is not None:
+                    self.azim = azim
 
-        except ImportError:
-            pytest.skip("Matplotlib not available")
+        mock_ax = MockAxis()
+        
+        # Test save view
+        view_3d.save_view(mock_ax)
+        assert view_3d.current_elev == 25.0
+        assert view_3d.current_azim == 45.0
+
+        # Test restore view
+        mock_ax.elev = 10.0  # Change view
+        mock_ax.azim = 20.0
+        view_3d.restore_view(mock_ax)
+        assert mock_ax.elev == 25.0  # Should be restored
+        assert mock_ax.azim == 45.0
 
     def test_figure_creation(self):
         """Test figure creation."""

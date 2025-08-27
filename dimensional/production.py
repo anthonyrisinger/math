@@ -41,30 +41,16 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
-# Import core mathematical functions with hybrid pattern for both package and direct execution
-try:
-    # Try relative imports first (when used as package)
-    from .mathematics import (
-        NUMERICAL_EPSILON,
-        PI,
-        ball_volume,
-        complexity_measure,
-        gamma_safe,
-        gammaln_safe,
-        sphere_surface,
-    )
-except ImportError:
-    # Fallback for direct execution or test collection
-    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-    from .mathematics import (
-        NUMERICAL_EPSILON,
-        PI,
-        ball_volume,
-        complexity_measure,
-        gamma_safe,
-        gammaln_safe,
-        sphere_surface,
-    )
+# Import core mathematical functions
+from .mathematics import (
+    NUMERICAL_EPSILON,
+    PI,
+    ball_volume,
+    complexity_measure,
+    gamma_safe,
+    gammaln_safe,
+    sphere_surface,
+)
 
 
 @dataclass

@@ -125,27 +125,20 @@ def known_dimensional_measures():
 @pytest.fixture
 def golden_phase_engine():
     """Phase dynamics engine with well-tested 'golden' parameters."""
-    try:
-        from dimensional.mathematics import PhaseDynamicsEngine
-
-        return PhaseDynamicsEngine(max_dimensions=6, use_adaptive=True)
-    except ImportError:
-        pytest.skip("PhaseDynamicsEngine not available")
+    from dimensional.phase import PhaseDynamicsEngine
+    return PhaseDynamicsEngine(max_dimensions=6, use_adaptive=True)
 
 
 @pytest.fixture
 def stress_test_engine():
     """Phase engine configured for stress testing extreme conditions."""
-    try:
-        from dimensional.mathematics import PhaseDynamicsEngine
-
-        engine = PhaseDynamicsEngine(max_dimensions=12, use_adaptive=True)
-        # Add some initial energy for interesting dynamics
-        engine.inject_energy(dimension=1, amount=0.5)
-        engine.inject_energy(dimension=2, amount=0.2)
-        return engine
-    except ImportError:
-        pytest.skip("PhaseDynamicsEngine not available")
+    from dimensional.phase import PhaseDynamicsEngine
+    
+    engine = PhaseDynamicsEngine(max_dimensions=12, use_adaptive=True)
+    # Add some initial energy for interesting dynamics
+    engine.inject_energy(dimension=1, amount=0.5)
+    engine.inject_energy(dimension=2, amount=0.2)
+    return engine
 
 
 # ===== Helper Functions =====
@@ -296,12 +289,9 @@ def handle_test_warnings():
     with warnings.catch_warnings():
         # Convert mathematical warnings to errors
         warnings.filterwarnings("error", category=RuntimeWarning)
-        # NumPy 2.0 compatibility: ComplexWarning was removed
-        try:
+        # Direct numpy warning handling - eliminate defensive try/except
+        if hasattr(np, 'ComplexWarning'):
             warnings.filterwarnings("error", category=np.ComplexWarning)
-        except AttributeError:
-            # NumPy 2.0+ doesn't have ComplexWarning
-            pass
 
         # Allow some specific warnings that are expected
         warnings.filterwarnings(

@@ -288,12 +288,6 @@ def info(ctx):
     except ImportError:
         click.echo("❌ SciPy not available")
 
-    # Matplotlib elimination status
-    click.echo("\n💀 Matplotlib Elimination Status:")
-    if importlib.util.find_spec("matplotlib"):
-        click.echo("⚠️  Matplotlib still present (not used in modern backends)")
-    else:
-        click.echo("✅ Matplotlib successfully eliminated")
 
 
 @viz.command()

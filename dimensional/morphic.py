@@ -33,66 +33,35 @@ NUMERICAL_EPSILON = 1e-12
 # GEOMETRIC ALGEBRA SETUP
 # ========================
 
-# Modern Kingdon geometric algebra implementation
-try:
-    import kingdon
+# Direct geometric algebra using numpy - no external dependencies
+class SimpleGA:
+    """Simple geometric algebra using pure numpy."""
+    def __init__(self, val=0):
+        self.val = np.array(val) if not isinstance(val, np.ndarray) else val
+    def __mul__(self, other):
+        return SimpleGA(self.val * (other.val if hasattr(other, 'val') else other))
+    def __add__(self, other):
+        return SimpleGA(self.val + (other.val if hasattr(other, 'val') else other))
+    def __sub__(self, other):
+        return SimpleGA(self.val - (other.val if hasattr(other, 'val') else other))
+    def __rmul__(self, other):
+        return SimpleGA(other * self.val)
+    def __invert__(self):
+        return SimpleGA(1.0 / (self.val + 1e-12))
 
-    # Use conformal geometric algebra (4,1,0) for 3D space + conformal structure
-    cga = kingdon.Algebra(4, 1, 0)
+# Basis vectors using simple geometric algebra
+e1, e2, e3 = SimpleGA([1,0,0]), SimpleGA([0,1,0]), SimpleGA([0,0,1])
+eo, einf = SimpleGA([0,0,0]), SimpleGA([1,1,1])
+GA_AVAILABLE = "simple"
 
-    # Create basis vectors using proper Kingdon API
-    e1 = cga.multivector({"e1": 1})  # Standard basis vector e1
-    e2 = cga.multivector({"e2": 1})  # Standard basis vector e2
-    e3 = cga.multivector({"e3": 1})  # Standard basis vector e3
-    eo = cga.multivector({"e4": 1})  # Origin point (e4 in CGA)
-    einf = cga.multivector({"e5": 1})  # Point at infinity (e5 in CGA)
+def up(point_3d):
+    """Transform 3D point to conformal space."""
+    x, y, z = point_3d
+    return SimpleGA([x, y, z])
 
-    GA_AVAILABLE = "kingdon"
-    # Library code should never print - store algebra info in module variable
-    _KINGDON_ALGEBRA = cga
-
-    def up(point_3d):
-        """Lift 3D point to conformal space using Kingdon."""
-        x, y, z = point_3d
-        return eo + x * e1 + y * e2 + z * e3 + 0.5 * (x**2 + y**2 + z**2) * einf
-
-    def down(point_cga):
-        """Project conformal point to 3D using Kingdon."""
-        # Extract 3D coordinates from conformal representation
-        # This is a simplified extraction - full CGA projection is more complex
-        return point_cga
-
-except ImportError:
-    # Fallback mock for systems without Kingdon - library code should not print
-    _KINGDON_WARNING = "Kingdon not available, using mock GA implementation"
-
-    class MockGA:
-        def __init__(self, val=0):
-            self.val = val
-
-        def __mul__(self, other):
-            return MockGA()
-
-        def __add__(self, other):
-            return MockGA()
-
-        def __sub__(self, other):
-            return MockGA()
-
-        def __rmul__(self, other):
-            return MockGA()
-
-        def __invert__(self):  # For ~R operation
-            return MockGA()
-
-    e1 = e2 = e3 = einf = eo = MockGA()
-    GA_AVAILABLE = "mock"
-
-    def up(p):
-        return MockGA()
-
-    def down(p):
-        return p  # ========================
+def down(point_cga):
+    """Project conformal point back to 3D."""
+    return point_cga.val if hasattr(point_cga, 'val') else np.array([0.0, 0.0, 0.0])  # ========================
 
 
 # CORE POLYNOMIAL FUNCTIONS

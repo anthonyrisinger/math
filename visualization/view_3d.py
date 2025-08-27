@@ -7,7 +7,7 @@ Base class for 3D visualizations that preserves view angles during animation.
 Solves the problem of view resetting during updates.
 """
 
-from core.constants import VIEW_AZIM, VIEW_ELEV
+from dimensional.mathematics.constants import VIEW_AZIM, VIEW_ELEV
 
 
 class ViewPreserving3D:
