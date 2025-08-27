@@ -263,7 +263,7 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture
 def regression_data_path():
     """Path to golden reference data for regression tests."""
-    return Path(__file__).parentt / "tests" / "regression" / "golden_reference"
+    return Path(__file__).parent / "tests" / "regression" / "golden_reference"
 
 
 @pytest.fixture

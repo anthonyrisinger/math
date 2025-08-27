@@ -167,16 +167,15 @@ class ModernDashboard:
         time = self.parameters["time"]
 
         # Import mathematical components
-        from ..core.measures import DimensionalMeasures
-        from ..core.phase import PhaseDynamicsEngine
+        from ..dimensional.measures import ball_volume, sphere_surface
+        from ..dimensional.phase import PhaseDynamicsEngine
 
-        measures = DimensionalMeasures()
         phase_engine = PhaseDynamicsEngine()
 
         # Generate dimensional landscape data
         d_range = np.linspace(0.1, 12, 100)
-        volumes = [measures.ball_volume(d) for d in d_range]
-        surfaces = [measures.sphere_surface(d) for d in d_range]
+        volumes = [ball_volume(d) for d in d_range]
+        surfaces = [sphere_surface(d) for d in d_range]
         complexity = [v * s for v, s in zip(volumes, surfaces)]
 
         # Generate emergence cascade data

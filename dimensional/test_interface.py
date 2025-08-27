@@ -8,7 +8,6 @@ Tests mathematical correctness, numerical stability, edge cases,
 and usability of the API.
 """
 
-import os
 import sys
 
 import numpy as np
@@ -16,8 +15,6 @@ import pytest
 
 # Test imports - this will immediately reveal import issues
 try:
-    # Note: core module is being phased out during consolidation
-    # import core  # Temporarily commented out during consolidation
     from dimensional.mathematics import (
         CRITICAL_DIMENSIONS,
         PHI,

@@ -309,19 +309,12 @@ class PreGeometryVisualizer:
 
         # Get probability density and phase
         prob_density = self.pregeom.get_probability_density()[::10]
-        # phase_field = self.pregeom.get_phase_field()[::10]  # Unused in
-        # deprecated viz
 
         # Create surface using probability as radius
         R = np.outer(np.ones_like(theta), prob_density * 5 + 0.1)
         X = N
         Y = R * np.cos(Theta)
         Z = R * np.sin(Theta)
-
-        # Color by phase (deprecated visualization code)
-        # colors = np.outer(np.ones_like(theta), phase_field)  # Unused
-        # colors_normalized = (colors + PI) / (2 * PI)  # Unused in deprecated
-        # code
 
         self.ax3d.plot_surface(
             X,
