@@ -311,7 +311,7 @@ Where ψ is the digamma function (not the golden conjugate here).
 
 ### 2.2 The V×S Product: The Fundamental Measure
 
-The complexity measure C(d) = V(d) × S(d) peaks at d ≈ 6, revealing WHERE the universe has maximum capacity for both internal structure and boundary interface. This is not arbitrary—it represents the optimal balance between:
+The complexity measure C(d) = V(d) × S(d) peaks at d ≈ 6.335, revealing WHERE the universe has maximum capacity for both internal structure and boundary interface. This is not arbitrary—it represents the optimal balance between:
 
 - **Interior capacity** for information storage (V)
 - **Boundary capacity** for information exchange (S)
@@ -319,7 +319,7 @@ The complexity measure C(d) = V(d) × S(d) peaks at d ≈ 6, revealing WHERE the
 
 Our 3+1 dimensional spacetime sits at d=4, safely below the complexity peak but above the π-stability boundary, in the sweet spot where:
 ```
-π < d < peak(C) < 2π
+π < d < peak(C) ≈ 6.335 < 2π
 ```
 
 ### 2.3 The Integral Limits and Transcendental Ratios
@@ -412,7 +412,7 @@ From the Python simulations, the exact emergence sequence:
 Λ(3) = 4.189  → emerges at t≈5.8
 Λ(4) = 4.935  → emerges at t≈9.1 (our dimension)
 Λ(5) = 5.264  → emerges at t≈13.5
-Λ(6) = 5.168  → emerges at t≈19.2 (complexity peak)
+Λ(6) = 5.168  → emerges at t≈19.2 (near complexity peak)
 ```
 
 The cascade slows as dimension increases because:
@@ -441,7 +441,7 @@ inject(d=1, E=0.3) at t=2.0  → triggers d=2 emergence
 inject(d=2, E=0.2) at t=3.0  → triggers d=3 emergence
 ```
 
-But injections at d>6 dissipate rapidly due to compression, suggesting a natural barrier to dimensional expansion beyond the complexity peak.
+But injections at d>6.335 dissipate rapidly due to compression, suggesting a natural barrier to dimensional expansion beyond the complexity peak.
 
 ---
 
@@ -649,9 +649,9 @@ t = φ∫dd                        # Time from dimension
 Critical Values:
 d_void = 0                      # Pure potential
 d_π = π ≈ 3.14159              # Stability boundary
-d_v = 5.256...                  # Volume peak
-d_c ≈ 6                         # Complexity peak
-d_s = 7.256...                  # Surface peak
+d_v = 5.257...                  # Volume peak
+d_c = 6.335...                  # Complexity peak
+d_s = 7.257...                  # Surface peak
 d_2π = 2π ≈ 6.283              # Compression boundary
 d_max = 24                      # Leech lattice limit
 
