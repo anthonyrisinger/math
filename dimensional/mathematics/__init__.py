@@ -78,7 +78,7 @@ from .validation import validate_mathematical_properties
 # Exception classes available for import
 __all__ = [
     # Exception classes
-    'DimensionalError', 'NumericalInstabilityError', 
+    'DimensionalError', 'NumericalInstabilityError',
     'ConvergenceError', 'InvalidDimensionError',
     # Constants
     'CRITICAL_DIMENSIONS', 'GAMMA_OVERFLOW_THRESHOLD', 'LOG_SPACE_THRESHOLD',

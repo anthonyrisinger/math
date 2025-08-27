@@ -52,7 +52,7 @@ demo = [
 "Documentation" = "https://dimensional-math.readthedocs.io/"
 
 [project.scripts]
-dimensional-demo = "demo.advanced_math_demo:main"
+dimensional-demo = "demo.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

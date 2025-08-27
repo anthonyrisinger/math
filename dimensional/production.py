@@ -20,13 +20,13 @@ import numpy as np
 from .mathematics import (
     NUMERICAL_EPSILON,
     PI,
+    DimensionalError,
+    NumericalInstabilityError,
     ball_volume,
     complexity_measure,
     gamma_safe,
     gammaln_safe,
     sphere_surface,
-    DimensionalError,
-    NumericalInstabilityError,
 )
 
 
@@ -270,7 +270,7 @@ class UltraHighPerformanceComputing:
             np.linspace(0.01, 20.0, 1000),
             [PI/2, PI, 3*PI/2, 2*PI, np.e, np.sqrt(2), np.sqrt(3)]
         ])
-        
+
         cached_count = 0
         for x in common_inputs:
             if x > 0:
@@ -495,24 +495,24 @@ class UltraHighPerformanceComputing:
         dimensions = np.random.uniform(0.1, 10.0, num_operations)
         self.cache.clear()
         self.current_cache_size = 0
-        
+
         _ = self.complexity_measure_ultra_optimized(dimensions[:100])
-        
+
         start_time = time.perf_counter()
         self.complexity_measure_ultra_optimized(dimensions)
         ops_per_sec = num_operations / (time.perf_counter() - start_time)
-        
+
         test_subset = dimensions[:500]
         reference = np.array([complexity_measure(d) for d in test_subset])
         optimized = self.complexity_measure_ultra_optimized(test_subset)
-        
+
         rel_errors = np.abs(reference - optimized) / np.maximum(np.abs(reference), 1e-15)
         max_error = np.max(rel_errors)
-        
+
         cache_hit_rate = self.cache_stats["hits"] / max(
             self.cache_stats["hits"] + self.cache_stats["misses"], 1
         )
-        
+
         return {
             "ops_per_sec": ops_per_sec,
             "max_relative_error": max_error,
@@ -522,7 +522,7 @@ class UltraHighPerformanceComputing:
 
 class TechnicalDebtCleanupSystem:
     """Technical debt cleanup system."""
-    
+
     def cleanup(self) -> dict[str, Any]:
         """Run cleanup analysis."""
         gc.collect()
@@ -538,10 +538,10 @@ def validate_production_system() -> dict[str, Any]:
     """Validate production system performance and compression."""
     ultra_computing = UltraHighPerformanceComputing(cache_size_mb=50)
     debt_cleaner = TechnicalDebtCleanupSystem()
-    
+
     # Performance test
     performance_results = ultra_computing.benchmark_performance()
-    
+
     # Compression test
     try:
         from dimensional.symbolic import SymbolicMathematicalCompressor
@@ -551,17 +551,17 @@ def validate_production_system() -> dict[str, Any]:
         compression_ratio = stats.get("compression_ratio", 1.0)
     except ImportError:
         compression_ratio = 2.5  # Default good ratio
-    
+
     # Cleanup test
     debt_results = debt_cleaner.cleanup()
-    
+
     ops_sec = performance_results["ops_per_sec"]
     performance_target = ops_sec >= 50000
     compression_target = compression_ratio >= 2.0
     debt_target = debt_results["overall_score"] >= 0.8
-    
+
     success_rate = sum([performance_target, compression_target, debt_target]) / 3
-    
+
     return {
         "ops_per_sec": ops_sec,
         "compression_ratio": compression_ratio,

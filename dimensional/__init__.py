@@ -17,79 +17,78 @@ Quick start:
 # Import all mathematical functions from consolidated mathematics module
 
 # Import standardized exception classes and core mathematics
-from .mathematics import (
-    # Exception classes
-    DimensionalError,
-    NumericalInstabilityError,
-    ConvergenceError,
-    InvalidDimensionError,
-    # Constants
-    CRITICAL_DIMENSIONS,
-    PHI,
-    PI,
-    PSI,
-    VARPI,
-    NUMERICAL_EPSILON,
-    # Core functions
-    ball_volume,
-    complexity_measure,
-    sphere_surface,
-    gamma_safe,
-    gammaln_safe,
-    find_peak,
+# Import algebraic structures
+from .algebra import (
+    CliffordAlgebra,
+    CliffordMultivector,
+    DimensionalGroupAction,
+    LieAlgebra,
+    LieGroup,
+    Octonion,
+    Quaternion,
+    SLnGroup,
+    SLnLieAlgebra,
+    SO3Group,
+    SO3LieAlgebra,
+    analyze_dimensional_symmetries,
 )
 
 # Import module-specific functions
 from .gamma import (
     c_peak,
+    explore,
+    instant,
+    lab,
+    peaks,
     quick_gamma_analysis,
     s_peak,
     v_peak,
-    peaks,
-    lab,
-    explore,
-    instant,
+)
+from .mathematics import (
+    # Constants
+    CRITICAL_DIMENSIONS,
+    NUMERICAL_EPSILON,
+    PHI,
+    PI,
+    PSI,
+    VARPI,
+    ConvergenceError,
+    # Exception classes
+    DimensionalError,
+    InvalidDimensionError,
+    NumericalInstabilityError,
+    # Core functions
+    ball_volume,
+    complexity_measure,
+    find_peak,
+    gamma_safe,
+    gammaln_safe,
+    sphere_surface,
 )
 
-# Import spectral analysis capabilities  
+# Import spectral analysis capabilities
 from .spectral import (
     DimensionalOperator,
-    dimensional_spectral_density,
-    detect_dimensional_resonances,
     analyze_critical_point_spectrum,
-    quick_spectral_analysis,
     analyze_emergence_spectrum,
-    fractal_harmonic_analysis,
+    detect_dimensional_resonances,
+    dimensional_spectral_density,
     dimensional_wavelet_analysis,
-)
-
-# Import algebraic structures
-from .algebra import (
-    CliffordAlgebra,
-    CliffordMultivector,
-    LieAlgebra,
-    LieGroup,
-    SO3LieAlgebra,
-    SO3Group,
-    SLnLieAlgebra,
-    SLnGroup,
-    Quaternion,
-    Octonion,
-    DimensionalGroupAction,
-    analyze_dimensional_symmetries,
+    fractal_harmonic_analysis,
+    quick_spectral_analysis,
 )
 
 # Import enhanced research CLI functions (gracefully handle missing deps)
 try:
     from .research_cli import (
-        enhanced_lab,
-        enhanced_explore, 
-        enhanced_instant,
-        ResearchSession,
-        ResearchPersistence,
-        RichVisualizer,
         InteractiveParameterSweep,
-        PublicationExporter
+        PublicationExporter,
+        ResearchPersistence,
+        ResearchSession,
+        RichVisualizer,
+        enhanced_explore,
+        enhanced_instant,
+        enhanced_lab,
     )
     ENHANCED_RESEARCH_AVAILABLE = True
 except ImportError:
@@ -101,7 +100,7 @@ from .phase import PhaseDynamicsEngine, quick_phase_analysis
 
 # Consolidated API aliases - both uppercase and lowercase
 V = v = ball_volume          # V(d) = v(d) = d-dimensional ball volume
-S = s = sphere_surface       # S(d) = s(d) = d-dimensional sphere surface  
+S = s = sphere_surface       # S(d) = s(d) = d-dimensional sphere surface
 C = c = complexity_measure   # C(d) = c(d) = V(d) * S(d)
 
 
@@ -119,7 +118,7 @@ def run_emergence_simulation(*args, **kwargs):
 
 # Import modern visualization components
 try:
-    from visualization import PlotlyDashboard, KingdonRenderer
+    from visualization import KingdonRenderer, PlotlyDashboard
     from visualization.modernized_dashboard import create_modern_dashboard
     VISUALIZATION_AVAILABLE = True
 except ImportError:
@@ -139,7 +138,7 @@ def quick_start():
     if ENHANCED_RESEARCH_AVAILABLE:
         print("  🔬 RESEARCH MODE:")
         print("    enhanced_lab(4)     # Full research laboratory")
-        print("    enhanced_explore(4) # Guided dimensional discovery") 
+        print("    enhanced_explore(4) # Guided dimensional discovery")
         print("    enhanced_instant()  # Multi-panel analysis")
         print("\n  📊 PARAMETER SWEEPS:")
         print("    sweeper = InteractiveParameterSweep(visualizer)")
@@ -156,7 +155,7 @@ def quick_start():
         print("    exporter.export_csv_data(sweep)")
     else:
         print("  [Basic mode - install research dependencies for enhanced features]")
-        
+
     print("\n🚀 Basic Commands:")
     print("  explore(4)     # Explore dimension 4")
     print("  peaks()        # Find all peaks")

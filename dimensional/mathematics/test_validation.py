@@ -3,13 +3,12 @@
 Tests for validation module.
 """
 
-import pytest
 from .validation import PropertyValidator
 
 
 class TestValidation:
     """Test validation functions."""
-    
+
     def test_property_validator_creation(self):
         """Test PropertyValidator can be instantiated."""
         validator = PropertyValidator()

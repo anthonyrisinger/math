@@ -20,12 +20,11 @@ import numpy as np
 
 # Import constants and measures from consolidated mathematics module
 from .mathematics import (
-    NUMERICAL_EPSILON, 
-    PHI, 
-    phase_capacity,
-    DimensionalError,
-    NumericalInstabilityError,
+    NUMERICAL_EPSILON,
+    PHI,
     ConvergenceError,
+    NumericalInstabilityError,
+    phase_capacity,
 )
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/

@@ -24,18 +24,19 @@ from typing import Any, Callable, Optional
 
 import numpy as np
 
+from .gamma import factorial_extension
+
 # Import mathematical functions for benchmarking
 # Import from consolidated mathematics module
 from .mathematics import (
-    ball_volume,
-    complexity_measure, 
-    sphere_surface,
-    gamma_safe,
-    gammaln_safe,
     DimensionalError,
     NumericalInstabilityError,
+    ball_volume,
+    complexity_measure,
+    gamma_safe,
+    gammaln_safe,
+    sphere_surface,
 )
-from .gamma import factorial_extension
 
 
 @dataclass
@@ -780,7 +781,7 @@ class Sprint3PerformanceOptimizer:
             # Import gamma functions
             # gammaln_safe already imported from mathematics module
 
-            # Use optimized gamma computation  
+            # Use optimized gamma computation
             log_gamma_vals = np.array([gammaln_safe(hd) for hd in half_d])
             log_gamma_plus_one_vals = np.array(
                 [gammaln_safe(hd + 1) for hd in half_d]

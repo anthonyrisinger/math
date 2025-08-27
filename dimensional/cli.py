@@ -17,7 +17,6 @@ Architectural Features:
 import importlib.util
 import json
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import typer
@@ -30,11 +29,13 @@ try:
 except ImportError:
     HAS_PLOTLY = False
     go = None
-    make_subplots = lambda **kwargs: None
+    def make_subplots(**kwargs):
+        return None
 
 
 # Consolidated external imports
 from typing import Literal
+
 from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.panel import Panel
@@ -43,7 +44,14 @@ from rich.table import Table
 
 # Consolidated dimensional imports
 from .gamma import (
-    demo, explore, gamma_safe, instant, lab, live, peaks, qplot,
+    demo,
+    explore,
+    gamma_safe,
+    instant,
+    lab,
+    live,
+    peaks,
+    qplot,
 )
 from .measures import c, s, v
 from .phase import PhaseDynamicsEngine
@@ -167,7 +175,6 @@ def shortcut_gamma(
     value: float = typer.Argument(..., help="🔢 Value for gamma function")
 ):
     """⚡ Ultra-fast gamma calculation: dim g 2.5"""
-    from .gamma import gamma_safe
 
     result = gamma_safe(value)
     console.print(f"Γ({value}) = {result:.6f}")
@@ -293,7 +300,6 @@ def _evaluate_expression(expr: str, output_format: str = "human"):
     expr = expr.strip()
 
     # Import mathematical functions
-    from .gamma import gamma_safe
     from .measures import ball_volume, complexity_measure, sphere_surface
 
     # Simple expression patterns for AI workflows
@@ -459,10 +465,10 @@ def cli_explore(
     try:
         from .research_cli import enhanced_explore
         results = enhanced_explore(dimension, context)
-        
+
         if save_analysis:
             console.print("💾 [green]Analysis results available for export[/green]")
-        
+
         return results
     except ImportError:
         console.print("[yellow]⚠️  Enhanced features unavailable, using basic exploration[/yellow]")
@@ -503,7 +509,7 @@ def cli_instant(
     config: str = typer.Option(
         "research",
         "--config",
-        "-c", 
+        "-c",
         help="⚡ Analysis configuration: research, peaks, discovery, publication"
     )
 ):
@@ -516,7 +522,7 @@ def cli_instant(
             border_style="red",
         )
     )
-    
+
     try:
         from .research_cli import enhanced_instant
         results = enhanced_instant(config)
@@ -528,7 +534,7 @@ def cli_instant(
 
 
 # ============================================================================
-# ENHANCED RESEARCH COMMANDS  
+# ENHANCED RESEARCH COMMANDS
 # ============================================================================
 
 
@@ -543,7 +549,7 @@ def cli_sweep(
     if end <= start:
         console.print("[red]❌ End dimension must be greater than start[/red]")
         raise typer.Exit(1)
-    
+
     console.print(
         Panel.fit(
             f"🔄 [bold blue]Parameter Sweep Analysis[/bold blue]\n"
@@ -552,25 +558,29 @@ def cli_sweep(
             border_style="blue",
         )
     )
-    
+
     try:
-        from .research_cli import InteractiveParameterSweep, RichVisualizer, PublicationExporter
-        
+        from .research_cli import (
+            InteractiveParameterSweep,
+            PublicationExporter,
+            RichVisualizer,
+        )
+
         visualizer = RichVisualizer()
         sweeper = InteractiveParameterSweep(visualizer)
-        
-        sweep_results = sweeper.run_dimension_sweep(start, end, steps, 
+
+        sweep_results = sweeper.run_dimension_sweep(start, end, steps,
                                                    notes="CLI parameter sweep")
-        
+
         visualizer.show_parameter_sweep_analysis(sweep_results)
-        
+
         if export:
             exporter = PublicationExporter()
             filepath = exporter.export_csv_data(sweep_results)
             console.print(f"💾 [green]Results exported to {filepath}[/green]")
-        
+
         return sweep_results
-        
+
     except ImportError:
         console.print("[red]❌ Enhanced research features not available[/red]")
         raise typer.Exit(1)
@@ -581,34 +591,34 @@ def cli_sessions():
     """💾 List and manage research sessions."""
     try:
         from .research_cli import ResearchPersistence
-        
+
         persistence = ResearchPersistence()
         sessions = persistence.list_sessions()
-        
+
         if not sessions:
             console.print("[yellow]📁 No research sessions found[/yellow]")
             return
-        
+
         table = Table(title="💾 Research Sessions")
         table.add_column("Session ID", style="cyan")
         table.add_column("Start Time", style="yellow")
         table.add_column("Age", style="green")
-        
+
         from datetime import datetime
         now = datetime.now()
-        
+
         for session_id, start_time in sessions:
             age = now - start_time
             age_str = f"{age.days}d {age.seconds//3600}h" if age.days > 0 else f"{age.seconds//3600}h {(age.seconds//60)%60}m"
-            
+
             table.add_row(
                 session_id,
                 start_time.strftime('%Y-%m-%d %H:%M:%S'),
                 age_str
             )
-        
+
         console.print(table)
-        
+
         # Offer to load a session
         if len(sessions) > 0:
             load_session = typer.confirm("Would you like to load a session?")
@@ -621,7 +631,7 @@ def cli_sessions():
                     visualizer.show_session_overview(loaded)
                 else:
                     console.print(f"[red]❌ Session {session_id} not found[/red]")
-        
+
     except ImportError:
         console.print("[red]❌ Enhanced research features not available[/red]")
 
@@ -634,22 +644,22 @@ def cli_research():
             "🔬 [bold magenta]Comprehensive Research Mode[/bold magenta]\n"
             "Launching enhanced research laboratory with full capabilities:\n"
             "• Interactive exploration with session persistence\n"
-            "• Parameter sweeps with real-time visualization\n" 
+            "• Parameter sweeps with real-time visualization\n"
             "• Publication-quality export system\n"
             "• Rich terminal mathematical displays",
             border_style="magenta",
         )
     )
-    
+
     try:
         from .research_cli import enhanced_lab
-        
+
         # Start with comprehensive research configuration
         session = enhanced_lab(4.0)  # Start at dimension 4
-        
+
         console.print(f"🎯 [green]Research session completed: {session.session_id}[/green]")
         return session
-        
+
     except ImportError:
         console.print("[red]❌ Enhanced research features not available[/red]")
         console.print("Install additional dependencies for full research capabilities")

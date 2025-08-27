@@ -15,9 +15,17 @@ from .mathematics import (
     GAMMA_OVERFLOW_THRESHOLD,
     LOG_SPACE_THRESHOLD,
     NUMERICAL_EPSILON,
+)
+from .mathematics import (
     ball_volume as v,
+)
+from .mathematics import (
     complexity_measure as c,
+)
+from .mathematics import (
     ratio_measure as r,
+)
+from .mathematics import (
     sphere_surface as s,
 )
 
@@ -473,7 +481,7 @@ class LiveGamma:
 
 def lab(start_d=4.0):
     """Launch enhanced interactive gamma function laboratory.
-    
+
     This function now redirects to the enhanced research CLI for
     full interactive capabilities with session persistence.
 
