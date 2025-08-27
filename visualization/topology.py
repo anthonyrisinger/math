@@ -9,7 +9,7 @@ Two CLIs:
       python topo_viz.py figure -savefig=fig.png bz_torus_bulged m=0.5 Nk=85 alpha=0.12 -dpi=220
 
   • Argparse (typed kwargs):
-      python topo_viz.py --list
+      python topo_viz.py --lis
       python topo_viz.py --scene qwz_curvature --kwargs "{'m':0.5,'Nk':101}" --out fig.png --dpi 240 --show
 
 Interactivity backends (choose ONE per run, set from the shell BEFORE running):
@@ -53,7 +53,7 @@ class _LegacyPlotRedirect:
 
 plt = _LegacyPlotRedirect()
 Button = _LegacyPlotRedirect()
-RadioButtons = _LegacyPlotRedirect()  
+RadioButtons = _LegacyPlotRedirect()
 Slider = _LegacyPlotRedirect()
 # mpl_toolkits eliminated - 3D plotting now uses modern backends
 
@@ -1281,14 +1281,14 @@ def export_portfolio_pdf(
     png_glob="fig_*.png", pdf_path="Topological_Visual_Portfolio.pdf"
 ):
     pngs = sorted(glob.glob(png_glob))
-    
+
     # Create list to hold all pages
     pages = []
-    
+
     # Create title page (8.5x11 inches at 72 DPI = 612x792 pixels)
     title_page = Image.new('RGB', (612, 792), 'white')
     draw = ImageDraw.Draw(title_page)
-    
+
     # Try to load fonts, fallback to default if not available
     try:
         title_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 16)
@@ -1298,17 +1298,17 @@ def export_portfolio_pdf(
         title_font = ImageFont.load_default()
         body_font = ImageFont.load_default()
         italic_font = ImageFont.load_default()
-    
-    # Draw title page text
-    draw.text((30, 70), "Topological Visual Portfolio (Orthographic 3D)", 
+
+    # Draw title page tex
+    draw.text((30, 70), "Topological Visual Portfolio (Orthographic 3D)",
               fill='black', font=title_font)
-    draw.text((0, 105), "Camera: orthographic • box aspect (1,1,1) • view (deg(φ−1), −45°)", 
+    draw.text((0, 105), "Camera: orthographic • box aspect (1,1,1) • view (deg(φ−1), −45°)",
               fill='black', font=body_font)
     draw.text((30, 135), "Contains figures matching:", fill='black', font=body_font)
     draw.text((42, 155), png_glob, fill='black', font=italic_font)
-    
+
     pages.append(title_page)
-    
+
     # Add PNG images as separate pages
     for p in pngs:
         try:
@@ -1316,35 +1316,35 @@ def export_portfolio_pdf(
             # Convert to RGB if necessary
             if img.mode != 'RGB':
                 img = img.convert('RGB')
-            
+
             # Create a new page (10x7.5 inches at 72 DPI = 720x540 pixels)
             page = Image.new('RGB', (720, 540), 'white')
-            
+
             # Calculate scaling to fit image on page with some margin
             margin = 40
             max_width = 720 - 2 * margin
             max_height = 500  # Leave room for title
-            
-            # Scale image to fit
-            img_ratio = img.width / img.height
-            page_ratio = max_width / max_height
-            
+
+            # Scale image to fi
+            img_ratio = img.width / img.heigh
+            page_ratio = max_width / max_heigh
+
             if img_ratio > page_ratio:
                 # Image is wider, scale by width
                 new_width = max_width
                 new_height = int(max_width / img_ratio)
             else:
-                # Image is taller, scale by height
-                new_height = max_height
+                # Image is taller, scale by heigh
+                new_height = max_heigh
                 new_width = int(max_height * img_ratio)
-            
+
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-            
+
             # Center the image on the page
             x = (720 - new_width) // 2
             y = margin
             page.paste(img_resized, (x, y))
-            
+
             # Add title below image
             draw_page = ImageDraw.Draw(page)
             filename = os.path.basename(p)
@@ -1353,18 +1353,18 @@ def export_portfolio_pdf(
             text_width = bbox[2] - bbox[0]
             text_x = (720 - text_width) // 2
             text_y = y + new_height + 10
-            
+
             draw_page.text((text_x, text_y), filename, fill='black', font=body_font)
-            
+
             pages.append(page)
         except Exception as e:
             print(f"Warning: Could not process image {p}: {e}")
             continue
-    
+
     # Save all pages as PDF
     if pages:
         pages[0].save(pdf_path, save_all=True, append_images=pages[1:], format='PDF')
-    
+
     return pdf_path
 
 

@@ -121,7 +121,7 @@ class TestMorphicPolynomialProperties:
         roots_shifted = morphic_polynomial_roots(k, mode="shifted")
         roots_simple = morphic_polynomial_roots(k, mode="simple")
 
-        # For cubic polynomials: Δ > 0 means 3 distinct real roots, Δ < 0 means 1 real root
+        # For cubic polynomials: Δ > 0 means 3 distinct real roots, Δ < 0 means 1 real roo
         if disc_shifted > NUMERICAL_EPSILON:
             assert (
                 len(roots_shifted) == 3
@@ -227,7 +227,7 @@ class TestMorphicGeometricInvariants:
         # At minimum, verify we get consistent results
         assume(len(roots_original) > 0)
 
-        # Test that polynomial evaluation is consistent
+        # Test that polynomial evaluation is consisten
         for root in roots_original:
             poly_val = root**3 - (2 - k) * root - 1
             assert abs(poly_val) < 1e-10, f"Scaled verification failed for root {root}"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for Dimensional Mathematics Project
+Setup script for Dimensional Mathematics Projec
 ================================================
 
 Install with:

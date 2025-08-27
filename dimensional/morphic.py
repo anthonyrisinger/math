@@ -49,9 +49,28 @@ class SimpleGA:
     def __invert__(self):
         return SimpleGA(1.0 / (self.val + 1e-12))
 
+# Mock GA for fallback cases
+class MockGA:
+    """Mock geometric algebra object for fallback."""
+    def __init__(self, val=0):
+        self.val = val
+    def __mul__(self, other):
+        return MockGA(0)
+    def __add__(self, other):
+        return MockGA(0)
+    def __sub__(self, other):
+        return MockGA(0)
+
+# Simple CGA implementation
+class SimpleCGA:
+    """Simple conformal geometric algebra."""
+    def multivector(self, components):
+        return SimpleGA(1.0)  # Return identity elemen
+
 # Basis vectors using simple geometric algebra
 e1, e2, e3 = SimpleGA([1,0,0]), SimpleGA([0,1,0]), SimpleGA([0,0,1])
 eo, einf = SimpleGA([0,0,0]), SimpleGA([1,1,1])
+cga = SimpleCGA()
 GA_AVAILABLE = "simple"
 
 def up(point_3d):
@@ -77,7 +96,7 @@ def morphic_polynomial_roots(k: float, mode: str = "shifted") -> np.ndarray:
 
     Parameters
     ----------
-    k : float
+    k : floa
         Parameter value
     mode : str
         Polynomial family ("shifted" or "simple")
@@ -122,14 +141,14 @@ def discriminant(k: float, mode: str = "shifted") -> float:
 
     Parameters
     ----------
-    k : float
+    k : floa
         Parameter value
     mode : str
         Polynomial family
 
     Returns
     -------
-    float
+    floa
         Discriminant value
     """
     if mode == "shifted":
@@ -157,7 +176,7 @@ def k_perfect_circle(mode: str = "shifted") -> float:
 
     Returns
     -------
-    float
+    floa
         Critical k value
     """
     if mode == "shifted":
@@ -181,7 +200,7 @@ def k_discriminant_zero(mode: str = "shifted") -> float:
 
     Returns
     -------
-    float
+    floa
         Critical k value where discriminant vanishes
     """
     if mode == "shifted":
@@ -212,7 +231,7 @@ def golden_ratio_properties() -> dict[str, Any]:
 
     Returns
     -------
-    dict
+    dic
         Golden ratio mathematical properties
     """
     phi = PHI
@@ -244,12 +263,12 @@ def morphic_scaling_factor(phi: float = PHI) -> float:
 
     Parameters
     ----------
-    phi : float
+    phi : floa
         Golden ratio value
 
     Returns
     -------
-    float
+    floa
         Scaling factor φ^(1/φ) ≈ 1.465
     """
     return phi ** (1 / phi)
@@ -264,9 +283,9 @@ def generate_morphic_sequence(n_terms: int, phi: float = PHI) -> np.ndarray:
 
     Parameters
     ----------
-    n_terms : int
+    n_terms : in
         Number of terms to generate
-    phi : float
+    phi : floa
         Golden ratio
 
     Returns
@@ -305,7 +324,7 @@ def make_rotor(tau: float):
 
     Parameters
     ----------
-    tau : float
+    tau : floa
         Transformation parameter
 
     Returns
@@ -336,7 +355,7 @@ def sample_loop_xyz(tau: float, theta: np.ndarray) -> np.ndarray:
 
     Parameters
     ----------
-    tau : float
+    tau : floa
         Transformation parameter
     theta : array
         Angular values
@@ -376,7 +395,7 @@ def morphic_circle_transform(tau: float, theta: np.ndarray) -> np.ndarray:
 
     Parameters
     ----------
-    tau : float
+    tau : floa
         Transformation parameter
     theta : array
         Angular values
@@ -412,9 +431,9 @@ def morphic_transformation_matrix(tau: float, phi: float = PHI) -> np.ndarray:
 
     Parameters
     ----------
-    tau : float
+    tau : floa
         Root parameter
-    phi : float
+    phi : floa
         Golden ratio
 
     Returns
@@ -440,12 +459,12 @@ def curvature_peak(xy: np.ndarray, dtheta: float = 0.1) -> float:
     ----------
     xy : array
         (N,2) array of x,y coordinates
-    dtheta : float
+    dtheta : floa
         Angular step size
 
     Returns
     -------
-    float
+    floa
         Maximum absolute curvature
     """
     x = xy[:, 0]
@@ -469,14 +488,14 @@ def curvature_peak_estimate(tau: float, dtheta: float = 0.1) -> float:
 
     Parameters
     ----------
-    tau : float
+    tau : floa
         Transformation parameter
-    dtheta : float
+    dtheta : floa
         Angular resolution
 
     Returns
     -------
-    float
+    floa
         Estimated peak curvature
     """
     # Generate unit circle points
@@ -508,14 +527,14 @@ def stability_regions(
     ----------
     mode : str
         Polynomial family
-    k_min, k_max : float
+    k_min, k_max : floa
         Parameter range
-    num_points : int
+    num_points : in
         Number of sample points
 
     Returns
     -------
-    dict
+    dic
         Stability analysis results
     """
     k_values = np.linspace(k_min, k_max, num_points)
@@ -593,7 +612,7 @@ class MorphicAnalyzer:
     def find_optimal_parameters(self, criterion: str = "max_stability") -> float | None:
         """Find optimal parameter values."""
         if criterion == "max_stability":
-            # Parameters with maximum discriminant
+            # Parameters with maximum discriminan
             stability = stability_regions(self.mode)
             if len(stability["stable_regions"]) > 0:
                 max_disc_idx = np.argmax(stability["discriminants"])
@@ -671,13 +690,13 @@ def test_morphic_module():
             "discriminant_zero": k_disc,
         }
 
-    # Polynomial roots test
+    # Polynomial roots tes
     roots = morphic_polynomial_roots(1.5, "shifted")
     test_results["polynomial_tests"]["k_1_5_shifted"] = (
         roots.tolist() if hasattr(roots, "tolist") else list(roots)
     )
 
-    # Morphic sequence test
+    # Morphic sequence tes
     sequence = generate_morphic_sequence(8)
     test_results["sequence_tests"]["first_8_terms"] = (
         sequence.tolist() if hasattr(sequence, "tolist") else list(sequence)

@@ -25,7 +25,7 @@ from .modernized_dashboard import BackendType, ModernDashboard
 @click.option("--dimension", type=float, default=4.0, help="Starting dimension value")
 @click.option("--time", type=float, default=0.0, help="Starting time value")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-@click.pass_context
+@click.pass_contex
 def viz(ctx, backend: str, dimension: float, time: float, verbose: bool):
     """Modern visualization interface - matplotlib eliminated."""
     ctx.ensure_object(dict)
@@ -54,7 +54,7 @@ def viz(ctx, backend: str, dimension: float, time: float, verbose: bool):
     help="Export format after launch",
 )
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
-@click.pass_context
+@click.pass_contex
 def dashboard(ctx, layout: str, export: Optional[str], output: Optional[str]):
     """Launch modern interactive dashboard."""
     click.echo("🚀 Launching modern dashboard...")
@@ -120,7 +120,7 @@ def dashboard(ctx, layout: str, export: Optional[str], output: Optional[str]):
 @click.option(
     "--output", "-o", type=click.Path(), required=True, help="Output file path"
 )
-@click.pass_context
+@click.pass_contex
 def render(ctx, scene_type: str, export: str, output: str):
     """Render specific scene to file."""
     click.echo(f"🎨 Rendering {scene_type} scene...")
@@ -173,7 +173,7 @@ def render(ctx, scene_type: str, export: str, output: str):
     # Render scene
     dashboard_obj.backend.render_scene(scene_data)
 
-    # Export
+    # Expor
     exported = dashboard_obj.export_scene(export)
 
     output_path = Path(output)
@@ -200,7 +200,7 @@ def render(ctx, scene_type: str, export: str, output: str):
 @click.option(
     "--value", required=True, help="Control value (JSON format for complex values)"
 )
-@click.pass_context
+@click.pass_contex
 def control(ctx, control_type: str, value: str):
     """Apply control operation with semantic validation."""
     click.echo(f"🎮 Applying {control_type} control...")
@@ -237,7 +237,7 @@ def control(ctx, control_type: str, value: str):
 
 
 @viz.command()
-@click.pass_context
+@click.pass_contex
 def info(ctx):
     """Display backend and system information."""
     dashboard_obj = ModernDashboard(backend=ctx.obj["backend"])
@@ -297,7 +297,7 @@ def info(ctx):
     required=True,
     help="New backend to switch to",
 )
-@click.pass_context
+@click.pass_contex
 def switch(ctx, new_backend: str):
     """Switch visualization backend."""
     click.echo(f"🔄 Switching to {new_backend} backend...")
@@ -323,7 +323,7 @@ def switch(ctx, new_backend: str):
 @click.option(
     "--output", "-o", type=click.Path(), required=True, help="Output file path"
 )
-@click.pass_context
+@click.pass_contex
 def export(ctx, export_format: str, output: str):
     """Export current scene data."""
     click.echo(f"📤 Exporting scene in {export_format} format...")
@@ -341,7 +341,7 @@ def export(ctx, export_format: str, output: str):
     scene_data = dashboard_obj._prepare_scene_data()
     dashboard_obj.backend.render_scene(scene_data)
 
-    # Export
+    # Expor
     exported = dashboard_obj.export_scene(export_format)
 
     output_path = Path(output)

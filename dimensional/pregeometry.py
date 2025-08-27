@@ -9,13 +9,33 @@ Use: python -m dimensional --pregeometry or modern dashboard for visualization.
 Mathematical core functions preserved.
 """
 
+# MATPLOTLIB ELIMINATED - visualization moved to modern dashboard
+import warnings
+
 import numpy as np
 from scipy.special import gamma
 
 from .mathematics import PHI, PI
 
-# MATPLOTLIB ELIMINATED - visualization moved to modern dashboard
-import warnings
+# Mock matplotlib components for deprecated code
+class _MockMatplotlib:
+    def axes(self, *args, **kwargs):
+        return None
+    def show(self):
+        pass
+
+class _MockWidget:
+    def __init__(self, *args, **kwargs):
+        pass
+    def on_changed(self, func):
+        pass
+    def on_clicked(self, func):
+        pass
+
+plt = _MockMatplotlib()
+Slider = _MockWidget
+Button = _MockWidget
+
 
 def _deprecated_viz_warning():
     warnings.warn(
@@ -111,7 +131,7 @@ class PreGeometry:
 
     def evolve_wavefunction(self, dt):
         """Evolve the pre-geometric wavefunction."""
-        self.time += dt
+        self.time += d
 
         # The fundamental equation: ∂Ψ/∂n = iφΨ
         for i in range(len(self.psi)):
@@ -125,7 +145,7 @@ class PreGeometry:
             self.psi[i] *= np.exp(1j * PHI * dt)
 
             # Diffusion term for stability
-            self.psi[i] += 0.01 * grad2 * dt
+            self.psi[i] += 0.01 * grad2 * d
 
         # Renormalize
         norm = np.sqrt(np.sum(np.abs(self.psi) ** 2))
@@ -177,7 +197,7 @@ class PreGeometryVisualizer:
         # Controls
         self._create_controls()
 
-        # Initial plot
+        # Initial plo
         self.update_plots()
 
         print("PRE-GEOMETRY VISUALIZER (n = -1)")
@@ -272,7 +292,7 @@ class PreGeometryVisualizer:
         if hasattr(self.ax3d, "azim"):
             self.azim = self.ax3d.azim
 
-        # Update 3D plot
+        # Update 3D plo
         self.ax3d.clear()
         self.ax3d.set_proj_type("ortho")
         self.ax3d.view_init(elev=self.elev, azim=self.azim)
@@ -346,7 +366,7 @@ class PreGeometryVisualizer:
         self.ax3d.set_zlim([-1, 1])
         self.ax3d.set_title("Pre-Geometric Potential Field")
 
-        # Update 2D plot
+        # Update 2D plo
         self.ax2d.clear()
 
         # Plot wavefunction components
@@ -393,7 +413,7 @@ class PreGeometryVisualizer:
         self.ax2d.set_xlim([-1, 1])
         self.ax2d.set_ylim([-0.5, 1])
 
-        # Add info text
+        # Add info tex
         info_text = (
             f"Time: {self.pregeom.time:.2f}\n"
             f"⟨n⟩ = {np.sum(self.pregeom.n_range * prob):.3f}\n"
@@ -442,22 +462,22 @@ if __name__ == "__main__":
         """Compute pre-geometric state mathematically."""
         # Primordial oscillation
         oscillation = np.sin(self.oscillation_rate * self.time)
-        
+
         # Potential field computation
         self.potential_field = np.array([
             self._potential_at_n(n) for n in self.n_range
         ])
-        
+
         # Dimensional seeds
         self.dimensional_seeds = self._find_dimensional_seeds()
-        
+
         # Oscillation data
         self.oscillation_data = {
             "amplitude": oscillation,
             "frequency": self.oscillation_rate,
             "phase": self.time % (2 * PI / self.oscillation_rate)
         }
-        
+
         return {
             "potential_range": [np.min(self.potential_field), np.max(self.potential_field)],
             "dimensional_seed_count": len(self.dimensional_seeds),

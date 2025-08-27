@@ -102,7 +102,7 @@ class SymbolicMathematicalCompressor:
         Args:
             data: NumPy array to compress
             detect_patterns: Enable advanced pattern detection
-            max_polynomial_degree: Maximum polynomial degree to fit
+            max_polynomial_degree: Maximum polynomial degree to fi
 
         Returns:
             Tuple of (compressed_bytes, compression_metadata)
@@ -263,7 +263,7 @@ class SymbolicMathematicalCompressor:
         constant_matches = {}
         tolerance = self.similarity_threshold
 
-        # Check each constant
+        # Check each constan
         for const_name, const_value in self.all_constants.items():
             matches = np.isclose(data, const_value, rtol=tolerance, atol=tolerance)
             match_count = np.sum(matches)
@@ -280,12 +280,12 @@ class SymbolicMathematicalCompressor:
 
         # Find best constant match
         best_const = max(constant_matches.items(), key=lambda x: x[1]["count"])
-        const_name, const_info = best_const
+        const_name, const_info = best_cons
 
         # Calculate compression ratio
         # Original: store all values
         # Compressed: store constant name + indices
-        original_bits = const_info["count"] * 64  # 64 bits per float
+        original_bits = const_info["count"] * 64  # 64 bits per floa
         compressed_bits = (
             len(const_name) * 8 + const_info["count"] * 1
         )  # name + bit mask
@@ -445,7 +445,7 @@ class SymbolicMathematicalCompressor:
                 max_error = np.max(np.abs(data - poly_fit))
 
                 if max_error < self.precision_threshold:
-                    # Good polynomial fit
+                    # Good polynomial fi
                     original_bits = len(data) * 64
                     compressed_bits = len(coeffs) * 64 + 32  # coefficients + degree
                     compression_ratio = original_bits / max(compressed_bits, 1)
@@ -482,7 +482,7 @@ class SymbolicMathematicalCompressor:
             if len(data) % pattern_length != 0:
                 continue
 
-            # Extract the repeating unit
+            # Extract the repeating uni
             pattern_unit = data[:pattern_length]
             num_repeats = len(data) // pattern_length
 
@@ -492,7 +492,7 @@ class SymbolicMathematicalCompressor:
             if np.allclose(data, reconstructed, rtol=1e-12, atol=1e-15):
                 # Pattern found
                 original_bits = len(data) * 64
-                compressed_bits = pattern_length * 64 + 32  # pattern + repeat count
+                compressed_bits = pattern_length * 64 + 32  # pattern + repeat coun
                 compression_ratio = original_bits / max(compressed_bits, 1)
 
                 if compression_ratio > best_ratio:
@@ -637,7 +637,7 @@ class SymbolicMathematicalCompressor:
 
 
 def run_symbolic_compression_test():
-    """Run symbolic compression test and return results for analysis."""
+    """Run symbolic compression test and return resultts for analysis."""
     print("🧮 TESTING SYMBOLIC MATHEMATICAL COMPRESSION")
     print("=" * 60)
 

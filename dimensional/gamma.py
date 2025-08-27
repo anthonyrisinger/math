@@ -266,7 +266,7 @@ def quick_gamma_analysis(z_values):
 
     Returns
     -------
-    dict
+    dic
         Analysis results
     """
     z_values = np.asarray(z_values)
@@ -298,7 +298,7 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
 
     Returns
     -------
-    dict
+    dic
         Computed data for visualization backends with statistics
     """
     z = np.linspace(z_range[0], z_range[1], n_points)
@@ -452,7 +452,7 @@ def demo():
     return {
         "demo_type": "dimensional_gamma",
         "exploration": explore(4.0),
-        "visualization": instant(),
+        "visualization": instant,
     }
 
 
@@ -478,12 +478,12 @@ def peaks_analysis(d_range=(0, 10), resolution=1000):
     ----------
     d_range : tuple
         Dimension range to analyze
-    resolution : int
+    resolution : in
         Number of points to sample
 
     Returns
     -------
-    dict
+    dic
         Peak locations and properties
     """
     d_vals = np.linspace(d_range[0], d_range[1], resolution)

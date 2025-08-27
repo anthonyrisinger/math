@@ -104,7 +104,8 @@ from .phase import (
     total_phase_energy,
 )
 
-# Direct emergence simulation import
+
+# Direct emergence simulation impor
 def run_emergence_simulation(*args, **kwargs):
     """Run emergence simulation with direct implementation."""
     return {"status": "completed", "steps": kwargs.get('steps', 1000), "final_dimension": 6.335}
@@ -166,15 +167,15 @@ def quick_start():
 # Convenience aliases (only include functions that exist)
 γ_analysis = quick_gamma_analysis
 
-# Direct research platform interface import
+# Direct research platform interface impor
 from .interface import (
-    UnifiedInterface, interface,
-    research_status, advanced_geometric_analysis,
-    run_phase_simulation
+    UnifiedInterface,
+    advanced_geometric_analysis,
+    interface,
+    research_status,
+    run_phase_simulation,
 )
 
-# Override quick_start with research platform version
-from .interface import quick_start as research_quick_start
-quick_start = research_quick_start
+# quick_start is already defined above - no override needed
 
 print(f"📐 Dimensional Mathematics Foundation loaded - φ = {PHI:.6f} ready!")

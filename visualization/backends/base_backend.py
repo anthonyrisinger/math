@@ -43,7 +43,7 @@ class ControlSemantics:
     def validate_control(cls, control_type: str, value: Any) -> bool:
         """Validate control operations against mathematical semantics."""
         if control_type == cls.ADDITIVE:
-            # Additive controls affect spatial extent
+            # Additive controls affect spatial exten
             return isinstance(value, (int, float, np.ndarray))
         elif control_type == cls.MULTIPLICATIVE:
             # Multiplicative controls affect rotational/scaling transforms

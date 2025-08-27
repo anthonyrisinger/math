@@ -84,7 +84,7 @@ try:
 except (ImportError, AttributeError):
     HAS_VISUALIZATION = False
 
-# Initialize rich console for beautiful output
+# Initialize rich console for beautiful outpu
 console = Console()
 
 # Create main typer app
@@ -214,7 +214,7 @@ def _process_shortcut(func_name: str, dims_str: str):
 
         symbol = "C"
 
-    # Compute and display with mathematical context
+    # Compute and display with mathematical contex
     console.print(f"🧮 [bold cyan]{func_name.title()}[/bold cyan]")
     for d in dims:
         result = func(d)
@@ -278,7 +278,7 @@ def ai_batch(
             value = r.get("result", r.get("error", ""))
             print(f"{r['expression']},{value},{status}")
     else:
-        # Table format
+        # Table forma
         table = Table(title="🚀 Batch Results")
         table.add_column("Expression", style="cyan")
         table.add_column("Result", style="yellow")
@@ -546,7 +546,7 @@ def cli_measure(
     if output_format == "table":
         console.print(table)
     elif output_format == "json":
-        # Convert to JSON format
+        # Convert to JSON forma
         results = []
         for dim in dimensions:
             result = {"dimension": dim}
@@ -595,7 +595,7 @@ def cli_plot(
         )
     )
 
-    # Create the plot using qplot
+    # Create the plot using qplo
     qplot(*functions)
 
 
@@ -794,7 +794,7 @@ def cli_visualize_emergence(
         col=1,
     )
 
-    # Combined plot
+    # Combined plo
     fig.add_trace(
         go.Scatter(x=dims, y=v_vals, name="Volume", line=dict(color="blue")),
         row=2,
@@ -994,7 +994,7 @@ def cli_visualize_gamma_landscape(
                 except:
                     gamma_vals[i, j] = np.nan
 
-    # Create 3D surface plot
+    # Create 3D surface plo
     fig = go.Figure()
 
     # Real part surface

@@ -11,7 +11,7 @@ mechanism by which higher dimensions "feed" on lower ones, driving dimensional
 emergence and creating the arrow of time.
 
 Core equation:
-∂ρ_d/∂t = Σ_s R(s→d)ρ_s - Σ_t R(d→t)ρ_t
+∂ρ_d/∂t = Σ_s R(s→d)ρ_s - Σ_t R(d→t)ρ_
 
 Where R(s→t) is the sapping rate from dimension s to dimension t.
 """
@@ -58,7 +58,7 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     if capacity_energy <= 1e-12 or target_energy >= 0.9 * capacity_energy:
         return 0.0
 
-    # Energy deficit
+    # Energy defici
     energy_deficit = capacity_energy - target_energy
     equilibrium_factor = energy_deficit / capacity_energy
 
@@ -111,7 +111,7 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
                 if rate > NUMERICAL_EPSILON:
                     # Direct energy transfer calculation
                     energy_transfer_rate = rate * energies[source]
-                    energy_transfer = energy_transfer_rate * dt
+                    energy_transfer = energy_transfer_rate * d
 
                     # Prevent overdrain - be very conservative
                     max_energy_transfer = energies[source] * 0.1  # More conservative
@@ -160,7 +160,7 @@ def emergence_threshold(dimension, phase_density):
 
     Parameters
     ----------
-    dimension : int
+    dimension : in
         Dimension index
     phase_density : array-like
         Current phase densities
@@ -190,7 +190,7 @@ def total_phase_energy(phase_density):
 
     Returns
     -------
-    float
+    floa
         Total energy = Σ_d |ρ_d|²
     """
     return float(np.sum(np.abs(phase_density) ** 2))
@@ -207,7 +207,7 @@ def phase_coherence(phase_density):
 
     Returns
     -------
-    float
+    floa
         Coherence measure [0, 1]
     """
     phase_density = np.asarray(phase_density, dtype=complex)
@@ -237,8 +237,8 @@ def dimensional_time(dimension_trajectory, phi=PHI):
     ----------
     dimension_trajectory : array-like
         Sequence of dimension values
-    phi : float
-        Golden ratio coupling constant
+    phi : floa
+        Golden ratio coupling constan
 
     Returns
     -------
@@ -412,7 +412,7 @@ class PhaseDynamicsEngine:
         self.diagnostics = ConvergenceDiagnostics()
         self.invariants = TopologicalInvariants(max_dimensions)
         self.use_adaptive = use_adaptive
-        self.dt_last = 0.1  # Initial guess for dt
+        self.dt_last = 0.1  # Initial guess for d
 
     def step(self, dt):
         """Advance simulation by one time step."""
@@ -497,7 +497,7 @@ class PhaseDynamicsEngine:
             if d not in self.emerged and emergence_threshold(d, self.phase_density):
                 self.emerged.add(d)
 
-        self.time += dt
+        self.time += d
 
         # Store history
         self.history.append(
@@ -519,12 +519,12 @@ class PhaseDynamicsEngine:
 
         Parameters
         ----------
-        dimension : int
+        dimension : in
             Dimension index
 
         Returns
         -------
-        float
+        floa
             Modulated clock rate (1.0 = normal, < 1.0 = slower)
         """
         if dimension >= len(self.phase_density):
@@ -553,14 +553,14 @@ class PhaseDynamicsEngine:
 
         Parameters
         ----------
-        n_steps : int
+        n_steps : in
             Number of evolution steps to take
         dt : float, optional
             Time step size (default: 0.01)
 
         Returns
         -------
-        dict
+        dic
             Evolution results with current_emerged and final state
         """
         initial_emerged = self.emerged.copy()
@@ -592,7 +592,7 @@ class PhaseDynamicsEngine:
 
         Returns
         -------
-        float
+        floa
             Effective dimension
         """
         energies = np.abs(self.phase_density) ** 2
@@ -605,7 +605,7 @@ class PhaseDynamicsEngine:
         weighted_sum = 0.0
         for d in range(len(energies)):
             weight = energies[d] / total_energy
-            weighted_sum += d * weight
+            weighted_sum += d * weigh
 
         return float(weighted_sum)
 
@@ -630,14 +630,14 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
 
     Parameters
     ----------
-    max_dimensions : int
+    max_dimensions : in
         Maximum dimensions to simulate
-    time_steps : int
+    time_steps : in
         Number of evolution steps
 
     Returns
     -------
-    dict
+    dic
         Analysis results including emergence times and patterns
     """
     engine = PhaseDynamicsEngine(max_dimensions=max_dimensions)
@@ -675,7 +675,7 @@ def quick_phase_analysis(dimensions=None):
 
     Returns
     -------
-    dict
+    dic
         Phase analysis results
     """
     if dimensions is None:

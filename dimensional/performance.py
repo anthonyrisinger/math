@@ -34,13 +34,13 @@ class BenchmarkResult:
     """Container for benchmark results."""
 
     function_name: str
-    operations_per_second: float
-    mean_time: float
-    std_time: float
-    min_time: float
-    max_time: float
-    total_time: float
-    sample_size: int
+    operations_per_second: floa
+    mean_time: floa
+    std_time: floa
+    min_time: floa
+    max_time: floa
+    total_time: floa
+    sample_size: in
     error_rate: float = 0.0
     memory_usage: Optional[float] = None
 
@@ -51,8 +51,8 @@ class PropertyTestResult:
 
     property_name: str
     passed: bool
-    error_magnitude: float
-    test_cases: int
+    error_magnitude: floa
+    test_cases: in
     failures: list[dict] = field(default_factory=list)
     execution_time: float = 0.0
 
@@ -80,18 +80,18 @@ class PerformanceProfiler:
         -----------
         func : callable
             Function to benchmark
-        test_inputs : list
-            List of inputs to test
+        test_inputs : lis
+            List of inputs to tes
         name : str
             Name identifier for the benchmark
-        warmup_runs : int
+        warmup_runs : in
             Number of warmup runs to stabilize performance
-        benchmark_runs : int
+        benchmark_runs : in
             Number of benchmark runs for statistical analysis
 
         Returns:
         --------
-        BenchmarkResult
+        BenchmarkResul
             Detailed benchmark statistics
         """
         print(f"📊 Benchmarking {name}...")
@@ -422,7 +422,7 @@ class DistributedTester:
 
         Returns:
         --------
-        PropertyTestResult
+        PropertyTestResul
             Aggregated results from all workers
         """
         print(f"🔄 Running distributed test for {property_name}...")
@@ -461,10 +461,10 @@ def sprint2_gate1_validation():
     Sprint 2 Gate 1: Comprehensive validation and performance analysis.
 
     This function runs all Sprint 2 Gate 1 validation tests:
-    1. Performance baseline establishment
+    1. Performance baseline establishmen
     2. Mathematical property validation
     3. Regression detection setup
-    4. Production readiness assessment
+    4. Production readiness assessmen
     """
     print("🚀 SPRINT 2 GATE 1 VALIDATION")
     print("=" * 80)
@@ -489,7 +489,7 @@ def sprint2_gate1_validation():
     print("\n🔄 DISTRIBUTED SCALABILITY TEST")
     DistributedTester()
 
-    # Production Readiness Assessment
+    # Production Readiness Assessmen
     print("\n✅ PRODUCTION READINESS ASSESSMENT")
 
     performance_score = min(
@@ -541,7 +541,7 @@ class Sprint3PerformanceOptimizer:
         """
         Benchmark optimization techniques against baseline.
 
-        Target: Achieve 100K+ ops/sec sustained throughput
+        Target: Achieve 100K+ ops/sec sustained throughpu
         """
         print("🚀 SPRINT 3 PERFORMANCE OPTIMIZATION BENCHMARK")
         print("Target: 100,000+ ops/sec | Baseline: ~51K ops/sec")
@@ -550,7 +550,7 @@ class Sprint3PerformanceOptimizer:
         # Generate test data
         dimensions = np.random.uniform(0.1, 10.0, n_operations)
 
-        # 1. Baseline measurement
+        # 1. Baseline measuremen
         print("📊 Baseline measurement...")
         start_time = time.perf_counter()
         [complexity_measure(d) for d in dimensions]
@@ -620,7 +620,7 @@ class Sprint3PerformanceOptimizer:
             f"Combined:    {combined_ops_per_sec:>8,.0f} ops/sec ({speedup_combined:.1f}x)"
         )
 
-        # Target assessment
+        # Target assessmen
         target_met = combined_ops_per_sec >= 100000
         print("\\n🎯 TARGET ASSESSMENT:")
         print("Target: 100,000 ops/sec")
@@ -731,7 +731,7 @@ def sprint3_performance_validation():
     """
     Sprint 3: Performance validation targeting 100K+ ops/sec.
 
-    Validates performance optimizations and measures improvement
+    Validates performance optimizations and measures improvemen
     from Sprint 2 baseline to Sprint 3 targets.
     """
     print("🚀 SPRINT 3 PERFORMANCE VALIDATION")
@@ -763,7 +763,7 @@ def sprint3_performance_validation():
     accuracy_ok = max_rel_error < 1e-12
     print(f"  Accuracy: {'✅ PASSED' if accuracy_ok else '❌ FAILED'}")
 
-    # Final assessment
+    # Final assessmen
     sprint3_success = results["target_met"] and accuracy_ok
 
     print("\\n🎯 SPRINT 3 ASSESSMENT")

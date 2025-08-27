@@ -163,7 +163,7 @@ class PlotlyDashboard(VisualizationBackend):
         return self.fig
 
     def _render_grid_layout(
-        self, geometry: dict, topology: dict, measures: dict, parameters: dict
+        self, geometry: dict, topology: dict, measures: dict, parameters: dic
     ) -> None:
         """Render mathematical grid layout components."""
 
@@ -171,7 +171,7 @@ class PlotlyDashboard(VisualizationBackend):
         if "landscape" in measures:
             self._render_dimensional_landscape(measures["landscape"], row=1, col=1)
 
-        # (1,2) Emergence Cascade - 2D Plot
+        # (1,2) Emergence Cascade - 2D Plo
         if "cascade" in topology:
             self._render_emergence_cascade(topology["cascade"], row=1, col=2)
 
@@ -179,11 +179,11 @@ class PlotlyDashboard(VisualizationBackend):
         if "topology_view" in geometry:
             self._render_topology_view(geometry["topology_view"], row=1, col=3)
 
-        # (2,1) Morphic Transformations - 2D Plot
+        # (2,1) Morphic Transformations - 2D Plo
         if "morphic" in geometry:
             self._render_morphic_transformations(geometry["morphic"], row=2, col=1)
 
-        # (2,2) Phase Flow - 2D Plot
+        # (2,2) Phase Flow - 2D Plo
         if "phase_flow" in topology:
             self._render_phase_flow(topology["phase_flow"], row=2, col=2)
 
@@ -201,7 +201,7 @@ class PlotlyDashboard(VisualizationBackend):
         landscape_data.get("complexity", [])
         current_d = landscape_data.get("current_dimension", 4.0)
 
-        # Create 3D surface plot
+        # Create 3D surface plo
         X, Y = np.meshgrid(d_range[:50], d_range[:50])  # Grid for surface
         Z = (
             np.outer(volumes[:50], surfaces[:50])
@@ -287,7 +287,7 @@ class PlotlyDashboard(VisualizationBackend):
         self._apply_orthographic_camera(scene_name)
 
     def _render_torus_topology(
-        self, data: dict, row: int, col: int, dimension: float
+        self, data: dict, row: int, col: int, dimension: floa
     ) -> None:
         """Render dimension-dependent torus."""
         u = np.linspace(0, 2 * np.pi, 30)
@@ -313,7 +313,7 @@ class PlotlyDashboard(VisualizationBackend):
         self.fig.add_trace(torus, row=row, col=col)
 
     def _render_gamma_topology(
-        self, data: dict, row: int, col: int, dimension: float
+        self, data: dict, row: int, col: int, dimension: floa
     ) -> None:
         """Render gamma function topology."""
         # Create gamma-based surface
@@ -347,7 +347,7 @@ class PlotlyDashboard(VisualizationBackend):
         self.fig.add_trace(gamma_surface, row=row, col=col)
 
     def _render_default_topology(
-        self, data: dict, row: int, col: int, dimension: float
+        self, data: dict, row: int, col: int, dimension: floa
     ) -> None:
         """Render default topological view."""
         # Simple parametric surface
@@ -371,7 +371,7 @@ class PlotlyDashboard(VisualizationBackend):
         self.fig.add_trace(sphere, row=row, col=col)
 
     def _render_morphic_transformations(
-        self, morphic_data: dict, row: int, col: int
+        self, morphic_data: dict, row: int, col: in
     ) -> None:
         """Render morphic transformations with golden ratio."""
         phi = (1 + np.sqrt(5)) / 2  # Golden ratio
@@ -440,7 +440,7 @@ class PlotlyDashboard(VisualizationBackend):
         status_text = controls_data.get("status_text", "System Status: Active")
         controls_data.get("parameters", {})
 
-        # Create a simple text annotation plot
+        # Create a simple text annotation plo
         dummy_scatter = go.Scatter(
             x=[0],
             y=[0],
@@ -466,7 +466,7 @@ class PlotlyDashboard(VisualizationBackend):
         )
 
     def _render_unified_layout(
-        self, geometry: dict, topology: dict, measures: dict, parameters: dict
+        self, geometry: dict, topology: dict, measures: dict, parameters: dic
     ) -> None:
         """Render unified single-view layout."""
         # Render main component based on priority

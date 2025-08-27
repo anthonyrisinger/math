@@ -157,7 +157,7 @@ class PropertyValidator:
         # Note: Emergence may take longer, this is not necessarily a failure
         results["dimensions_emerged"] = (
             len(engine.emerged) >= 1
-        )  # At least void should exist
+        )  # At least void should exis
 
         # Phase coherence bounds
         coherence = engine.get_state()["coherence"]
@@ -258,7 +258,7 @@ class PropertyValidator:
             print("FAILED TESTS:")
             for category_name, category_results in all_results.items():
                 failed_tests = [
-                    name for name, result in category_results.items() if not result
+                    name for name, result in category_results.items() if not resul
                 ]
                 if failed_tests:
                     print(f"  {category_name}: {failed_tests}")

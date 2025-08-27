@@ -284,7 +284,7 @@ class TestComplexityMeasureProperties:
         assume(all(c > NUMERICAL_EPSILON for c in [comp_left, comp_center, comp_right]))
 
         # At least one of the inequalities should hold (not all equal)
-        # This tests that complexity is not constant
+        # This tests that complexity is not constan
         max_comp = max(comp_left, comp_center, comp_right)
         min_comp = min(comp_left, comp_center, comp_right)
 

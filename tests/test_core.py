@@ -316,7 +316,7 @@ class TestMorphicMathematics:
         # Test at k = 2 (perfect circle case)
         roots = morphic_polynomial_roots(2.0, "shifted")
 
-        # Should have τ = 1 as a root
+        # Should have τ = 1 as a roo
         assert any(
             abs(r - 1.0) < 1e-10 for r in roots
         ), "τ = 1 should be a root at k = 2"
@@ -358,7 +358,7 @@ class TestVisualization:
             def __init__(self):
                 self.elev = 25.0
                 self.azim = 45.0
-            
+
             def view_init(self, elev=None, azim=None):
                 if elev is not None:
                     self.elev = elev
@@ -366,7 +366,7 @@ class TestVisualization:
                     self.azim = azim
 
         mock_ax = MockAxis()
-        
+
         # Test save view
         view_3d.save_view(mock_ax)
         assert view_3d.current_elev == 25.0
@@ -611,7 +611,7 @@ if __name__ == "__main__":
         print(f"φ (golden ratio): {PHI:.6f}")
         print("Library verification complete ✅")
 
-        # Performance test
+        # Performance tes
         print("\n" + "=" * 50)
         run_performance_test()
 
@@ -637,7 +637,7 @@ class TestQuickTools:
 
         try:
             from dimensional.gamma import v, s, c, r, ρ
-            
+
             # Test known dimensions
             for d in [1, 2, 3, 4]:
                 # All functions should return positive finite values
@@ -646,13 +646,13 @@ class TestQuickTools:
                 complexity = c(d)
                 ratio = r(d)
                 density = ρ(d)
-                
+
                 assert np.isfinite(volume) and volume > 0
                 assert np.isfinite(surface) and surface > 0
                 assert np.isfinite(complexity) and complexity > 0
                 assert np.isfinite(ratio) and ratio > 0
                 assert np.isfinite(density) and density > 0
-                
+
                 # Test relationships
                 assert abs(complexity - volume * surface) < 1e-10
                 assert abs(ratio - surface / volume) < 1e-10
@@ -667,15 +667,15 @@ class TestQuickTools:
 
         try:
             from dimensional.gamma import v_peak, s_peak, c_peak
-            
+
             # Volume peak should be around 5.26
             v_peak_d = v_peak()
             assert 5.0 < v_peak_d < 6.0
-            
-            # Surface peak should be around 7.26  
+
+            # Surface peak should be around 7.26
             s_peak_d = s_peak()
             assert 7.0 < s_peak_d < 8.0
-            
+
             # Complexity peak should be around 6.0
             c_peak_d = c_peak()
             assert 5.5 < c_peak_d < 6.5
@@ -689,11 +689,11 @@ class TestQuickTools:
 
         try:
             from dimensional.gamma import γ, abs_γ
-            
+
             # γ should be same as gamma_safe
             assert abs(γ(1.0) - gamma_safe(1.0)) < 1e-10
             assert abs(γ(2.5) - gamma_safe(2.5)) < 1e-10
-            
+
             # abs_γ should be absolute value
             assert abs(abs_γ(1.0) - abs(gamma_safe(1.0))) < 1e-10
         except ImportError:
@@ -710,7 +710,7 @@ class TestVisualizationCompat:
 
         try:
             from dimensional.gamma import qplot, v, s, c
-            
+
             # Modern implementation returns plot data
             result = qplot(v, s, c, labels=["Volume", "Surface", "Complexity"])
             assert isinstance(result, dict)
@@ -724,10 +724,10 @@ class TestVisualizationCompat:
 
         try:
             from dimensional.gamma import instant
-            
+
             result = instant()
             assert isinstance(result, dict)
-            assert "panels" in result
+            assert "panels" in resul
         except ImportError:
             pytest.skip("Instant visualization not available")
 
@@ -738,10 +738,10 @@ class TestVisualizationCompat:
 
         try:
             from dimensional.gamma import explore
-            
+
             result = explore(4.0)
             assert isinstance(result, dict)
-            assert "dimension" in result
+            assert "dimension" in resul
             assert result["dimension"] == 4.0
         except ImportError:
             pytest.skip("Explore function not available")

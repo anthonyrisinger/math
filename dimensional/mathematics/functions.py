@@ -403,7 +403,7 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
 
                 if rate > NUMERICAL_EPSILON:
                     energy_transfer_rate = rate * energies[source]
-                    energy_transfer = energy_transfer_rate * dt
+                    energy_transfer = energy_transfer_rate * d
                     max_energy_transfer = energies[source] * 0.1
                     energy_transfer = min(energy_transfer, max_energy_transfer)
 
@@ -573,7 +573,7 @@ class PhaseDynamicsEngine:
             if d not in self.emerged and emergence_threshold(d, self.phase_density):
                 self.emerged.add(d)
 
-        self.time += dt
+        self.time += d
 
         # Store history
         self.history.append(
@@ -619,7 +619,7 @@ class PhaseDynamicsEngine:
         weighted_sum = 0.0
         for d in range(len(energies)):
             weight = energies[d] / total_energy
-            weighted_sum += d * weight
+            weighted_sum += d * weigh
 
         return float(weighted_sum)
 
@@ -725,7 +725,7 @@ def setup_3d_axis(
         Axis limits as (min, max)
     grid : bool
         Whether to show grid
-    grid_alpha : float
+    grid_alpha : floa
         Grid transparency
 
     Returns
@@ -770,7 +770,7 @@ def create_3d_figure(figsize=(10, 8), dpi=100):
     ----------
     figsize : tuple
         Figure size in inches
-    dpi : int
+    dpi : in
         Dots per inch resolution
 
     Returns
@@ -785,7 +785,7 @@ def create_3d_figure(figsize=(10, 8), dpi=100):
 
 def create_figure_3d(figsize=(12, 9), dpi=100):
     """DEPRECATED: Create 3D figure.
-    
+
     Use modern dashboard visualization instead.
     """
     print("⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization.")

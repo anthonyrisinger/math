@@ -12,10 +12,10 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-import pytest
+import pytes
 
 # Add the project root to Python path for testing
-project_root = Path(__file__).parent
+project_root = Path(__file__).paren
 sys.path.insert(0, str(project_root))
 
 # Configure numpy for strict mathematical testing
@@ -106,7 +106,7 @@ def known_dimensional_measures():
     return {
         # Ball volumes V_d
         "ball_volume": {
-            0: 1,  # Point
+            0: 1,  # Poin
             1: 2,  # Line segment [-1,1]
             2: pi,  # Disk
             3: 4 * pi / 3,  # Ball
@@ -133,7 +133,7 @@ def golden_phase_engine():
 def stress_test_engine():
     """Phase engine configured for stress testing extreme conditions."""
     from dimensional.phase import PhaseDynamicsEngine
-    
+
     engine = PhaseDynamicsEngine(max_dimensions=12, use_adaptive=True)
     # Add some initial energy for interesting dynamics
     engine.inject_energy(dimension=1, amount=0.5)
@@ -152,11 +152,11 @@ def assert_mathematical_equality(
 
     Parameters
     ----------
-    actual : float
+    actual : floa
         Computed value
-    expected : float
+    expected : floa
         Expected exact value
-    tolerance : float
+    tolerance : floa
         Acceptable numerical error
     context : str
         Description for error message
@@ -185,7 +185,7 @@ def assert_conserved_quantity(
 ):
     """Assert that a physical quantity is conserved (energy, probability, etc.)."""
     drift = abs(final_value - initial_value)
-    relative_drift = drift / abs(initial_value) if initial_value != 0 else drift
+    relative_drift = drift / abs(initial_value) if initial_value != 0 else drif
 
     if drift > tolerance:
         pytest.fail(
@@ -289,7 +289,7 @@ def handle_test_warnings():
     with warnings.catch_warnings():
         # Convert mathematical warnings to errors
         warnings.filterwarnings("error", category=RuntimeWarning)
-        # Direct numpy warning handling - eliminate defensive try/except
+        # Direct numpy warning handling - eliminate defensive try/excep
         if hasattr(np, 'ComplexWarning'):
             warnings.filterwarnings("error", category=np.ComplexWarning)
 

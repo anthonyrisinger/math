@@ -21,7 +21,7 @@ SQRT_PI = np.sqrt(np.pi)
 PHI = (1 + np.sqrt(5)) / 2  # φ = 1.618... (golden ratio)
 PSI = 1 / PHI  # ψ = 0.618... (golden conjugate)
 
-# Universal dimensional coupling constant
+# Universal dimensional coupling constan
 # ϖ = Γ(1/4)²/(4√(2π)) ≈ 1.311...
 VARPI = gamma(0.25) ** 2 / (4 * np.sqrt(2 * PI))
 

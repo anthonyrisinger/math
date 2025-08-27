@@ -291,9 +291,9 @@ def find_peak(measure_func, d_min=0.1, d_max=15, num_points=5000):
     ----------
     measure_func : callable
         Function to find peak of
-    d_min, d_max : float
+    d_min, d_max : floa
         Search range for dimension
-    num_points : int
+    num_points : in
         Number of sample points
 
     Returns
@@ -322,14 +322,14 @@ def find_all_peaks(d_min=0.1, d_max=15.0, resolution=10000):
 
     Parameters
     ----------
-    d_min, d_max : float
+    d_min, d_max : floa
         Dimension range to search
-    resolution : int
+    resolution : in
         Number of points to evaluate
 
     Returns
     -------
-    dict
+    dic
         Dictionary with peak locations and values
     """
     results = {}
@@ -371,14 +371,14 @@ def measures_explorer(d_range=(0.1, 10), num_points=1000, show_peaks=True):
     ----------
     d_range : tuple
         (d_min, d_max) range to explore
-    num_points : int
+    num_points : in
         Number of evaluation points
     show_peaks : bool
         Whether to highlight peaks
 
     Returns
     -------
-    dict
+    dic
         Comprehensive measures analysis
     """
     d_min, d_max = d_range
@@ -416,7 +416,7 @@ def peak_finder(measure_name, d_range=(0.1, 15), resolution=10000):
         Name of measure ('volume', 'surface', 'complexity', 'ratio')
     d_range : tuple
         Search range (d_min, d_max)
-    resolution : int
+    resolution : in
         Number of evaluation points
 
     Returns
@@ -448,7 +448,7 @@ def critical_analysis(d_values=None):
 
     Returns
     -------
-    dict
+    dic
         Analysis results at critical dimensions
     """
     if d_values is None:
@@ -479,12 +479,12 @@ def comparative_plot(measures=None, d_range=(0.1, 10), num_points=1000):
         List of measure names. Defaults to all standard measures.
     d_range : tuple
         Dimension range (d_min, d_max)
-    num_points : int
+    num_points : in
         Number of evaluation points
 
     Returns
     -------
-    dict
+    dic
         Comparative data for plotting
     """
     if measures is None:
@@ -516,12 +516,12 @@ def quick_measure_analysis(d):
 
     Parameters
     ----------
-    d : float
+    d : floa
         Dimension to analyze
 
     Returns
     -------
-    dict
+    dic
         All measure values at dimension d
     """
     return {
@@ -540,9 +540,9 @@ def is_critical_dimension(d, tolerance=1e-3):
 
     Parameters
     ----------
-    d : float
+    d : floa
         Dimension to check
-    tolerance : float
+    tolerance : floa
         Tolerance for comparison
 
     Returns

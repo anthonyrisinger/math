@@ -218,7 +218,7 @@ class KingdonRenderer(VisualizationBackend):
 
             ga_trajectory = []
             for i, (t, state) in enumerate(zip(time_points, state_points)):
-                # Embed phase state in GA space with time component
+                # Embed phase state in GA space with time componen
                 extended_point = list(state) + [t]  # Add time dimension
                 ga_state = sum(
                     extended_point[j] * self.ga_space.basis[f"e{j+1}"]
@@ -335,10 +335,10 @@ class KingdonRenderer(VisualizationBackend):
         """Apply Kingdon-specific control operations."""
         try:
             if control_type == self.semantics.ADDITIVE:
-                # Additive control affects spatial extent
+                # Additive control affects spatial exten
                 for obj in self.scene_objects:
                     if "ga_element" in obj:
-                        # Translate GA element
+                        # Translate GA elemen
                         translation = sum(
                             value[j] * self.ga_space.basis[f"e{j+1}"]
                             for j in range(min(len(value), 3))
@@ -410,7 +410,7 @@ class KingdonRenderer(VisualizationBackend):
             elif obj_type == "surface":
                 ganja_script += "// Surface mesh\n"
 
-        return ganja_script
+        return ganja_scrip
 
     def get_morphic_transformation_matrix(self) -> np.ndarray:
         """Get current morphic transformation as matrix for compatibility."""
