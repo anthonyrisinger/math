@@ -389,36 +389,55 @@ def qplot(*funcs, labels=None):
 
 
 def instant():
-    """Instant 4-panel visualization data.
+    """Enhanced instant analysis with multiple view configurations.
+
+    This function now provides comprehensive instant analysis with
+    Rich terminal visualization and multiple research configurations.
 
     Returns:
-        dict: Configuration for 4-panel gamma function visualization
+        dict: Enhanced instant analysis results
     """
-    return {
-        "panels": ["gamma", "ln_gamma", "digamma", "factorial"],
-        "config": {
-            "gamma": {"range": (-3, 5), "points": 1000},
-            "ln_gamma": {"range": (0.1, 10), "points": 1000},
-            "digamma": {"range": (0.1, 10), "points": 1000},
-            "factorial": {"range": (0, 10), "points": 1000},
-        },
-    }
+    try:
+        from .research_cli import enhanced_instant
+        return enhanced_instant(configuration="research")
+    except ImportError:
+        # Fallback to basic instant configuration
+        return {
+            "panels": ["gamma", "ln_gamma", "digamma", "factorial"],
+            "config": {
+                "gamma": {"range": (-3, 5), "points": 1000},
+                "ln_gamma": {"range": (0.1, 10), "points": 1000},
+                "digamma": {"range": (0.1, 10), "points": 1000},
+                "factorial": {"range": (0, 10), "points": 1000},
+            },
+        }
 
 
 def explore(d):
-    """Explore dimensional measures at given dimension.
+    """Explore dimensional measures at given dimension with enhanced analysis.
+
+    This function now provides enhanced exploration with guided discovery
+    paths and Rich terminal visualization.
+
+    Args:
+        d: Dimension to explore
 
     Returns:
-        dict: Complete dimensional analysis at dimension d
+        dict: Complete dimensional analysis with discovery paths
     """
-    return {
-        "dimension": d,
-        "volume": v(d),
-        "surface": s(d),
-        "complexity": c(d),
-        "ratio": r(d),
-        "density": ρ(d),
-    }
+    try:
+        from .research_cli import enhanced_explore
+        return enhanced_explore(d, context="gamma_analysis")
+    except ImportError:
+        # Fallback to basic exploration
+        return {
+            "dimension": d,
+            "volume": v(d),
+            "surface": s(d),
+            "complexity": c(d),
+            "ratio": r(d),
+            "density": ρ(d),
+        }
 
 
 def peaks():
@@ -453,9 +472,24 @@ class LiveGamma:
 
 
 def lab(start_d=4.0):
-    """Launch gamma lab."""
-    lab = GammaLab(start_d=start_d)
-    return lab
+    """Launch enhanced interactive gamma function laboratory.
+    
+    This function now redirects to the enhanced research CLI for
+    full interactive capabilities with session persistence.
+
+    Args:
+        start_d: Starting dimension for exploration
+
+    Returns:
+        ResearchSession: Interactive research session
+    """
+    try:
+        from .research_cli import enhanced_lab
+        return enhanced_lab(start_d)
+    except ImportError:
+        # Fallback to basic lab if enhanced CLI unavailable
+        lab_instance = GammaLab(start_d=start_d)
+        return lab_instance
 
 
 def demo():

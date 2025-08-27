@@ -720,7 +720,8 @@ class TestVisualizationCompat:
 
             result = instant()
             assert isinstance(result, dict)
-            assert "panels" in result
+            # New enhanced structure has these keys instead of "panels"
+            assert "dimensional_measures" in result or "panels" in result  # Support both old and new
         except ImportError:
             pytest.skip("Instant visualization not available")
 
@@ -734,7 +735,13 @@ class TestVisualizationCompat:
 
             result = explore(4.0)
             assert isinstance(result, dict)
-            assert "dimension" in result
-            assert result["dimension"] == 4.0
+            # New enhanced structure has "point" instead of direct "dimension"
+            if "point" in result:
+                assert "dimension" in result["point"]
+                assert result["point"]["dimension"] == 4.0
+            else:
+                # Fallback structure
+                assert "dimension" in result
+                assert result["dimension"] == 4.0
         except ImportError:
             pytest.skip("Explore function not available")

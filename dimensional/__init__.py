@@ -45,7 +45,26 @@ from .gamma import (
     quick_gamma_analysis,
     s_peak,
     v_peak,
+    lab,
+    explore,
+    instant,
 )
+
+# Import enhanced research CLI functions (gracefully handle missing deps)
+try:
+    from .research_cli import (
+        enhanced_lab,
+        enhanced_explore, 
+        enhanced_instant,
+        ResearchSession,
+        ResearchPersistence,
+        RichVisualizer,
+        InteractiveParameterSweep,
+        PublicationExporter
+    )
+    ENHANCED_RESEARCH_AVAILABLE = True
+except ImportError:
+    ENHANCED_RESEARCH_AVAILABLE = False
 from .interface import UnifiedInterface
 from .mathematics.functions import find_all_peaks
 from .measures import find_all_peaks as measures_find_all_peaks
@@ -85,15 +104,35 @@ __description__ = "Unified dimensional mathematics and gamma function tools"
 
 # Make commonly used functions available at package level
 def quick_start():
-    """Show quick start examples."""
+    """Show quick start examples with enhanced research capabilities."""
     print(__doc__)
-    print("\n🚀 Try these commands:")
+    print("\n🚀 Enhanced Research Commands:")
+    if ENHANCED_RESEARCH_AVAILABLE:
+        print("  🔬 RESEARCH MODE:")
+        print("    enhanced_lab(4)     # Full research laboratory")
+        print("    enhanced_explore(4) # Guided dimensional discovery") 
+        print("    enhanced_instant()  # Multi-panel analysis")
+        print("\n  📊 PARAMETER SWEEPS:")
+        print("    sweeper = InteractiveParameterSweep(visualizer)")
+        print("    sweep = sweeper.run_dimension_sweep(2, 8, 50)")
+        print("\n  💾 SESSION MANAGEMENT:")
+        print("    persistence = ResearchPersistence()")
+        print("    session = persistence.load_session('lab_123')")
+        print("\n  📈 RICH VISUALIZATION:")
+        print("    viz = RichVisualizer()")
+        print("    viz.show_dimensional_analysis(point)")
+        print("    viz.show_critical_dimensions_tree()")
+        print("\n  🎯 PUBLICATION EXPORTS:")
+        print("    exporter = PublicationExporter()")
+        print("    exporter.export_csv_data(sweep)")
+    else:
+        print("  [Basic mode - install research dependencies for enhanced features]")
+        
+    print("\n🚀 Basic Commands:")
     print("  explore(4)     # Explore dimension 4")
     print("  peaks()        # Find all peaks")
     print("  instant()      # 4-panel visualization")
-    print("  qplot(v, s, c) # Quick plot V, S, C")
     print("  lab()          # Interactive lab")
-    print("  live()         # Live editing mode")
     print("\n📊 Measures:")
     print("  V(4)           # Ball volume at d=4")
     print("  S(4)           # Sphere surface at d=4")
@@ -103,11 +142,6 @@ def quick_start():
     print("  run_emergence_simulation() # Run emergence sim")
     print("  quick_phase_analysis(4)    # Analyze dimension 4")
     print("  PhaseDynamicsEngine()      # Full engine")
-    print("\n🔮 Morphic Mathematics:")
-    print("  morphic_polynomial_roots(1.5) # Find τ roots")
-    print("  golden_ratio_properties()     # φ properties")
-    print("  stability_regions()           # Stability analysis")
-    print("  MorphicAnalyzer()             # Full analyzer")
 
 
 # Convenience aliases (only include functions that exist)

@@ -376,18 +376,32 @@ def cli_lab(
         help="🎯 Starting dimension for interactive exploration",
         min=0.1,
         max=100.0,
+    ),
+    session_id: str = typer.Option(
+        None,
+        "--session",
+        "-sid",
+        help="📁 Load existing research session"
     )
 ):
-    """🎮 Launch interactive gamma function laboratory."""
+    """🎮 Launch enhanced interactive research laboratory."""
     console.print(
         Panel.fit(
-            f"🎮 [bold green]Interactive Gamma Lab[/bold green]\n"
+            f"🎮 [bold green]Enhanced Research Laboratory[/bold green]\n"
             f"Starting at dimension: [yellow]{start_dimension}[/yellow]\n"
-            f"Use keyboard controls for exploration",
+            f"Session: [cyan]{session_id or 'new'}[/cyan]\n"
+            f"Features: persistence, sweeps, exports, Rich visualization",
             border_style="green",
         )
     )
-    lab(start_dimension)
+    try:
+        from .research_cli import enhanced_lab
+        session = enhanced_lab(start_dimension, session_id)
+        console.print(f"[green]✅ Research session completed: {session.session_id}[/green]")
+        return session
+    except ImportError:
+        console.print("[yellow]⚠️  Enhanced features unavailable, using basic lab[/yellow]")
+        return lab(start_dimension)
 
 
 @app.command("live")
@@ -421,33 +435,38 @@ def cli_explore(
     dimension: float = typer.Argument(
         4.0, help="🔍 Dimension to explore in detail"
     ),
-    range_start: float = typer.Option(
-        None, "--range-start", "-rs", help="📊 Start of exploration range"
+    context: str = typer.Option(
+        "general",
+        "--context",
+        "-c",
+        help="🎯 Exploration context: general, peaks, critical, research"
     ),
-    range_end: float = typer.Option(
-        None, "--range-end", "-re", help="📊 End of exploration range"
-    ),
-    save_plot: bool = typer.Option(
-        False, "--save", "-s", help="💾 Save plot to file"
+    save_analysis: bool = typer.Option(
+        False, "--save", "-s", help="💾 Save analysis to file"
     ),
 ):
-    """🔍 Explore gamma functions around a specific dimension."""
+    """🔍 Enhanced dimensional exploration with guided discovery."""
     console.print(
         Panel.fit(
-            f"🔍 [bold cyan]Gamma Exploration[/bold cyan]\n"
-            f"Dimension: [yellow]{dimension}[/yellow]",
+            f"🔍 [bold cyan]Enhanced Dimensional Exploration[/bold cyan]\n"
+            f"Dimension: [yellow]{dimension}[/yellow]\n"
+            f"Context: [magenta]{context}[/magenta]\n"
+            f"Features: guided discovery, Rich visualization, analysis paths",
             border_style="cyan",
         )
     )
 
-    if range_start is not None and range_end is not None:
-        # Custom range exploration - would need to extend explore() function
-        console.print(f"📊 Range: {range_start} → {range_end}")
-
-    explore(dimension)
-
-    if save_plot:
-        console.print("💾 [green]Plot saved![/green]")
+    try:
+        from .research_cli import enhanced_explore
+        results = enhanced_explore(dimension, context)
+        
+        if save_analysis:
+            console.print("💾 [green]Analysis results available for export[/green]")
+        
+        return results
+    except ImportError:
+        console.print("[yellow]⚠️  Enhanced features unavailable, using basic exploration[/yellow]")
+        return explore(dimension)
 
 
 @app.command("peaks")
@@ -480,16 +499,161 @@ def cli_peaks(
 
 
 @app.command("instant")
-def cli_instant():
-    """⚡ Generate instant gamma function visualization."""
+def cli_instant(
+    config: str = typer.Option(
+        "research",
+        "--config",
+        "-c", 
+        help="⚡ Analysis configuration: research, peaks, discovery, publication"
+    )
+):
+    """⚡ Enhanced instant analysis with multiple configurations."""
     console.print(
         Panel.fit(
-            "⚡ [bold red]Instant Visualization[/bold red]\n"
-            "Generating quick gamma plots...",
+            f"⚡ [bold red]Enhanced Instant Analysis[/bold red]\n"
+            f"Configuration: [yellow]{config}[/yellow]\n"
+            f"Features: Rich visualization, multiple panels, export-ready",
             border_style="red",
         )
     )
-    instant()
+    
+    try:
+        from .research_cli import enhanced_instant
+        results = enhanced_instant(config)
+        console.print("✅ [green]Instant analysis completed![/green]")
+        return results
+    except ImportError:
+        console.print("[yellow]⚠️  Enhanced features unavailable, using basic instant[/yellow]")
+        return instant()
+
+
+# ============================================================================
+# ENHANCED RESEARCH COMMANDS  
+# ============================================================================
+
+
+@app.command("sweep")
+def cli_sweep(
+    start: float = typer.Argument(..., help="🔄 Start dimension for sweep"),
+    end: float = typer.Argument(..., help="🔄 End dimension for sweep"),
+    steps: int = typer.Option(50, "--steps", "-n", help="🔄 Number of steps", min=10, max=1000),
+    export: bool = typer.Option(False, "--export", "-e", help="💾 Export results to CSV"),
+):
+    """🔄 Run interactive parameter sweep across dimensional range."""
+    if end <= start:
+        console.print("[red]❌ End dimension must be greater than start[/red]")
+        raise typer.Exit(1)
+    
+    console.print(
+        Panel.fit(
+            f"🔄 [bold blue]Parameter Sweep Analysis[/bold blue]\n"
+            f"Range: [yellow]{start} → {end}[/yellow] ({steps} steps)\n"
+            f"Export: [cyan]{'Yes' if export else 'No'}[/cyan]",
+            border_style="blue",
+        )
+    )
+    
+    try:
+        from .research_cli import InteractiveParameterSweep, RichVisualizer, PublicationExporter
+        
+        visualizer = RichVisualizer()
+        sweeper = InteractiveParameterSweep(visualizer)
+        
+        sweep_results = sweeper.run_dimension_sweep(start, end, steps, 
+                                                   notes="CLI parameter sweep")
+        
+        visualizer.show_parameter_sweep_analysis(sweep_results)
+        
+        if export:
+            exporter = PublicationExporter()
+            filepath = exporter.export_csv_data(sweep_results)
+            console.print(f"💾 [green]Results exported to {filepath}[/green]")
+        
+        return sweep_results
+        
+    except ImportError:
+        console.print("[red]❌ Enhanced research features not available[/red]")
+        raise typer.Exit(1)
+
+
+@app.command("sessions")
+def cli_sessions():
+    """💾 List and manage research sessions."""
+    try:
+        from .research_cli import ResearchPersistence
+        
+        persistence = ResearchPersistence()
+        sessions = persistence.list_sessions()
+        
+        if not sessions:
+            console.print("[yellow]📁 No research sessions found[/yellow]")
+            return
+        
+        table = Table(title="💾 Research Sessions")
+        table.add_column("Session ID", style="cyan")
+        table.add_column("Start Time", style="yellow")
+        table.add_column("Age", style="green")
+        
+        from datetime import datetime
+        now = datetime.now()
+        
+        for session_id, start_time in sessions:
+            age = now - start_time
+            age_str = f"{age.days}d {age.seconds//3600}h" if age.days > 0 else f"{age.seconds//3600}h {(age.seconds//60)%60}m"
+            
+            table.add_row(
+                session_id,
+                start_time.strftime('%Y-%m-%d %H:%M:%S'),
+                age_str
+            )
+        
+        console.print(table)
+        
+        # Offer to load a session
+        if len(sessions) > 0:
+            load_session = typer.confirm("Would you like to load a session?")
+            if load_session:
+                session_id = typer.prompt("Enter session ID")
+                loaded = persistence.load_session(session_id)
+                if loaded:
+                    from .research_cli import RichVisualizer
+                    visualizer = RichVisualizer()
+                    visualizer.show_session_overview(loaded)
+                else:
+                    console.print(f"[red]❌ Session {session_id} not found[/red]")
+        
+    except ImportError:
+        console.print("[red]❌ Enhanced research features not available[/red]")
+
+
+@app.command("research")
+def cli_research():
+    """🔬 Launch comprehensive research mode with all tools."""
+    console.print(
+        Panel.fit(
+            "🔬 [bold magenta]Comprehensive Research Mode[/bold magenta]\n"
+            "Launching enhanced research laboratory with full capabilities:\n"
+            "• Interactive exploration with session persistence\n"
+            "• Parameter sweeps with real-time visualization\n" 
+            "• Publication-quality export system\n"
+            "• Rich terminal mathematical displays",
+            border_style="magenta",
+        )
+    )
+    
+    try:
+        from .research_cli import enhanced_lab
+        
+        # Start with comprehensive research configuration
+        session = enhanced_lab(4.0)  # Start at dimension 4
+        
+        console.print(f"🎯 [green]Research session completed: {session.session_id}[/green]")
+        return session
+        
+    except ImportError:
+        console.print("[red]❌ Enhanced research features not available[/red]")
+        console.print("Install additional dependencies for full research capabilities")
+        raise typer.Exit(1)
 
 
 # ============================================================================
