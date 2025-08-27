@@ -185,7 +185,7 @@ def assert_conserved_quantity(
 ):
     """Assert that a physical quantity is conserved (energy, probability, etc.)."""
     drift = abs(final_value - initial_value)
-    relative_drift = drift / abs(initial_value) if initial_value != 0 else drif
+    relative_drift = drift / abs(initial_value) if initial_value != 0 else drift
 
     if drift > tolerance:
         pytest.fail(

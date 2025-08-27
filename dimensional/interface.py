@@ -19,29 +19,31 @@ from .mathematics import CRITICAL_DIMENSIONS, PHI, PI, E
 from .measures import C as complexity_measure
 from .measures import S as sphere_surface
 from .measures import V as ball_volume
+from .measures import find_all_peaks
+from .phase import PhaseDynamicsEngine
+from .pregeometry import PreGeometry
 
 FOUNDATION_AVAILABLE = True
 
 # Direct imports - clean and simple
-from .gamma import demo as gamma_demo
-from .measures import find_all_peaks
-from .phase import PhaseDynamicsEngine
 
 INTERFACE_AVAILABLE = True
 
 # Research platform - direct access
-from .pregeometry import PreGeometry
 
 
 def advanced_geometric_analysis(d=6.335):
     """Advanced geometric analysis at complexity peak."""
-    return {'dimension': d, 'complexity': complexity_measure(d)}
+    return {"dimension": d, "complexity": complexity_measure(d)}
+
 
 def run_phase_simulation(steps=1000):
     """Run phase dynamics simulation."""
-    return {'status': 'completed', 'final_dimension': 6.335, 'steps': steps}
+    return {"status": "completed", "final_dimension": 6.335, "steps": steps}
+
 
 RESEARCH_PLATFORM_AVAILABLE = True
+
 
 class UnifiedInterface:
     """
@@ -79,10 +81,10 @@ class UnifiedInterface:
         print("\n📦 Platform Version: 2.0.0 - Research Platform Foundation")
 
         return {
-            'foundation': True,
-            'interface': True,
-            'research': True,
-            'phi': PHI
+            "foundation": True,
+            "interface": True,
+            "research": True,
+            "phi": PHI,
         }
 
     def quick_start(self):
@@ -146,16 +148,20 @@ class UnifiedInterface:
 
         print("\n🔄 Phase Simulation:")
         phase_result = run_phase_simulation(steps=100)
-        status = phase_result['status']
+        status = phase_result["status"]
         print(f"  Simulation status: {status}")
-        final_d = phase_result['final_dimension']
+        final_d = phase_result["final_dimension"]
         print(f"  Peak dimension: {final_d:.3f}")
 
         # Peak analysis demo
         print("\n📊 Complexity Peaks:")
         peak_results = find_all_peaks()
         if peak_results and len(peak_results) > 0:
-            main_peak = peak_results[0] if isinstance(peak_results, list) else peak_results
+            main_peak = (
+                peak_results[0]
+                if isinstance(peak_results, list)
+                else peak_results
+            )
             print(f"  Primary complexity peak: {main_peak}")
         else:
             print("  Complexity analysis: Available")
@@ -166,33 +172,44 @@ class UnifiedInterface:
 
         return True
 
+
 # Create default interface instance
 interface = UnifiedInterface()
 
 # Convenience functions for easy access
+
+
 def status():
     """Check platform status."""
     return interface.status()
 
+
 def research_status():
     """Check research platform availability."""
     return {
-        'available': True,
-        'phi': PHI,
-        'pregeometry_framework': True,
-        'phase_dynamics': True,
-        'geometric_analysis': True
+        "available": True,
+        "phi": PHI,
+        "pregeometry_framework": True,
+        "phase_dynamics": True,
+        "geometric_analysis": True,
     }
+
 
 # Export main interface functions
 __all__ = [
     # Core interface
-    'UnifiedInterface', 'interface', 'status', 'research_status',
-
+    "UnifiedInterface",
+    "interface",
+    "status",
+    "research_status",
     # Mathematical constants
-    'PHI', 'E', 'PI', 'CRITICAL_DIMENSIONS',
-
+    "PHI",
+    "E",
+    "PI",
+    "CRITICAL_DIMENSIONS",
     # Research platform functions (when available)
-    'advanced_geometric_analysis', 'run_phase_simulation',
-    'PreGeometry', 'PhaseDynamicsEngine'
+    "advanced_geometric_analysis",
+    "run_phase_simulation",
+    "PreGeometry",
+    "PhaseDynamicsEngine",
 ]

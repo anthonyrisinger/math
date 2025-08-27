@@ -159,7 +159,8 @@ def _validate_dimension(d, function_name="measure"):
         negative_values = d_array[d_array < 0]
         if len(negative_values) == 1:
             warnings.warn(
-                f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
+                f"Negative dimension d={
+                    negative_values[0]:.3f} in {function_name}(). "
                 f"Returning mathematical extension value.",
                 UserWarning,
                 stacklevel=3,
@@ -169,7 +170,8 @@ def _validate_dimension(d, function_name="measure"):
         large_values = d_array[d_array > 100]
         if len(large_values) == 1:
             warnings.warn(
-                f"Large dimension d={large_values[0]:.1f} in {function_name}() "
+                f"Large dimension d={
+                    large_values[0]:.1f} in {function_name}() "
                 f"may underflow to zero.",
                 UserWarning,
                 stacklevel=3,
@@ -196,12 +198,16 @@ def ball_volume(d):
 
         if np.any(~large_mask):
             d_small = d[~large_mask]
-            log_vol = (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2 + 1)
+            log_vol = (d_small / 2) * np.log(PI) - gammaln_safe(
+                d_small / 2 + 1
+            )
             result[~large_mask] = np.exp(log_vol)
 
         if np.any(large_mask):
             d_large = d[large_mask]
-            log_vol = (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2 + 1)
+            log_vol = (d_large / 2) * np.log(PI) - gammaln_safe(
+                d_large / 2 + 1
+            )
             result[large_mask] = np.exp(np.real(log_vol))
 
         return result if d.ndim > 0 else float(result)
@@ -237,14 +243,18 @@ def sphere_surface(d):
         if np.any(~large_mask):
             d_small = d[~large_mask]
             log_surf = (
-                np.log(2) + (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2)
+                np.log(2)
+                + (d_small / 2) * np.log(PI)
+                - gammaln_safe(d_small / 2)
             )
             result[~large_mask] = np.exp(log_surf)
 
         if np.any(large_mask):
             d_large = d[large_mask]
             log_surf = (
-                np.log(2) + (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2)
+                np.log(2)
+                + (d_large / 2) * np.log(PI)
+                - gammaln_safe(d_large / 2)
             )
             result[large_mask] = np.exp(np.real(log_surf))
 
@@ -309,10 +319,14 @@ def find_all_peaks(d_min=0.1, d_max=15.0, resolution=10000):
     vol_peak_d, vol_peak_val = find_peak(ball_volume, d_min, d_max, resolution)
     results["volume_peak"] = (vol_peak_d, vol_peak_val)
 
-    surf_peak_d, surf_peak_val = find_peak(sphere_surface, d_min, d_max, resolution)
+    surf_peak_d, surf_peak_val = find_peak(
+        sphere_surface, d_min, d_max, resolution
+    )
     results["surface_peak"] = (surf_peak_d, surf_peak_val)
 
-    comp_peak_d, comp_peak_val = find_peak(complexity_measure, d_min, d_max, resolution)
+    comp_peak_d, comp_peak_val = find_peak(
+        complexity_measure, d_min, d_max, resolution
+    )
     results["complexity_peak"] = (comp_peak_d, comp_peak_val)
 
     return results
@@ -342,7 +356,9 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     # Distance calculation with regularization
     distance = target - source
     if distance < min_distance:
-        regularized_distance = min_distance + phi * (distance / min_distance) ** 2
+        regularized_distance = (
+            min_distance + phi * (distance / min_distance) ** 2
+        )
     else:
         regularized_distance = distance + phi
 
@@ -374,7 +390,9 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     except (OverflowError, ZeroDivisionError):
         frequency_ratio = 1.0
 
-    rate = energy_deficit * distance_factor * frequency_ratio * equilibrium_factor
+    rate = (
+        energy_deficit * distance_factor * frequency_ratio * equilibrium_factor
+    )
     return float(min(rate, 0.5))  # Conservative rate limiting
 
 
@@ -424,7 +442,10 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
     final_total_energy = np.sum(energies)
     energy_error = final_total_energy - initial_total_energy
 
-    if abs(energy_error) > NUMERICAL_EPSILON and final_total_energy > NUMERICAL_EPSILON:
+    if (
+        abs(energy_error) > NUMERICAL_EPSILON
+        and final_total_energy > NUMERICAL_EPSILON
+    ):
         correction_factor = initial_total_energy / final_total_energy
         energies *= correction_factor
 
@@ -535,11 +556,14 @@ def golden_ratio_properties():
     return {
         "phi": phi,
         "psi": psi,
-        "phi_squared_equals_phi_plus_one": abs(phi**2 - (phi + 1)) < NUMERICAL_EPSILON,
-        "psi_squared_equals_one_minus_psi": abs(psi**2 - (1 - psi)) < NUMERICAL_EPSILON,
+        "phi_squared_equals_phi_plus_one": abs(phi**2 - (phi + 1))
+        < NUMERICAL_EPSILON,
+        "psi_squared_equals_one_minus_psi": abs(psi**2 - (1 - psi))
+        < NUMERICAL_EPSILON,
         "phi_times_psi_equals_one": abs(phi * psi - 1) < NUMERICAL_EPSILON,
         "phi_minus_psi_equals_one": abs((phi - psi) - 1.0) < NUMERICAL_EPSILON,
-        "phi_plus_psi_equals_sqrt5": abs((phi + psi) - np.sqrt(5)) < NUMERICAL_EPSILON,
+        "phi_plus_psi_equals_sqrt5": abs((phi + psi) - np.sqrt(5))
+        < NUMERICAL_EPSILON,
     }
 
 
@@ -570,7 +594,9 @@ class PhaseDynamicsEngine:
 
         # Check for new emergences
         for d in range(1, self.max_dim):
-            if d not in self.emerged and emergence_threshold(d, self.phase_density):
+            if d not in self.emerged and emergence_threshold(
+                d, self.phase_density
+            ):
                 self.emerged.add(d)
 
         self.time += d
@@ -699,7 +725,9 @@ if __name__ == "__main__":
 
     # Test golden ratio properties
     props = golden_ratio_properties()
-    assert props["phi_squared_equals_phi_plus_one"], "Golden ratio property failed"
+    assert props[
+        "phi_squared_equals_phi_plus_one"
+    ], "Golden ratio property failed"
 
     print("All mathematical validations passed!")
 
@@ -738,6 +766,7 @@ def setup_3d_axis(
 
     # Set golden ratio viewing angle (from constants)
     from .constants import BOX_ASPECT, VIEW_AZIM, VIEW_ELEV
+
     ax.view_init(elev=VIEW_ELEV, azim=VIEW_AZIM)
 
     # Set box aspect ratio for accurate spatial representation
@@ -779,15 +808,20 @@ def create_3d_figure(figsize=(10, 8), dpi=100):
         DEPRECATED: Returns (None, None). Use modern visualization instead.
     """
     # MATPLOTLIB ELIMINATED - Use modern visualization instead
-    print("⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization.")
+    print(
+        "⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization."
+    )
     print("    Example: python -m dimensional --plot 3d")
     return None, None
+
 
 def create_figure_3d(figsize=(12, 9), dpi=100):
     """DEPRECATED: Create 3D figure.
 
     Use modern dashboard visualization instead.
     """
-    print("⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization.")
+    print(
+        "⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization."
+    )
     print("    Example: python -m dimensional --plot 3d")
     return None, None

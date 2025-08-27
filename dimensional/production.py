@@ -121,7 +121,9 @@ class MathematicalCompressionEngine:
         optimized_data = data
 
         if detect_patterns and self.enable_math_optimization:
-            optimized_data, pattern_info = self._detect_mathematical_patterns(data)
+            optimized_data, pattern_info = self._detect_mathematical_patterns(
+                data
+            )
             metadata["pattern_info"] = pattern_info
 
         # Apply precision control for floating point data
@@ -153,7 +155,9 @@ class MathematicalCompressionEngine:
             ),
             "compression_time": compression_time,
             "space_saved_bytes": original_size - compressed_size,
-            "precision_loss": self._estimate_precision_loss(data, optimized_data),
+            "precision_loss": self._estimate_precision_loss(
+                data, optimized_data
+            ),
         }
 
         self.compression_stats.append(stats)
@@ -192,16 +196,21 @@ class MathematicalCompressionEngine:
             diffs = np.diff(data)
             if np.allclose(diffs, diffs[0], rtol=1e-10):
                 # Arithmetic progression detected
-                pattern_info["patterns_detected"].append("arithmetic_progression")
+                pattern_info["patterns_detected"].append(
+                    "arithmetic_progression"
+                )
                 pattern_info["arithmetic_start"] = float(data[0])
                 pattern_info["arithmetic_diff"] = float(diffs[0])
-                # Could store just start, diff, and length instead of full array
+                # Could store just start, diff, and length instead of full
+                # array
 
         # Check for geometric progressions
         if data.ndim == 1 and len(data) > 2 and np.all(data > 0):
             ratios = data[1:] / data[:-1]
             if np.allclose(ratios, ratios[0], rtol=1e-10):
-                pattern_info["patterns_detected"].append("geometric_progression")
+                pattern_info["patterns_detected"].append(
+                    "geometric_progression"
+                )
                 pattern_info["geometric_start"] = float(data[0])
                 pattern_info["geometric_ratio"] = float(ratios[0])
 
@@ -209,8 +218,12 @@ class MathematicalCompressionEngine:
         for const_name, const_value in self.math_constants.items():
             const_mask = np.isclose(data, const_value, rtol=1e-12)
             if np.any(const_mask):
-                pattern_info["patterns_detected"].append(f"contains_{const_name}")
-                pattern_info[f"{const_name}_indices"] = np.where(const_mask)[0].tolist()
+                pattern_info["patterns_detected"].append(
+                    f"contains_{const_name}"
+                )
+                pattern_info[f"{const_name}_indices"] = np.where(const_mask)[
+                    0
+                ].tolist()
 
         return optimized_data, pattern_info
 
@@ -309,17 +322,23 @@ class UltraHighPerformanceComputing:
                     self._cache_put(f"gamma_{x:.6f}", gamma_val)
                     self._cache_put(f"ln_gamma_{x:.6f}", ln_gamma_val)
                     cached_count += 2
-                except:
+                except BaseException:
                     pass
 
-        print(f"✅ Performance tables initialized: {cached_count} values cached")
+        print(
+            f"✅ Performance tables initialized: {cached_count} values cached"
+        )
         print(f"   Cache memory: {self.current_cache_size / (1024**2):.1f} MB")
 
     def _cache_key(self, prefix: str, value: Union[float, np.ndarray]) -> str:
         """Generate stable cache key."""
         if isinstance(value, np.ndarray):
             if value.size > 100:  # Large arrays
-                return f"{prefix}_array_{value.shape}_{hash(value.tobytes()[:1000])}"
+                return f"{prefix}_array_{
+                    value.shape}_{
+                    hash(
+                        value.tobytes()[
+                            :1000])}"
             else:
                 return f"{prefix}_{'_'.join(str(x) for x in value.flat)}"
         else:
@@ -336,7 +355,7 @@ class UltraHighPerformanceComputing:
                         self.cache[key]
                     )
                     return data
-                except:
+                except BaseException:
                     # Remove corrupted cache entry
                     del self.cache[key]
                     return None
@@ -353,13 +372,16 @@ class UltraHighPerformanceComputing:
 
             # Compress value
             try:
-                compressed_data, stats = self.compressor.compress_mathematical_array(
-                    value
+                compressed_data, stats = (
+                    self.compressor.compress_mathematical_array(value)
                 )
                 compressed_size = len(compressed_data)
 
                 # Check if cache is full and evict if necessary
-                if self.current_cache_size + compressed_size > self.max_cache_size:
+                if (
+                    self.current_cache_size + compressed_size
+                    > self.max_cache_size
+                ):
                     self._evict_cache_entries()
 
                 # Store compressed data
@@ -368,7 +390,9 @@ class UltraHighPerformanceComputing:
                 ):  # Don't cache huge values
                     self.cache[key] = compressed_data
                     self.current_cache_size += compressed_size
-                    self.cache_stats["memory_mb"] = self.current_cache_size / (1024**2)
+                    self.cache_stats["memory_mb"] = self.current_cache_size / (
+                        1024**2
+                    )
 
             except Exception:
                 # If compression fails, don't cache
@@ -463,7 +487,7 @@ class UltraHighPerformanceComputing:
         # Process non-zero elements
         non_zero_mask = ~zero_mask
         if not np.any(non_zero_mask):
-            return resultt
+            return result
 
         d_nz = d[non_zero_mask]
         half_d_nz = 0.5 * d_nz
@@ -473,8 +497,8 @@ class UltraHighPerformanceComputing:
             cache_key = self._cache_key("complexity_vec", d_nz)
             cached_result = self._cache_get(cache_key)
             if cached_result is not None:
-                result[non_zero_mask] = cached_resul
-                return resulttt
+                result[non_zero_mask] = cached_result
+                return result
 
         # Vectorized ultra-optimized computation
         positive_mask = half_d_nz > 0
@@ -522,7 +546,9 @@ class UltraHighPerformanceComputing:
 
         TARGET: 100,000+ operations per second
         """
-        print(f"🏁 ULTRA-PERFORMANCE BENCHMARK - {num_operations:,} operations")
+        print(
+            f"🏁 ULTRA-PERFORMANCE BENCHMARK - {num_operations:,} operations"
+        )
         print("=" * 60)
 
         # Generate test data
@@ -543,12 +569,14 @@ class UltraHighPerformanceComputing:
 
         # Test accuracy against reference
         test_subset = dimensions[:1000]
-        reference_results = np.array([complexity_measure(d) for d in test_subset])
+        reference_results = np.array(
+            [complexity_measure(d) for d in test_subset]
+        )
         optimized_subset = self.complexity_measure_ultra_optimized(test_subset)
 
-        relative_errors = np.abs(reference_results - optimized_subset) / np.maximum(
-            np.abs(reference_results), 1e-15
-        )
+        relative_errors = np.abs(
+            reference_results - optimized_subset
+        ) / np.maximum(np.abs(reference_results), 1e-15)
         max_relative_error = np.max(relative_errors)
 
         # Check target achievemen
@@ -570,13 +598,18 @@ class UltraHighPerformanceComputing:
         }
 
         print(f"Performance: {optimized_ops_per_sec:,.0f} ops/sec")
-        print(f"Target 100K: {'✅ ACHIEVED' if target_achieved else '❌ MISSED'}")
         print(
-            f"Accuracy: {max_relative_error:.2e} ({'✅ GOOD' if results['accuracy_acceptable'] else '❌ POOR'})"
+            f"Target 100K: {
+                '✅ ACHIEVED' if target_achieved else '❌ MISSED'}"
+        )
+        print(
+            f"Accuracy: {
+                max_relative_error:.2e} ({
+                '✅ GOOD' if results['accuracy_acceptable'] else '❌ POOR'})"
         )
         print(f"Cache hit rate: {cache_hit_rate:.1%}")
 
-        return resultts
+        return results
 
 
 class TechnicalDebtCleanupSystem:
@@ -752,7 +785,10 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
     performance_ops_sec = performance_results["ops_per_sec"]
 
     print(f"✅ Performance: {performance_ops_sec:,.0f} ops/sec")
-    print(f"🎯 100K Target: {'ACHIEVED' if performance_target_met else 'MISSED'}")
+    print(
+        f"🎯 100K Target: {
+            'ACHIEVED' if performance_target_met else 'MISSED'}"
+    )
 
     # 2. COMPRESSION VALIDATION (ENHANCED WITH SYMBOLIC COMPRESSION)
     print("\n🗜️ COMPRESSION VALIDATION")
@@ -763,17 +799,24 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
 
     symbolic_compressor = SymbolicMathematicalCompressor()
 
-    # Test compression on various mathematical structures designed for symbolic patterns
+    # Test compression on various mathematical structures designed for
+    # symbolic patterns
     test_data = [
         np.array(
             [np.pi] * 1000 + [np.e] * 500 + [np.sqrt(2)] * 300
         ),  # Mathematical constants
         np.linspace(0, 100, 2000),  # Arithmetic progression
         np.array([2.0**i for i in range(20)] * 100),  # Geometric progression
-        np.tile(np.array([1.1, 2.2, 3.3, 4.4, 5.5]), 400),  # Repetitive pattern
+        np.tile(
+            np.array([1.1, 2.2, 3.3, 4.4, 5.5]), 400
+        ),  # Repetitive pattern
         np.random.randn(10000),  # Random data for baseline
         np.concatenate(
-            [np.array([np.pi] * 100), np.linspace(1, 10, 200), np.array([np.e] * 50)]
+            [
+                np.array([np.pi] * 100),
+                np.linspace(1, 10, 200),
+                np.array([np.e] * 50),
+            ]
         ),  # Mixed
     ]
 
@@ -795,13 +838,20 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
         total_compressed_size += stats["compressed_size"]
 
         print(
-            f"  Dataset {i+1}: {stats['compression_ratio']:.1f}x compression, "
-            f"{stats['patterns_detected']} patterns, "
-            f"{stats['reconstruction_error']:.2e} error"
+            f"  Dataset {
+                i +
+                1}: {
+                stats['compression_ratio']:.1f}x compression, "
+            f"{
+                stats['patterns_detected']} patterns, "
+            f"{
+                    stats['reconstruction_error']:.2e} error"
         )
 
     overall_compression_ratio = (
-        total_original_size / total_compressed_size if total_compressed_size > 0 else 0
+        total_original_size / total_compressed_size
+        if total_compressed_size > 0
+        else 0
     )
     avg_reconstruction_error = np.mean(
         [s["reconstruction_error"] for s in compression_results]
@@ -812,7 +862,8 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
 
     print(f"✅ Overall compression: {overall_compression_ratio:.1f}x ratio")
     print(
-        f"🎯 Compression target: {'ACHIEVED' if compression_target_met else 'MISSED'}"
+        f"🎯 Compression target: {
+            'ACHIEVED' if compression_target_met else 'MISSED'}"
     )
 
     # 3. TECHNICAL DEBT CLEANUP VALIDATION
@@ -832,14 +883,16 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
 
     # Mathematical accuracy validation
     test_dimensions = np.random.uniform(0.1, 10.0, 1000)
-    reference_results = np.array([complexity_measure(d) for d in test_dimensions])
+    reference_results = np.array(
+        [complexity_measure(d) for d in test_dimensions]
+    )
     optimized_results = ultra_computing.complexity_measure_ultra_optimized(
         test_dimensions
     )
 
-    accuracy_errors = np.abs(reference_results - optimized_results) / np.maximum(
-        np.abs(reference_results), 1e-15
-    )
+    accuracy_errors = np.abs(
+        reference_results - optimized_results
+    ) / np.maximum(np.abs(reference_results), 1e-15)
     max_accuracy_error = np.max(accuracy_errors)
     accuracy_target_met = max_accuracy_error < 1e-12
 
@@ -850,7 +903,8 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
     print(f"✅ Mathematical accuracy: {max_accuracy_error:.2e} max error")
     print(f"✅ Memory efficiency: {memory_efficiency_score:.1%}")
     print(
-        f"🎯 Production target: {'ACHIEVED' if accuracy_target_met and memory_target_met else 'MISSED'}"
+        f"🎯 Production target: {
+            'ACHIEVED' if accuracy_target_met and memory_target_met else 'MISSED'}"
     )
 
     # 5. OVERALL SPRINT 3 ASSESSMENT
@@ -861,7 +915,10 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
         ("Performance (100K ops/sec)", performance_target_met),
         ("Compression (2x ratio)", compression_target_met),
         ("Technical Debt (80% score)", debt_target_met),
-        ("Production Ready (accuracy)", accuracy_target_met and memory_target_met),
+        (
+            "Production Ready (accuracy)",
+            accuracy_target_met and memory_target_met,
+        ),
     ]
 
     for target_name, achieved in targets:
@@ -872,7 +929,9 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
     overall_success_rate = targets_achieved / len(targets)
 
     print(
-        f"\nSprint 3 Success Rate: {overall_success_rate:.1%} ({targets_achieved}/{len(targets)})"
+        f"\nSprint 3 Success Rate: {
+            overall_success_rate:.1%} ({targets_achieved}/{
+            len(targets)})"
     )
 
     if overall_success_rate >= 1.0:
@@ -896,7 +955,8 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
         target_achieved=performance_target_met,
         compression_ratio_avg=overall_compression_ratio,
         precision_loss_max=avg_reconstruction_error,
-        memory_saved_mb=(total_original_size - total_compressed_size) / (1024**2),
+        memory_saved_mb=(total_original_size - total_compressed_size)
+        / (1024**2),
         technical_debt_score=debt_score,
         production_readiness=overall_success_rate,
     )
@@ -913,7 +973,8 @@ def sprint3_comprehensive_validation() -> dict[str, Any]:
             "overall_ratio": overall_compression_ratio,
             "reconstruction_error": avg_reconstruction_error,
             "target_met": compression_target_met,
-            "space_saved_mb": (total_original_size - total_compressed_size) / (1024**2),
+            "space_saved_mb": (total_original_size - total_compressed_size)
+            / (1024**2),
         },
         "technical_debt": {
             "score": debt_score,
@@ -948,7 +1009,9 @@ if __name__ == "__main__":
             print("\n🎯 FUNDING SUCCESS - SPRINT 3 REQUIREMENTS MET")
             print("Framework ready for production deployment!")
         else:
-            print("\n⚠️ Sprint 3 needs additional work to meet all requirements")
+            print(
+                "\n⚠️ Sprint 3 needs additional work to meet all requirements"
+            )
 
     except Exception as e:
         print(f"\n❌ Validation error: {e}")

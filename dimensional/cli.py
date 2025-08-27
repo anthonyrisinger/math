@@ -105,7 +105,9 @@ class DimensionRange(BaseModel):
 
     start: float = Field(ge=0, description="Starting dimension (≥ 0)")
     end: float = Field(gt=0, description="Ending dimension (> 0)")
-    points: int = Field(ge=10, le=10000, default=1000, description="Number of points")
+    points: int = Field(
+        ge=10, le=10000, default=1000, description="Number of points"
+    )
 
     @property
     def linspace(self) -> np.ndarray:
@@ -116,7 +118,9 @@ class DimensionRange(BaseModel):
 class AnalysisConfig(BaseModel):
     """Type-safe analysis configuration."""
 
-    precision: int = Field(ge=6, le=20, default=15, description="Decimal precision")
+    precision: int = Field(
+        ge=6, le=20, default=15, description="Decimal precision"
+    )
     tolerance: float = Field(
         ge=1e-16, le=1e-6, default=1e-12, description="Numerical tolerance"
     )
@@ -130,11 +134,15 @@ class ExplorationMode(BaseModel):
     """Type-safe exploration mode."""
 
     mode: Literal["basic", "detailed", "advanced"] = Field(default="basic")
-    include_peaks: bool = Field(default=True, description="Include peak analysis")
+    include_peaks: bool = Field(
+        default=True, description="Include peak analysis"
+    )
     include_critical: bool = Field(
         default=True, description="Include critical dimensions"
     )
-    visualize: bool = Field(default=False, description="Generate visualizations")
+    visualize: bool = Field(
+        default=False, description="Generate visualizations"
+    )
 
 
 # ============================================================================
@@ -144,7 +152,9 @@ class ExplorationMode(BaseModel):
 
 @app.command("v")
 def shortcut_volume(
-    dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
+    dims: str = typer.Argument(
+        ..., help="📐 Dimensions (e.g., '4' or '2,3,4')"
+    )
 ):
     """⚡ Ultra-fast volume calculation: dim v 4"""
     _process_shortcut("volume", dims)
@@ -152,7 +162,9 @@ def shortcut_volume(
 
 @app.command("s")
 def shortcut_surface(
-    dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
+    dims: str = typer.Argument(
+        ..., help="📐 Dimensions (e.g., '4' or '2,3,4')"
+    )
 ):
     """⚡ Ultra-fast surface calculation: dim s 4"""
     _process_shortcut("surface", dims)
@@ -160,7 +172,9 @@ def shortcut_surface(
 
 @app.command("c")
 def shortcut_complexity(
-    dims: str = typer.Argument(..., help="📐 Dimensions (e.g., '4' or '2,3,4')")
+    dims: str = typer.Argument(
+        ..., help="📐 Dimensions (e.g., '4' or '2,3,4')"
+    )
 ):
     """⚡ Ultra-fast complexity calculation: dim c 4"""
     _process_shortcut("complexity", dims)
@@ -265,9 +279,13 @@ def ai_batch(
     for expr in expr_list:
         try:
             result = _evaluate_expression(expr, "raw")
-            results.append({"expression": expr, "result": result, "status": "success"})
+            results.append(
+                {"expression": expr, "result": result, "status": "success"}
+            )
         except Exception as e:
-            results.append({"expression": expr, "error": str(e), "status": "error"})
+            results.append(
+                {"expression": expr, "error": str(e), "status": "error"}
+            )
 
     if format == "json":
         console.print_json(json.dumps(results, indent=2))
@@ -309,10 +327,18 @@ def _evaluate_expression(expr: str, output_format: str = "human"):
 
     # Simple expression patterns for AI workflows
     patterns = {
-        r"V\(([0-9.,\s]+)\)": lambda m: _eval_function(ball_volume, m.group(1)),
-        r"S\(([0-9.,\s]+)\)": lambda m: _eval_function(sphere_surface, m.group(1)),
-        r"C\(([0-9.,\s]+)\)": lambda m: _eval_function(complexity_measure, m.group(1)),
-        r"gamma\(([0-9.,\s]+)\)": lambda m: _eval_function(gamma_safe, m.group(1)),
+        r"V\(([0-9.,\s]+)\)": lambda m: _eval_function(
+            ball_volume, m.group(1)
+        ),
+        r"S\(([0-9.,\s]+)\)": lambda m: _eval_function(
+            sphere_surface, m.group(1)
+        ),
+        r"C\(([0-9.,\s]+)\)": lambda m: _eval_function(
+            complexity_measure, m.group(1)
+        ),
+        r"gamma\(([0-9.,\s]+)\)": lambda m: _eval_function(
+            gamma_safe, m.group(1)
+        ),
         r"Γ\(([0-9.,\s]+)\)": lambda m: _eval_function(gamma_safe, m.group(1)),
     }
 
@@ -337,7 +363,7 @@ def _evaluate_expression(expr: str, output_format: str = "human"):
             if output_format == "raw":
                 return result
             return {"expression": expr, "result": result}
-    except:
+    except BaseException:
         pass
 
     raise ValueError(f"Could not evaluate expression: {expr}")
@@ -350,7 +376,6 @@ def _eval_function(func, args_str):
         return [func(arg) for arg in args]
     else:
         return func(float(args_str.strip()))
-
 
 
 # ============================================================================
@@ -422,14 +447,18 @@ def cli_live(
 
 @app.command("explore")
 def cli_explore(
-    dimension: float = typer.Argument(4.0, help="🔍 Dimension to explore in detail"),
+    dimension: float = typer.Argument(
+        4.0, help="🔍 Dimension to explore in detail"
+    ),
     range_start: float = typer.Option(
         None, "--range-start", "-rs", help="📊 Start of exploration range"
     ),
     range_end: float = typer.Option(
         None, "--range-end", "-re", help="📊 End of exploration range"
     ),
-    save_plot: bool = typer.Option(False, "--save", "-s", help="💾 Save plot to file"),
+    save_plot: bool = typer.Option(
+        False, "--save", "-s", help="💾 Save plot to file"
+    ),
 ):
     """🔍 Explore gamma functions around a specific dimension."""
     console.print(
@@ -453,7 +482,10 @@ def cli_explore(
 @app.command("peaks")
 def cli_peaks(
     function: str = typer.Option(
-        "all", "--function", "-f", help="🎯 Function to analyze: v, s, c, or all"
+        "all",
+        "--function",
+        "-f",
+        help="🎯 Function to analyze: v, s, c, or all",
     ),
     precision: int = typer.Option(
         15,
@@ -503,7 +535,10 @@ def cli_measure(
         help="📏 Dimensions to measure (can specify multiple)",
     ),
     functions: list[str] = typer.Option(
-        ["v", "s", "c"], "--func", "-f", help="⚙️ Functions to compute: v, s, c, r"
+        ["v", "s", "c"],
+        "--func",
+        "-f",
+        help="⚙️ Functions to compute: v, s, c, r",
     ),
     output_format: str = typer.Option(
         "table", "--format", "-fmt", help="📋 Output format: table, json, csv"
@@ -539,7 +574,9 @@ def cli_measure(
             else:
                 value = "N/A"
             row.append(
-                f"{value:.6f}" if isinstance(value, (int, float)) else str(value)
+                f"{value:.6f}"
+                if isinstance(value, (int, float))
+                else str(value)
             )
         table.add_row(*row)
 
@@ -613,7 +650,12 @@ def cli_phase(
         100, "--steps", "-n", help="⏰ Number of time steps", min=10, max=1000
     ),
     coupling: float = typer.Option(
-        0.1, "--coupling", "-c", help="🔗 Phase coupling strength", min=0.0, max=1.0
+        0.1,
+        "--coupling",
+        "-c",
+        help="🔗 Phase coupling strength",
+        min=0.0,
+        max=1.0,
     ),
 ):
     """🌊 Simulate phase dynamics evolution."""
@@ -662,7 +704,9 @@ def cli_info():
 
 @app.command("config")
 def cli_config(
-    show: bool = typer.Option(False, "--show", help="📋 Show current configuration"),
+    show: bool = typer.Option(
+        False, "--show", help="📋 Show current configuration"
+    ),
     reset: bool = typer.Option(
         False, "--reset", help="🔄 Reset to default configuration"
     ),
@@ -721,10 +765,20 @@ def cli_visualize_emergence(
         max=2.0,
     ),
     dim_end: float = typer.Option(
-        10.0, "--end", "-e", help="🌟 Ending dimension for emergence", min=2.0, max=20.0
+        10.0,
+        "--end",
+        "-e",
+        help="🌟 Ending dimension for emergence",
+        min=2.0,
+        max=20.0,
     ),
     steps: int = typer.Option(
-        1000, "--steps", "-n", help="📊 Number of evolution steps", min=100, max=5000
+        1000,
+        "--steps",
+        "-n",
+        help="📊 Number of evolution steps",
+        min=100,
+        max=5000,
     ),
     interactive: bool = typer.Option(
         True, "--interactive/--static", help="🎮 Create interactive plot"
@@ -783,10 +837,14 @@ def cli_visualize_emergence(
 
     # Add traces
     fig.add_trace(
-        go.Scatter(x=dims, y=v_vals, name="V(d)", line=dict(color="blue")), row=1, col=1
+        go.Scatter(x=dims, y=v_vals, name="V(d)", line=dict(color="blue")),
+        row=1,
+        col=1,
     )
     fig.add_trace(
-        go.Scatter(x=dims, y=s_vals, name="S(d)", line=dict(color="red")), row=1, col=2
+        go.Scatter(x=dims, y=s_vals, name="S(d)", line=dict(color="red")),
+        row=1,
+        col=2,
     )
     fig.add_trace(
         go.Scatter(x=dims, y=c_vals, name="C(d)", line=dict(color="green")),
@@ -806,7 +864,9 @@ def cli_visualize_emergence(
         col=2,
     )
     fig.add_trace(
-        go.Scatter(x=dims, y=c_vals, name="Complexity", line=dict(color="green")),
+        go.Scatter(
+            x=dims, y=c_vals, name="Complexity", line=dict(color="green")
+        ),
         row=2,
         col=2,
     )
@@ -823,7 +883,9 @@ def cli_visualize_emergence(
 
         for d_crit, label in critical_points:
             if dim_start <= d_crit <= dim_end:
-                fig.add_vline(x=d_crit, line_dash="dash", annotation_text=label)
+                fig.add_vline(
+                    x=d_crit, line_dash="dash", annotation_text=label
+                )
 
     fig.update_layout(
         title="🌱 Dimensional Emergence: From Void to Reality",
@@ -845,10 +907,20 @@ def cli_visualize_emergence(
 @viz_app.command("complexity-peak")
 def cli_visualize_complexity_peak(
     focus_range: float = typer.Option(
-        2.0, "--range", "-r", help="🎯 Range around peak to visualize", min=0.5, max=5.0
+        2.0,
+        "--range",
+        "-r",
+        help="🎯 Range around peak to visualize",
+        min=0.5,
+        max=5.0,
     ),
     resolution: int = typer.Option(
-        500, "--resolution", "-res", help="🔍 Plot resolution", min=100, max=2000
+        500,
+        "--resolution",
+        "-res",
+        help="🔍 Plot resolution",
+        min=100,
+        max=2000,
     ),
     export_file: Optional[str] = typer.Option(
         None, "--export", "-o", help="💾 Export to HTML file"
@@ -871,7 +943,9 @@ def cli_visualize_complexity_peak(
     )
 
     # Generate high-resolution data around the peak
-    dims = np.linspace(peak_center - focus_range, peak_center + focus_range, resolution)
+    dims = np.linspace(
+        peak_center - focus_range, peak_center + focus_range, resolution
+    )
 
     with console.status("🔄 Computing complexity landscape..."):
         c_vals = [c(d) for d in track(dims, description="Complexity")]
@@ -949,7 +1023,10 @@ def cli_visualize_complexity_peak(
         fig.show()
 
     console.print(f"🎯 [yellow]Peak found at d = {actual_peak_d:.6f}[/yellow]")
-    console.print(f"🏔️ [yellow]Maximum complexity = {actual_peak_c:.6f}[/yellow]")
+    console.print(
+        f"🏔️ [yellow]Maximum complexity = {
+            actual_peak_c:.6f}[/yellow]"
+    )
 
 
 @viz_app.command("gamma-landscape")
@@ -961,7 +1038,12 @@ def cli_visualize_gamma_landscape(
         2.0, "--complex", "-c", help="🌊 Complex plane range", min=0.5, max=5.0
     ),
     resolution: int = typer.Option(
-        100, "--resolution", "-res", help="🔍 3D surface resolution", min=50, max=200
+        100,
+        "--resolution",
+        "-res",
+        help="🔍 3D surface resolution",
+        min=50,
+        max=200,
     ),
     export_file: Optional[str] = typer.Option(
         None, "--export", "-o", help="💾 Export to HTML file"
@@ -991,7 +1073,7 @@ def cli_visualize_gamma_landscape(
             for j in range(resolution):
                 try:
                     gamma_vals[i, j] = gamma_safe(Z[i, j])
-                except:
+                except BaseException:
                     gamma_vals[i, j] = np.nan
 
     # Create 3D surface plo
@@ -1012,7 +1094,9 @@ def cli_visualize_gamma_landscape(
     fig.update_layout(
         title="🏞️ 3D Gamma Function Landscape: Re(Γ(z))",
         scene=dict(
-            xaxis_title="Real(z)", yaxis_title="Imag(z)", zaxis_title="Re(Γ(z))"
+            xaxis_title="Real(z)",
+            yaxis_title="Imag(z)",
+            zaxis_title="Re(Γ(z))",
         ),
         height=700,
     )
@@ -1030,7 +1114,12 @@ def cli_visualize_gamma_landscape(
 @app.command("dashboard")
 def cli_dashboard(
     port: int = typer.Option(
-        8080, "--port", "-p", help="🌐 Port for web dashboard", min=1024, max=65535
+        8080,
+        "--port",
+        "-p",
+        help="🌐 Port for web dashboard",
+        min=1024,
+        max=65535,
     ),
     host: str = typer.Option("localhost", "--host", help="🌍 Host address"),
     auto_open: bool = typer.Option(
@@ -1048,7 +1137,9 @@ def cli_dashboard(
     )
 
     console.print("🚧 [yellow]Dashboard implementation coming soon![/yellow]")
-    console.print("🎯 [green]Use 'dimensional visualize' commands for now[/green]")
+    console.print(
+        "🎯 [green]Use 'dimensional visualize' commands for now[/green]"
+    )
 
 
 # ============================================================================

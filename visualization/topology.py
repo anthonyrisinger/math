@@ -37,13 +37,13 @@ import glob
 import math
 import os
 import sys
-import warnings
 import zipfile
 
 # Select backend BEFORE pyplot import if user set MPLBACKEND in the shell.
 # MATPLOTLIB ELIMINATED - redirect to modern backends
 import mpmath as mp
 import numpy as np
+
 
 # Legacy matplotlib imports disabled - topology visualization now uses Kingdon/Plotly backends
 class _LegacyPlotRedirect:
@@ -1294,7 +1294,7 @@ def export_portfolio_pdf(
         title_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 16)
         body_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 10)
         italic_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 10)
-    except (OSError, IOError):
+    except OSError:
         title_font = ImageFont.load_default()
         body_font = ImageFont.load_default()
         italic_font = ImageFont.load_default()
@@ -1326,8 +1326,8 @@ def export_portfolio_pdf(
             max_height = 500  # Leave room for title
 
             # Scale image to fi
-            img_ratio = img.width / img.heigh
-            page_ratio = max_width / max_heigh
+            img_ratio = img.width / img.height
+            page_ratio = max_width / max_height
 
             if img_ratio > page_ratio:
                 # Image is wider, scale by width
@@ -1335,7 +1335,7 @@ def export_portfolio_pdf(
                 new_height = int(max_width / img_ratio)
             else:
                 # Image is taller, scale by heigh
-                new_height = max_heigh
+                new_height = max_height
                 new_width = int(max_height * img_ratio)
 
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)

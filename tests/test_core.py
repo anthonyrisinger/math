@@ -34,7 +34,6 @@ try:
         gamma_safe,
         morphic_polynomial_roots,
         sap_rate,
-        setup_3d_axis,
         sphere_surface,
     )
 
@@ -351,7 +350,7 @@ class TestVisualization:
         assert hasattr(view_3d, 'current_elev')
         assert hasattr(view_3d, 'current_azim')
         assert hasattr(view_3d, 'view_changed')
-        assert view_3d.view_changed == False
+        assert not view_3d.view_changed
 
         # Test view saving/restoring (mock object)
         class MockAxis:
@@ -636,7 +635,7 @@ class TestQuickTools:
             pytest.skip("Import failed")
 
         try:
-            from dimensional.gamma import v, s, c, r, ρ
+            from dimensional.gamma import c, r, s, v, ρ
 
             # Test known dimensions
             for d in [1, 2, 3, 4]:
@@ -666,7 +665,7 @@ class TestQuickTools:
             pytest.skip("Import failed")
 
         try:
-            from dimensional.gamma import v_peak, s_peak, c_peak
+            from dimensional.gamma import c_peak, s_peak, v_peak
 
             # Volume peak should be around 5.26
             v_peak_d = v_peak()
@@ -688,7 +687,7 @@ class TestQuickTools:
             pytest.skip("Import failed")
 
         try:
-            from dimensional.gamma import γ, abs_γ
+            from dimensional.gamma import abs_γ, γ
 
             # γ should be same as gamma_safe
             assert abs(γ(1.0) - gamma_safe(1.0)) < 1e-10
@@ -709,7 +708,7 @@ class TestVisualizationCompat:
             pytest.skip("Import failed")
 
         try:
-            from dimensional.gamma import qplot, v, s, c
+            from dimensional.gamma import c, qplot, s, v
 
             # Modern implementation returns plot data
             result = qplot(v, s, c, labels=["Volume", "Surface", "Complexity"])

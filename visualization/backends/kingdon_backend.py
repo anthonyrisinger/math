@@ -410,7 +410,7 @@ class KingdonRenderer(VisualizationBackend):
             elif obj_type == "surface":
                 ganja_script += "// Surface mesh\n"
 
-        return ganja_scrip
+        return ganja_script
 
     def get_morphic_transformation_matrix(self) -> np.ndarray:
         """Get current morphic transformation as matrix for compatibility."""

@@ -78,7 +78,8 @@ class SymbolicMathematicalCompressor:
             "pi_cubed": np.pi**3,
             "sqrt_pi": np.sqrt(np.pi),
             "sqrt_2pi": np.sqrt(2 * np.pi),
-            "gamma_half": 1.7724538509055159,  # Γ(1/2) = √π
+            "gamma_half": 1.7724538509055159,
+            # Γ(1/2) = √π
             "log_pi": np.log(np.pi),
             "log_2pi": np.log(2 * np.pi),
         }
@@ -115,6 +116,7 @@ class SymbolicMathematicalCompressor:
         remaining_data = data.copy().flatten()
 
         if detect_patterns:
+
             # 1. Mathematical constant replacement
             constant_pattern = self._detect_constants(remaining_data)
             if constant_pattern and constant_pattern.compression_ratio > 1.1:
@@ -125,8 +127,13 @@ class SymbolicMathematicalCompressor:
 
             # 2. Arithmetic progression detection
             if len(remaining_data) >= self.pattern_min_length:
-                arithmetic_pattern = self._detect_arithmetic_progression(remaining_data)
-                if arithmetic_pattern and arithmetic_pattern.compression_ratio > 1.2:
+                arithmetic_pattern = self._detect_arithmetic_progression(
+                    remaining_data
+                )
+                if (
+                    arithmetic_pattern
+                    and arithmetic_pattern.compression_ratio > 1.2
+                ):
                     patterns.append(arithmetic_pattern)
                     remaining_data = self._remove_arithmetic_pattern(
                         remaining_data, arithmetic_pattern
@@ -134,8 +141,13 @@ class SymbolicMathematicalCompressor:
 
             # 3. Geometric progression detection
             if len(remaining_data) >= self.pattern_min_length:
-                geometric_pattern = self._detect_geometric_progression(remaining_data)
-                if geometric_pattern and geometric_pattern.compression_ratio > 1.2:
+                geometric_pattern = self._detect_geometric_progression(
+                    remaining_data
+                )
+                if (
+                    geometric_pattern
+                    and geometric_pattern.compression_ratio > 1.2
+                ):
                     patterns.append(geometric_pattern)
                     remaining_data = self._remove_geometric_pattern(
                         remaining_data, geometric_pattern
@@ -154,7 +166,9 @@ class SymbolicMathematicalCompressor:
 
             # 5. Repetitive pattern detection
             if len(remaining_data) >= self.pattern_min_length:
-                repeat_pattern = self._detect_repetitive_pattern(remaining_data)
+                repeat_pattern = self._detect_repetitive_pattern(
+                    remaining_data
+                )
                 if repeat_pattern and repeat_pattern.compression_ratio > 1.5:
                     patterns.append(repeat_pattern)
                     remaining_data = self._remove_repetitive_pattern(
@@ -192,7 +206,7 @@ class SymbolicMathematicalCompressor:
             reconstruction_error = self._calculate_reconstruction_error(
                 data, reconstructed
             )
-        except:
+        except BaseException:
             reconstruction_error = float("inf")
 
         metadata = {
@@ -265,10 +279,13 @@ class SymbolicMathematicalCompressor:
 
         # Check each constan
         for const_name, const_value in self.all_constants.items():
-            matches = np.isclose(data, const_value, rtol=tolerance, atol=tolerance)
+            matches = np.isclose(
+                data, const_value, rtol=tolerance, atol=tolerance
+            )
             match_count = np.sum(matches)
 
-            if match_count >= 2:  # At least 2 matches
+            if match_count >= 2:
+                # At least 2 matches
                 constant_matches[const_name] = {
                     "value": const_value,
                     "matches": matches,
@@ -278,22 +295,27 @@ class SymbolicMathematicalCompressor:
         if not constant_matches:
             return None
 
-        # Find best constant match
+            # Find best constant match
         best_const = max(constant_matches.items(), key=lambda x: x[1]["count"])
-        const_name, const_info = best_cons
+        const_name, const_info = best_const
 
         # Calculate compression ratio
         # Original: store all values
+
         # Compressed: store constant name + indices
-        original_bits = const_info["count"] * 64  # 64 bits per floa
-        compressed_bits = (
-            len(const_name) * 8 + const_info["count"] * 1
-        )  # name + bit mask
+        original_bits = const_info["count"] * 64
+
+        # 64 bits per floa
+        compressed_bits = len(const_name) * 8 + const_info["count"] * 1
+
+        # name + bit mask
         compression_ratio = original_bits / max(compressed_bits, 1)
 
         # Calculate reconstruction error
         matched_values = data[const_info["matches"]]
-        reconstruction_error = np.max(np.abs(matched_values - const_info["value"]))
+        reconstruction_error = np.max(
+            np.abs(matched_values - const_info["value"])
+        )
 
         return SymbolicPattern(
             pattern_type="mathematical_constant",
@@ -314,7 +336,7 @@ class SymbolicMathematicalCompressor:
         if len(data) < self.pattern_min_length:
             return None
 
-        # Try different starting points and lengths
+            # Try different starting points and lengths
         best_pattern = None
         best_ratio = 1.0
 
@@ -329,20 +351,25 @@ class SymbolicMathematicalCompressor:
 
                 diffs = np.diff(segment)
                 if np.allclose(diffs, diffs[0], rtol=1e-10, atol=1e-15):
+
                     # Arithmetic progression found
                     first_term = segment[0]
                     common_diff = diffs[0]
 
-                    # Compression ratio: original vs (start, diff, length, indices)
+                    # Compression ratio: original vs (start, diff, length,
+
+                    # indices)
                     original_bits = length * 64
-                    compressed_bits = (
-                        3 * 64 + len(str(start_idx)) * 8
-                    )  # start, diff, length + index
+                    compressed_bits = 3 * 64 + len(str(start_idx)) * 8
+                    # start, diff, length + index
                     compression_ratio = original_bits / max(compressed_bits, 1)
 
                     if compression_ratio > best_ratio:
+
                         # Calculate reconstruction error
-                        reconstructed = first_term + common_diff * np.arange(length)
+                        reconstructed = first_term + common_diff * np.arange(
+                            length
+                        )
                         error = np.max(np.abs(segment - reconstructed))
 
                         best_pattern = SymbolicPattern(
@@ -367,7 +394,7 @@ class SymbolicMathematicalCompressor:
         if len(data) < self.pattern_min_length:
             return None
 
-        # Filter positive values for geometric progression
+            # Filter positive values for geometric progression
         positive_mask = data > 0
         if np.sum(positive_mask) < self.pattern_min_length:
             return None
@@ -379,9 +406,12 @@ class SymbolicMathematicalCompressor:
         best_pattern = None
         best_ratio = 1.0
 
-        for start_idx in range(len(positive_data) - self.pattern_min_length + 1):
+        for start_idx in range(
+            len(positive_data) - self.pattern_min_length + 1
+        ):
             for length in range(
-                self.pattern_min_length, min(len(positive_data) - start_idx + 1, 50)
+                self.pattern_min_length,
+                min(len(positive_data) - start_idx + 1, 50),
             ):
                 segment = positive_data[start_idx : start_idx + length]
 
@@ -390,18 +420,24 @@ class SymbolicMathematicalCompressor:
 
                 ratios = segment[1:] / segment[:-1]
                 if np.allclose(ratios, ratios[0], rtol=1e-10, atol=1e-15):
+
                     # Geometric progression found
                     first_term = segment[0]
                     common_ratio = ratios[0]
 
                     # Compression ratio calculation
                     original_bits = length * 64
-                    compressed_bits = 4 * 64  # first_term, ratio, length, start_index
+
+                    # first_term, ratio, length, start_index
+                    compressed_bits = 4 * 64
                     compression_ratio = original_bits / max(compressed_bits, 1)
 
                     if compression_ratio > best_ratio:
+
                         # Calculate reconstruction error
-                        reconstructed = first_term * (common_ratio ** np.arange(length))
+                        reconstructed = first_term * (
+                            common_ratio ** np.arange(length)
+                        )
                         error = np.max(np.abs(segment - reconstructed))
 
                         best_pattern = SymbolicPattern(
@@ -429,7 +465,7 @@ class SymbolicMathematicalCompressor:
         if len(data) < max_degree + 2:
             return None
 
-        # Try fitting polynomials of different degrees
+            # Try fitting polynomials of different degrees
         best_pattern = None
         best_ratio = 1.0
 
@@ -445,9 +481,12 @@ class SymbolicMathematicalCompressor:
                 max_error = np.max(np.abs(data - poly_fit))
 
                 if max_error < self.precision_threshold:
+
                     # Good polynomial fi
                     original_bits = len(data) * 64
-                    compressed_bits = len(coeffs) * 64 + 32  # coefficients + degree
+
+                    # coefficients + degree
+                    compressed_bits = len(coeffs) * 64 + 32
                     compression_ratio = original_bits / max(compressed_bits, 1)
 
                     if compression_ratio > best_ratio:
@@ -469,7 +508,9 @@ class SymbolicMathematicalCompressor:
 
         return best_pattern
 
-    def _detect_repetitive_pattern(self, data: np.ndarray) -> Optional[SymbolicPattern]:
+    def _detect_repetitive_pattern(
+        self, data: np.ndarray
+    ) -> Optional[SymbolicPattern]:
         """Detect repetitive patterns in the data."""
         if len(data) < 2 * self.pattern_min_length:
             return None
@@ -490,9 +531,12 @@ class SymbolicMathematicalCompressor:
             reconstructed = np.tile(pattern_unit, num_repeats)
 
             if np.allclose(data, reconstructed, rtol=1e-12, atol=1e-15):
+
                 # Pattern found
                 original_bits = len(data) * 64
-                compressed_bits = pattern_length * 64 + 32  # pattern + repeat coun
+
+                # pattern + repeat count
+                compressed_bits = pattern_length * 64 + 32
                 compression_ratio = original_bits / max(compressed_bits, 1)
 
                 if compression_ratio > best_ratio:
@@ -550,9 +594,13 @@ class SymbolicMathematicalCompressor:
         self, data: np.ndarray, pattern: SymbolicPattern
     ) -> np.ndarray:
         """Remove repetitive pattern from data (return empty since it covers all data)."""
-        return np.array([])  # Repetitive pattern covers the entire array
+        return np.array([])
 
-    def _apply_pattern(self, data: np.ndarray, pattern: SymbolicPattern) -> np.ndarray:
+        # Repetitive pattern covers the entire array
+
+    def _apply_pattern(
+        self, data: np.ndarray, pattern: SymbolicPattern
+    ) -> np.ndarray:
         """Apply a pattern to reconstruct original data."""
         if pattern.pattern_type == "mathematical_constant":
             # Insert constants back at specified indices
@@ -583,7 +631,9 @@ class SymbolicMathematicalCompressor:
 
             # Insert progression into data
             result = np.zeros(len(data) + length)
-            result[:start_idx] = data[:start_idx] if start_idx < len(data) else []
+            result[:start_idx] = (
+                data[:start_idx] if start_idx < len(data) else []
+            )
             result[start_idx : start_idx + length] = progression
             result[start_idx + length :] = (
                 data[start_idx:] if start_idx < len(data) else []
@@ -651,8 +701,14 @@ def run_symbolic_compression_test():
         ),
         ("Arithmetic Progression", np.linspace(0, 100, 2000)),
         ("Geometric Progression", np.array([2.0**i for i in range(20)] * 100)),
-        ("Polynomial Pattern", np.array([i**2 + 2 * i + 1 for i in range(1000)])),
-        ("Repetitive Pattern", np.tile(np.array([1.1, 2.2, 3.3, 4.4, 5.5]), 400)),
+        (
+            "Polynomial Pattern",
+            np.array([i**2 + 2 * i + 1 for i in range(1000)]),
+        ),
+        (
+            "Repetitive Pattern",
+            np.tile(np.array([1.1, 2.2, 3.3, 4.4, 5.5]), 400),
+        ),
         (
             "Mixed Mathematical",
             np.concatenate(
@@ -660,7 +716,8 @@ def run_symbolic_compression_test():
                     np.array([np.pi] * 100),
                     np.linspace(1, 10, 200),
                     np.array([np.e] * 50),
-                    np.array([1.618] * 75),  # Golden ratio
+                    np.array([1.618] * 75),
+                    # Golden ratio
                 ]
             ),
         ),
@@ -672,15 +729,19 @@ def run_symbolic_compression_test():
 
     for test_name, test_data in test_cases:
         print(f"\n🔍 Testing: {test_name}")
-        print(f"   Data size: {test_data.size} elements, {test_data.nbytes} bytes")
+        print(
+            f"   Data size: {
+                test_data.size} elements, {
+                test_data.nbytes} bytes"
+        )
 
         # Compress
         compressed_data, stats = compressor.compress_array_symbolic(test_data)
 
         # Decompress and verify
         try:
-            decompressed_data, decomp_stats = compressor.decompress_array_symbolic(
-                compressed_data
+            decompressed_data, decomp_stats = (
+                compressor.decompress_array_symbolic(compressed_data)
             )
 
             # Calculate accuracy
@@ -725,7 +786,9 @@ def run_symbolic_compression_test():
 
     # Overall results
     overall_ratio = (
-        total_original_size / total_compressed_size if total_compressed_size > 0 else 0
+        total_original_size / total_compressed_size
+        if total_compressed_size > 0
+        else 0
     )
     successful_tests = sum(1 for r in results if r["accuracy"])
 
@@ -733,12 +796,15 @@ def run_symbolic_compression_test():
     print("=" * 50)
     print(f"Overall compression ratio: {overall_ratio:.2f}x")
     print(f"Successful tests: {successful_tests}/{len(results)}")
-    print(f"Target achieved (2.0x): {'✅ YES' if overall_ratio >= 2.0 else '❌ NO'}")
+    print(
+        f"Target achieved (2.0x): {
+            '✅ YES' if overall_ratio >= 2.0 else '❌ NO'}"
+    )
 
     # Best compression ratios
-    best_ratios = sorted(results, key=lambda x: x["compression_ratio"], reverse=True)[
-        :3
-    ]
+    best_ratios = sorted(
+        results, key=lambda x: x["compression_ratio"], reverse=True
+    )[:3]
     print("\nBest compression ratios:")
     for i, result in enumerate(best_ratios, 1):
         print(f"  {i}. {result['name']}: {result['compression_ratio']:.2f}x")
@@ -759,7 +825,8 @@ def test_symbolic_compression():
     # Assert for pytest compatibility
     assert results[
         "target_achieved"
-    ], f"Compression target not met: {results['overall_compression_ratio']:.2f}x < 2.0x required"
+    ], f"Compression target not met: {
+        results['overall_compression_ratio']:.2f}x < 2.0x required"
     assert (
         results["successful_tests"] == results["total_tests"]
     ), f"Some accuracy tests failed: {results['successful_tests']}/{results['total_tests']}"
@@ -769,17 +836,22 @@ if __name__ == "__main__":
     print("🔬 SYMBOLIC MATHEMATICAL COMPRESSION SYSTEM")
     print("=" * 80)
     print("Advanced compression for dimensional mathematics data")
-    print("TARGET: Achieve 2.0x+ compression ratio with precision preservation")
+    print(
+        "TARGET: Achieve 2.0x+ compression ratio with precision preservation"
+    )
 
     try:
         test_results = run_symbolic_compression_test()
 
         if test_results["target_achieved"]:
             print("\n🎉 SYMBOLIC COMPRESSION SUCCESS!")
-            print("2.0x+ compression target achieved with precision preservation")
+            print(
+                "2.0x+ compression target achieved with precision preservation"
+            )
         else:
             print(
-                f"\n⚠️ Need improvement: {test_results['overall_compression_ratio']:.2f}x current vs 2.0x target"
+                f"\n⚠️ Need improvement: {
+                    test_results['overall_compression_ratio']:.2f}x current vs 2.0x target"
             )
 
     except Exception as e:

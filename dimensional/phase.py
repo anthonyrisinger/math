@@ -23,6 +23,7 @@ from .mathematics import NUMERICAL_EPSILON, PHI, phase_capacity
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
+
 def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     """
     Calculate energy-based sapping rate with proper equilibrium.
@@ -36,7 +37,9 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
     # Distance calculation
     distance = target - source
     if distance < min_distance:
-        regularized_distance = min_distance + phi * (distance / min_distance) ** 2
+        regularized_distance = (
+            min_distance + phi * (distance / min_distance) ** 2
+        )
     else:
         regularized_distance = distance + phi
 
@@ -70,7 +73,9 @@ def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
         frequency_ratio = 1.0
 
     # Combined rate
-    rate = energy_deficit * distance_factor * frequency_ratio * equilibrium_factor
+    rate = (
+        energy_deficit * distance_factor * frequency_ratio * equilibrium_factor
+    )
 
     # Conservative rate limiting
     max_rate = 0.5  # Very conservative for stability
@@ -111,10 +116,11 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
                 if rate > NUMERICAL_EPSILON:
                     # Direct energy transfer calculation
                     energy_transfer_rate = rate * energies[source]
-                    energy_transfer = energy_transfer_rate * d
+                    energy_transfer = energy_transfer_rate * dt
 
                     # Prevent overdrain - be very conservative
-                    max_energy_transfer = energies[source] * 0.1  # More conservative
+                    # More conservative
+                    max_energy_transfer = energies[source] * 0.1
                     energy_transfer = min(energy_transfer, max_energy_transfer)
 
                     if energy_transfer > NUMERICAL_EPSILON:
@@ -128,7 +134,8 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
                         # Ensure non-negative
                         energies[source] = max(0, energies[source])
 
-                        # Exact conservation check - adjust if needed due to rounding
+                        # Exact conservation check - adjust if needed due to
+                        # rounding
                         actual_transfer = old_source_energy - energies[source]
                         energies[target] = old_target_energy + actual_transfer
 
@@ -141,7 +148,10 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
     energy_error = final_total_energy - initial_total_energy
 
     # If there's any numerical error, distribute it proportionally
-    if abs(energy_error) > NUMERICAL_EPSILON and final_total_energy > NUMERICAL_EPSILON:
+    if (
+        abs(energy_error) > NUMERICAL_EPSILON
+        and final_total_energy > NUMERICAL_EPSILON
+    ):
         correction_factor = initial_total_energy / final_total_energy
         energies *= correction_factor
 
@@ -170,13 +180,15 @@ def emergence_threshold(dimension, phase_density):
     bool
         True if dimension has emerged
     """
-    if dimension >= len(phase_density):
+    dimension_int = int(dimension)  # Convert to integer for indexing
+    if dimension_int >= len(phase_density):
         return False
 
-    current_phase = abs(phase_density[dimension])
+    current_phase = abs(phase_density[dimension_int])
     capacity = phase_capacity(dimension)
 
-    return current_phase >= capacity * 0.95  # 95% threshold for numerical stability
+    # 95% threshold for numerical stability
+    return current_phase >= capacity * 0.95
 
 
 def total_phase_energy(phase_density):
@@ -266,7 +278,9 @@ def rk45_step(phase_density, dt, max_dimension=None, tol=1e-9):
     phase_density = np.asarray(phase_density, dtype=complex)
 
     # Always use direct method for better energy conservation and stability
-    new_phase, flow_matrix = phase_evolution_step(phase_density, dt, max_dimension)
+    new_phase, flow_matrix = phase_evolution_step(
+        phase_density, dt, max_dimension
+    )
 
     # Calculate system activity-dependent error estimate
     system_activity = np.sum(np.abs(phase_density) ** 2)
@@ -439,7 +453,10 @@ class PhaseDynamicsEngine:
                 energy_tolerance = min(max_error, 1e-12)
 
                 phase_new, dt_next, error = rk45_step(
-                    self.phase_density, dt_try, self.max_dim - 1, energy_tolerance
+                    self.phase_density,
+                    dt_try,
+                    self.max_dim - 1,
+                    energy_tolerance,
                 )
 
                 if error <= max_error or dt_try <= 1e-15:
@@ -464,7 +481,8 @@ class PhaseDynamicsEngine:
 
                     self._update_emergence_and_history(dt_try)
                 else:
-                    dt = max(dt_try * 0.7, 1e-15)  # More conservative reduction
+                    # More conservative reduction
+                    dt = max(dt_try * 0.7, 1e-15)
 
             except Exception as e:
                 dt = max(dt * 0.5, 1e-15)
@@ -494,7 +512,9 @@ class PhaseDynamicsEngine:
 
         # Check for new emergences
         for d in range(1, self.max_dim):
-            if d not in self.emerged and emergence_threshold(d, self.phase_density):
+            if d not in self.emerged and emergence_threshold(
+                d, self.phase_density
+            ):
                 self.emerged.add(d)
 
         self.time += d
@@ -624,6 +644,7 @@ class PhaseDynamicsEngine:
 
 # ENHANCED ANALYSIS TOOLS (previously in dimensional/phase.py)
 
+
 def quick_emergence_analysis(max_dimensions=8, time_steps=500):
     """
     Perform a quick analysis of dimensional emergence patterns.
@@ -648,19 +669,21 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
 
         if step % 50 == 0:  # Sample every 50 steps
             state = engine.get_state()
-            results.append({
-                "step": step,
-                "time": state["time"],
-                "emerged": list(state["emerged_dimensions"]),
-                "effective_dimension": state["effective_dimension"],
-                "total_energy": state["total_energy"]
-            })
+            results.append(
+                {
+                    "step": step,
+                    "time": state["time"],
+                    "emerged": list(state["emerged_dimensions"]),
+                    "effective_dimension": state["effective_dimension"],
+                    "total_energy": state["total_energy"],
+                }
+            )
 
     return {
         "results": results,
         "final_state": engine.get_state(),
         "max_dimensions": max_dimensions,
-        "time_steps": time_steps
+        "time_steps": time_steps,
     }
 
 
@@ -670,7 +693,7 @@ def quick_phase_analysis(dimensions=None):
 
     Parameters
     ----------
-    dimensions : list, optional
+    dimensions : list or float, optional
         Dimensions to analyze. Defaults to [0, 1, 2, 3, 4, 5]
 
     Returns
@@ -680,21 +703,32 @@ def quick_phase_analysis(dimensions=None):
     """
     if dimensions is None:
         dimensions = [0, 1, 2, 3, 4, 5]
+    elif isinstance(dimensions, (int, float)):
+        dimensions = [dimensions]
 
     # Create sample phase density
-    phase_density = np.array([1.0 + 0.1j * i for i in range(max(dimensions) + 1)])
+    max_dim = max(int(d) for d in dimensions)
+    phase_density = np.array([1.0 + 0.1j * i for i in range(max_dim + 1)])
 
     results = {}
     for d in dimensions:
-        results[f"dimension_{d}"] = {
-            "phase_capacity": phase_capacity(d),
-            "current_phase": abs(phase_density[d]),
-            "emergence_status": emergence_threshold(d, phase_density),
-        }
+        d_int = int(d)  # Convert to integer for indexing
+        if d_int < len(phase_density):
+            results[f"dimension_{d}"] = {
+                "phase_capacity": phase_capacity(d),
+                "current_phase": abs(phase_density[d_int]),
+                "emergence_status": emergence_threshold(d, phase_density),
+            }
+        else:
+            results[f"dimension_{d}"] = {
+                "phase_capacity": phase_capacity(d),
+                "current_phase": 0.0,
+                "emergence_status": False,
+            }
 
         # Calculate sapping rates to higher dimensions
         sapping_rates = {}
-        for target in range(d + 1, len(phase_density)):
+        for target in range(d_int + 1, len(phase_density)):
             if target <= max(dimensions):
                 rate = sap_rate(d, target, phase_density)
                 if rate > 1e-12:

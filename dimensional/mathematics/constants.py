@@ -77,7 +77,9 @@ def get_critical_dimension(name: CriticalDimensionName) -> float:
     """Get a critical dimension by name with type safety."""
     if name not in CRITICAL_DIMENSIONS:
         available = ", ".join(CRITICAL_DIMENSIONS.keys())
-        raise ValueError(f"Unknown critical dimension '{name}'. Available: {available}")
+        raise ValueError(
+            f"Unknown critical dimension '{name}'. Available: {available}"
+        )
     return CRITICAL_DIMENSIONS[name]
 
 

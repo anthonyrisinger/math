@@ -34,53 +34,85 @@ NUMERICAL_EPSILON = 1e-12
 # ========================
 
 # Direct geometric algebra using numpy - no external dependencies
+
+
 class SimpleGA:
     """Simple geometric algebra using pure numpy."""
+
     def __init__(self, val=0):
         self.val = np.array(val) if not isinstance(val, np.ndarray) else val
+
     def __mul__(self, other):
-        return SimpleGA(self.val * (other.val if hasattr(other, 'val') else other))
+        return SimpleGA(
+            self.val * (other.val if hasattr(other, "val") else other)
+        )
+
     def __add__(self, other):
-        return SimpleGA(self.val + (other.val if hasattr(other, 'val') else other))
+        return SimpleGA(
+            self.val + (other.val if hasattr(other, "val") else other)
+        )
+
     def __sub__(self, other):
-        return SimpleGA(self.val - (other.val if hasattr(other, 'val') else other))
+        return SimpleGA(
+            self.val - (other.val if hasattr(other, "val") else other)
+        )
+
     def __rmul__(self, other):
         return SimpleGA(other * self.val)
+
     def __invert__(self):
         return SimpleGA(1.0 / (self.val + 1e-12))
 
+
 # Mock GA for fallback cases
+
+
 class MockGA:
     """Mock geometric algebra object for fallback."""
+
     def __init__(self, val=0):
         self.val = val
+
     def __mul__(self, other):
         return MockGA(0)
+
     def __add__(self, other):
         return MockGA(0)
+
     def __sub__(self, other):
         return MockGA(0)
 
+
 # Simple CGA implementation
+
+
 class SimpleCGA:
     """Simple conformal geometric algebra."""
+
     def multivector(self, components):
         return SimpleGA(1.0)  # Return identity elemen
 
+
 # Basis vectors using simple geometric algebra
-e1, e2, e3 = SimpleGA([1,0,0]), SimpleGA([0,1,0]), SimpleGA([0,0,1])
-eo, einf = SimpleGA([0,0,0]), SimpleGA([1,1,1])
+e1, e2, e3 = SimpleGA([1, 0, 0]), SimpleGA([0, 1, 0]), SimpleGA([0, 0, 1])
+eo, einf = SimpleGA([0, 0, 0]), SimpleGA([1, 1, 1])
 cga = SimpleCGA()
 GA_AVAILABLE = "simple"
+
 
 def up(point_3d):
     """Transform 3D point to conformal space."""
     x, y, z = point_3d
     return SimpleGA([x, y, z])
 
+
 def down(point_cga):
     """Project conformal point back to 3D."""
-    return point_cga.val if hasattr(point_cga, 'val') else np.array([0.0, 0.0, 0.0])  # ========================
+    return (
+        point_cga.val
+        if hasattr(point_cga, "val")
+        else np.array([0.0, 0.0, 0.0])
+    )  # ========================
 
 
 # CORE POLYNOMIAL FUNCTIONS
@@ -242,15 +274,18 @@ def golden_ratio_properties() -> dict[str, Any]:
         "psi": psi,
         "phi_squared": phi**2,
         "phi_plus_one": phi + 1,
-        "phi_squared_equals_phi_plus_one": abs(phi**2 - (phi + 1)) < NUMERICAL_EPSILON,
+        "phi_squared_equals_phi_plus_one": abs(phi**2 - (phi + 1))
+        < NUMERICAL_EPSILON,
         "psi_squared": psi**2,
         "one_minus_psi": 1 - psi,
-        "psi_squared_equals_one_minus_psi": abs(psi**2 - (1 - psi)) < NUMERICAL_EPSILON,
+        "psi_squared_equals_one_minus_psi": abs(psi**2 - (1 - psi))
+        < NUMERICAL_EPSILON,
         "phi_times_psi": phi * psi,
         "phi_times_psi_equals_one": abs(phi * psi - 1) < NUMERICAL_EPSILON,
         "phi_minus_psi": phi - psi,
         "phi_minus_psi_equals_one": abs((phi - psi) - 1.0) < NUMERICAL_EPSILON,
-        "phi_plus_psi_equals_sqrt5": abs((phi + psi) - np.sqrt(5)) < NUMERICAL_EPSILON,
+        "phi_plus_psi_equals_sqrt5": abs((phi + psi) - np.sqrt(5))
+        < NUMERICAL_EPSILON,
     }
 
 
@@ -415,7 +450,9 @@ def morphic_circle_transform(tau: float, theta: np.ndarray) -> np.ndarray:
     transformed_2d = circle_2d @ transform.T
 
     # Add z-component (could be enhanced with 3D morphic rules)
-    xyz = np.column_stack([transformed_2d[:, 0], transformed_2d[:, 1], z_circle])
+    xyz = np.column_stack(
+        [transformed_2d[:, 0], transformed_2d[:, 1], z_circle]
+    )
 
     return xyz
 
@@ -518,7 +555,10 @@ def curvature_peak_estimate(tau: float, dtheta: float = 0.1) -> float:
 
 
 def stability_regions(
-    mode: str = "shifted", k_min: float = -5, k_max: float = 5, num_points: int = 1000
+    mode: str = "shifted",
+    k_min: float = -5,
+    k_max: float = 5,
+    num_points: int = 1000,
 ) -> dict[str, Any]:
     """
     Find stability regions in parameter space.
@@ -605,11 +645,15 @@ class MorphicAnalyzer:
         k_disc_zero = k_discriminant_zero(self.mode)
 
         analysis["critical_distances"]["to_perfect_circle"] = abs(k - k_circle)
-        analysis["critical_distances"]["to_discriminant_zero"] = abs(k - k_disc_zero)
+        analysis["critical_distances"]["to_discriminant_zero"] = abs(
+            k - k_disc_zero
+        )
 
         return analysis
 
-    def find_optimal_parameters(self, criterion: str = "max_stability") -> float | None:
+    def find_optimal_parameters(
+        self, criterion: str = "max_stability"
+    ) -> float | None:
         """Find optimal parameter values."""
         if criterion == "max_stability":
             # Parameters with maximum discriminan

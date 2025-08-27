@@ -16,8 +16,13 @@ from .mathematics import (
     LOG_SPACE_THRESHOLD,
     NUMERICAL_EPSILON,
 )
+from .mathematics import ball_volume as v
+from .mathematics import complexity_measure as c
+from .mathematics import ratio_measure as r
+from .mathematics import sphere_surface as s
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
+
 
 def gamma_safe(z):
     """
@@ -177,10 +182,6 @@ def beta_function(a, b):
 
 
 # DIMENSIONAL MEASURE IMPORTS AND ALIASES
-from .mathematics import ball_volume as v
-from .mathematics import complexity_measure as c
-from .mathematics import ratio_measure as r
-from .mathematics import sphere_surface as s
 
 
 # Create density function
@@ -245,7 +246,9 @@ def gamma_explorer(z_range=(-5, 5), n_points=1000, show_poles=True):
 
     if finite_count > 0:
         finite_gamma = gamma_vals[finite_mask]
-        stats.update({"value_range": (np.min(finite_gamma), np.max(finite_gamma))})
+        stats.update(
+            {"value_range": (np.min(finite_gamma), np.max(finite_gamma))}
+        )
 
     return {
         "z_values": z,
@@ -313,7 +316,11 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     digamma_vals = digamma_safe(z_clean)
 
     positive_z = z_clean[z_clean >= 0]
-    fact_vals = factorial_extension(positive_z) if len(positive_z) > 0 else np.array([])
+    fact_vals = (
+        factorial_extension(positive_z)
+        if len(positive_z) > 0
+        else np.array([])
+    )
 
     # Generate statistics without printing
     stats = {
@@ -363,7 +370,9 @@ def qplot(*funcs, labels=None):
 
     for i, func in enumerate(funcs):
         y_vals = [func(d) for d in d_vals]
-        label = labels[i] if labels and i < len(labels) else f"Function {i+1}"
+        label = (
+            labels[i] if labels and i < len(labels) else f"Function {i + 1}"
+        )
         y_finite = [y for y in y_vals if np.isfinite(y)]
 
         results[label] = {
@@ -371,7 +380,9 @@ def qplot(*funcs, labels=None):
             "y_values": y_vals,
             "finite_count": len(y_finite),
             "total_count": len(y_vals),
-            "value_range": (min(y_finite), max(y_finite)) if y_finite else None,
+            "value_range": (
+                (min(y_finite), max(y_finite)) if y_finite else None
+            ),
         }
 
     return results
@@ -526,4 +537,6 @@ if __name__ == "__main__":
     for i, val in enumerate(test_vals):
         if val > 0:
             assert np.isfinite(results["gamma"][i]), f"Invalid gamma for {val}"
-            assert np.isfinite(results["ln_gamma"][i]), f"Invalid ln_gamma for {val}"
+            assert np.isfinite(
+                results["ln_gamma"][i]
+            ), f"Invalid ln_gamma for {val}"

@@ -43,7 +43,9 @@ class PropertyValidator:
         )
 
         # Γ(1) = 1
-        results["gamma_one_equals_one"] = abs(gamma_safe(1.0) - 1.0) < self.tolerance
+        results["gamma_one_equals_one"] = (
+            abs(gamma_safe(1.0) - 1.0) < self.tolerance
+        )
 
         # Γ(n+1) = n! for integers
         for n in range(1, 8):
@@ -51,7 +53,7 @@ class PropertyValidator:
 
             factorial_n = math.factorial(n)
             gamma_n_plus_1 = gamma_safe(n + 1)
-            results[f"gamma_{n+1}_equals_{n}_factorial"] = (
+            results[f"gamma_{n + 1}_equals_{n}_factorial"] = (
                 abs(gamma_n_plus_1 - factorial_n) < self.tolerance
             )
 
@@ -100,7 +102,9 @@ class PropertyValidator:
             else:
                 continue
 
-            results[f"{measure_type}_d_{d}"] = abs(actual - expected) < self.tolerance
+            results[f"{measure_type}_d_{d}"] = (
+                abs(actual - expected) < self.tolerance
+            )
 
         # Monotonicity in valid ranges
         dimensions = np.linspace(0.1, 10, 100)
@@ -109,7 +113,8 @@ class PropertyValidator:
 
         # Volume should increase then decrease (has peak around 5.26)
         peak_idx_v = np.argmax(volumes)
-        results["volume_has_peak"] = 10 <= peak_idx_v <= 90  # Peak not at boundaries
+        # Peak not at boundaries
+        results["volume_has_peak"] = 10 <= peak_idx_v <= 90
 
         # Surface should increase then decrease (has peak around 7.26)
         peak_idx_s = np.argmax(surfaces)
@@ -165,7 +170,9 @@ class PropertyValidator:
 
         # Effective dimension should be reasonable
         eff_dim = engine.calculate_effective_dimension()
-        results["effective_dimension_reasonable"] = 0 <= eff_dim < engine.max_dim
+        results["effective_dimension_reasonable"] = (
+            0 <= eff_dim < engine.max_dim
+        )
 
         self.validation_results["phase"] = results
         return results
@@ -206,7 +213,8 @@ class PropertyValidator:
         # Check that critical dimensions are reasonable
         for name, value in CRITICAL_DIMENSIONS.items():
             results[f"{name}_is_finite"] = np.isfinite(value)
-            results[f"{name}_is_positive"] = value >= 0  # Allow zero for void_dimension
+            # Allow zero for void_dimension
+            results[f"{name}_is_positive"] = value >= 0
 
         # Volume peak should be near the stored critical value
         from .functions import find_peak
@@ -222,7 +230,9 @@ class PropertyValidator:
         s_peak_d, s_peak_val = find_peak(sphere_surface)
         stored_s_peak = CRITICAL_DIMENSIONS["surface_peak"]
 
-        results["surface_peak_location_accurate"] = abs(s_peak_d - stored_s_peak) < 0.1
+        results["surface_peak_location_accurate"] = (
+            abs(s_peak_d - stored_s_peak) < 0.1
+        )
 
         self.validation_results["critical_dimensions"] = results
         return results
@@ -252,13 +262,17 @@ class PropertyValidator:
             for category in all_results.values()
         )
 
-        print(f"Validation complete: {passed_tests}/{total_tests} tests passed")
+        print(
+            f"Validation complete: {passed_tests}/{total_tests} tests passed"
+        )
 
         if passed_tests < total_tests:
             print("FAILED TESTS:")
             for category_name, category_results in all_results.items():
                 failed_tests = [
-                    name for name, result in category_results.items() if not result
+                    name
+                    for name, result in category_results.items()
+                    if not result
                 ]
                 if failed_tests:
                     print(f"  {category_name}: {failed_tests}")
@@ -340,14 +354,23 @@ class NumericalStabilityTester:
                 )
             except Exception as e:
                 small_results.append(
-                    {"z": z, "error": str(e), "finite": False, "positive": False}
+                    {
+                        "z": z,
+                        "error": str(e),
+                        "finite": False,
+                        "positive": False,
+                    }
                 )
 
         results["small_values"] = {
             "count": len(small_results),
-            "finite_ratio": sum(1 for r in small_results if r.get("finite", False))
+            "finite_ratio": sum(
+                1 for r in small_results if r.get("finite", False)
+            )
             / len(small_results),
-            "positive_ratio": sum(1 for r in small_results if r.get("positive", False))
+            "positive_ratio": sum(
+                1 for r in small_results if r.get("positive", False)
+            )
             / len(small_results),
         }
 
@@ -404,8 +427,12 @@ class NumericalStabilityTester:
             "volume_finite_ratio": np.mean(np.isfinite(volumes)),
             "surface_finite_ratio": np.mean(np.isfinite(surfaces)),
             "complexity_finite_ratio": np.mean(np.isfinite(complexities)),
-            "volume_positive_ratio": np.mean(volumes[np.isfinite(volumes)] > 0),
-            "surface_positive_ratio": np.mean(surfaces[np.isfinite(surfaces)] > 0),
+            "volume_positive_ratio": np.mean(
+                volumes[np.isfinite(volumes)] > 0
+            ),
+            "surface_positive_ratio": np.mean(
+                surfaces[np.isfinite(surfaces)] > 0
+            ),
         }
 
         return results
@@ -433,20 +460,27 @@ if __name__ == "__main__":
     gamma_stability = stability_tester.test_gamma_stability()
     print("  Gamma function stability:")
     print(
-        f"    Small values finite: {gamma_stability['small_values']['finite_ratio']:.2%}"
+        f"    Small values finite: {
+            gamma_stability['small_values']['finite_ratio']:.2%}"
     )
     print(
-        f"    Normal range all finite: {gamma_stability['normal_range']['all_finite']}"
+        f"    Normal range all finite: {
+            gamma_stability['normal_range']['all_finite']}"
     )
-    print(f"    Large values no NaN: {gamma_stability['large_values']['no_nan']}")
+    print(
+        f"    Large values no NaN: {
+            gamma_stability['large_values']['no_nan']}"
+    )
 
     measure_stability = stability_tester.test_measure_stability()
     print("  Measure function stability:")
     print(
-        f"    Volume finite ratio: {measure_stability['fractional_dimensions']['volume_finite_ratio']:.2%}"
+        f"    Volume finite ratio: {
+            measure_stability['fractional_dimensions']['volume_finite_ratio']:.2%}"
     )
     print(
-        f"    Surface finite ratio: {measure_stability['fractional_dimensions']['surface_finite_ratio']:.2%}"
+        f"    Surface finite ratio: {
+            measure_stability['fractional_dimensions']['surface_finite_ratio']:.2%}"
     )
 
     print("\nConsolidated validation framework operational!")

@@ -34,13 +34,13 @@ class BenchmarkResult:
     """Container for benchmark results."""
 
     function_name: str
-    operations_per_second: floa
-    mean_time: floa
-    std_time: floa
-    min_time: floa
-    max_time: floa
-    total_time: floa
-    sample_size: in
+    operations_per_second: float
+    mean_time: float
+    std_time: float
+    min_time: float
+    max_time: float
+    total_time: float
+    sample_size: int
     error_rate: float = 0.0
     memory_usage: Optional[float] = None
 
@@ -51,8 +51,8 @@ class PropertyTestResult:
 
     property_name: str
     passed: bool
-    error_magnitude: floa
-    test_cases: in
+    error_magnitude: float
+    test_cases: int
     failures: list[dict] = field(default_factory=list)
     execution_time: float = 0.0
 
@@ -101,7 +101,7 @@ class PerformanceProfiler:
             for inp in test_inputs[:10]:  # Use subset for warmup
                 try:
                     func(inp)
-                except:
+                except BaseException:
                     pass
 
         # Benchmark phase
@@ -155,7 +155,18 @@ class PerformanceProfiler:
         # Generate test inputs
         linear_inputs = np.linspace(0.1, 10.0, 1000)
         log_inputs = np.logspace(-1, 2, 1000)
-        critical_inputs = [0.5, 1.0, 2.0, 3.0, 4.0, 5.256, 6.0, 7.256, 8.0, 10.0]
+        critical_inputs = [
+            0.5,
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.256,
+            6.0,
+            7.256,
+            8.0,
+            10.0,
+        ]
 
         benchmark_configs = [
             (gamma_safe, linear_inputs, "gamma_safe_linear"),
@@ -174,7 +185,9 @@ class PerformanceProfiler:
         return results
 
     def detect_regressions(
-        self, baseline: dict[str, BenchmarkResult], current: dict[str, BenchmarkResult]
+        self,
+        baseline: dict[str, BenchmarkResult],
+        current: dict[str, BenchmarkResult],
     ) -> dict[str, float]:
         """
         Detect performance regressions between baseline and current results.
@@ -197,10 +210,14 @@ class PerformanceProfiler:
 
                 if change_ratio < -self.regression_threshold:
                     print(
-                        f"⚠️  REGRESSION DETECTED in {func_name}: {change_ratio:.2%} slower"
+                        f"⚠️  REGRESSION DETECTED in {func_name}: {
+                            change_ratio:.2%} slower"
                     )
                 elif change_ratio > 0.1:
-                    print(f"🚀 IMPROVEMENT in {func_name}: {change_ratio:.2%} faster")
+                    print(
+                        f"🚀 IMPROVEMENT in {func_name}: {
+                            change_ratio:.2%} faster"
+                    )
 
         return regressions
 
@@ -365,7 +382,9 @@ class PropertyValidator:
 
         return results
 
-    def run_comprehensive_validation(self) -> dict[str, list[PropertyTestResult]]:
+    def run_comprehensive_validation(
+        self,
+    ) -> dict[str, list[PropertyTestResult]]:
         """Run comprehensive mathematical property validation."""
         print("🧮 COMPREHENSIVE MATHEMATICAL PROPERTY VALIDATION")
         print("=" * 60)
@@ -373,23 +392,31 @@ class PropertyValidator:
         test_range = np.concatenate(
             [
                 np.linspace(0.1, 10.0, 100),
-                np.array([0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.256, 6.0, 7.256, 8.0]),
+                np.array(
+                    [0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.256, 6.0, 7.256, 8.0]
+                ),
             ]
         )
 
         validation_results = {
             "gamma_properties": self.validate_gamma_properties(test_range),
-            "dimensional_properties": self.validate_dimensional_properties(test_range),
+            "dimensional_properties": self.validate_dimensional_properties(
+                test_range
+            ),
         }
 
         # Summary
-        total_tests = sum(len(results) for results in validation_results.values())
+        total_tests = sum(
+            len(results) for results in validation_results.values()
+        )
         total_passed = sum(
             sum(1 for result in results if result.passed)
             for results in validation_results.values()
         )
 
-        print(f"\n📊 VALIDATION SUMMARY: {total_passed}/{total_tests} tests passed")
+        print(
+            f"\n📊 VALIDATION SUMMARY: {total_passed}/{total_tests} tests passed"
+        )
 
         if total_passed == total_tests:
             print("✅ ALL MATHEMATICAL PROPERTIES VALIDATED")
@@ -406,7 +433,10 @@ class DistributedTester:
         self.max_workers = max_workers
 
     def distributed_property_test(
-        self, test_func: Callable, test_ranges: list[np.ndarray], property_name: str
+        self,
+        test_func: Callable,
+        test_ranges: list[np.ndarray],
+        property_name: str,
     ) -> PropertyTestResult:
         """
         Run property tests in parallel across multiple processes.
@@ -431,7 +461,8 @@ class DistributedTester:
 
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             futures = [
-                executor.submit(test_func, test_range) for test_range in test_ranges
+                executor.submit(test_func, test_range)
+                for test_range in test_ranges
             ]
             results = [future.result() for future in futures]
 
@@ -477,7 +508,10 @@ def sprint2_gate1_validation():
     for name, result in benchmark_results.items():
         print(
             f"  {name}: {result.operations_per_second:,.0f} ops/sec "
-            f"(±{result.std_time*1000:.2f}ms, {result.error_rate:.2%} errors)"
+            f"(±{
+                result.std_time *
+                1000:.2f}ms, {
+                result.error_rate:.2%} errors)"
         )
 
     # Property Validation
@@ -496,7 +530,8 @@ def sprint2_gate1_validation():
         [r.operations_per_second for r in benchmark_results.values()]
     )
     property_score = sum(
-        sum(1 for r in results if r.passed) for results in property_results.values()
+        sum(1 for r in results if r.passed)
+        for results in property_results.values()
     ) / sum(len(results) for results in property_results.values())
 
     overall_score = (performance_score / 100000 + property_score) / 2
@@ -557,7 +592,9 @@ class Sprint3PerformanceOptimizer:
         baseline_time = time.perf_counter() - start_time
         baseline_ops_per_sec = n_operations / baseline_time
 
-        print(f"  Baseline: {baseline_ops_per_sec:,.0f} ops/sec ({baseline_time:.3f}s)")
+        print(
+            f"  Baseline: {baseline_ops_per_sec:,.0f} ops/sec ({baseline_time:.3f}s)"
+        )
 
         # 2. Vectorized NumPy optimization
         print("🔧 Testing vectorized optimization...")
@@ -567,7 +604,9 @@ class Sprint3PerformanceOptimizer:
         vectorized_ops_per_sec = n_operations / vectorized_time
 
         print(
-            f"  Vectorized: {vectorized_ops_per_sec:,.0f} ops/sec ({vectorized_time:.3f}s)"
+            f"  Vectorized: {
+                vectorized_ops_per_sec:,.0f} ops/sec ({
+                vectorized_time:.3f}s)"
         )
         speedup_vectorized = vectorized_ops_per_sec / baseline_ops_per_sec
         print(f"  Speedup: {speedup_vectorized:.1f}x")
@@ -579,7 +618,9 @@ class Sprint3PerformanceOptimizer:
         cached_time = time.perf_counter() - start_time
         cached_ops_per_sec = n_operations / cached_time
 
-        print(f"  Cached: {cached_ops_per_sec:,.0f} ops/sec ({cached_time:.3f}s)")
+        print(
+            f"  Cached: {cached_ops_per_sec:,.0f} ops/sec ({cached_time:.3f}s)"
+        )
         speedup_cached = cached_ops_per_sec / baseline_ops_per_sec
         print(f"  Speedup: {speedup_cached:.1f}x")
 
@@ -601,23 +642,33 @@ class Sprint3PerformanceOptimizer:
         combined_time = time.perf_counter() - start_time
         combined_ops_per_sec = n_operations / combined_time
 
-        print(f"  Combined: {combined_ops_per_sec:,.0f} ops/sec ({combined_time:.3f}s)")
+        print(
+            f"  Combined: {combined_ops_per_sec:,.0f} ops/sec ({combined_time:.3f}s)"
+        )
         speedup_combined = combined_ops_per_sec / baseline_ops_per_sec
         print(f"  Speedup: {speedup_combined:.1f}x")
 
         # Results summary
         print("\\n📊 SPRINT 3 OPTIMIZATION RESULTS")
-        print(f"{'='*50}")
+        print(f"{'=' * 50}")
         print(f"Baseline:    {baseline_ops_per_sec:>8,.0f} ops/sec (1.0x)")
         print(
-            f"Vectorized:  {vectorized_ops_per_sec:>8,.0f} ops/sec ({speedup_vectorized:.1f}x)"
+            f"Vectorized:  {
+                vectorized_ops_per_sec:>8,.0f} ops/sec ({
+                speedup_vectorized:.1f}x)"
         )
         print(
-            f"Cached:      {cached_ops_per_sec:>8,.0f} ops/sec ({speedup_cached:.1f}x)"
+            f"Cached:      {
+                cached_ops_per_sec:>8,.0f} ops/sec ({
+                speedup_cached:.1f}x)"
         )
-        print(f"Batch:       {batch_ops_per_sec:>8,.0f} ops/sec ({speedup_batch:.1f}x)")
         print(
-            f"Combined:    {combined_ops_per_sec:>8,.0f} ops/sec ({speedup_combined:.1f}x)"
+            f"Batch:       {batch_ops_per_sec:>8,.0f} ops/sec ({speedup_batch:.1f}x)"
+        )
+        print(
+            f"Combined:    {
+                combined_ops_per_sec:>8,.0f} ops/sec ({
+                speedup_combined:.1f}x)"
         )
 
         # Target assessmen
@@ -625,10 +676,15 @@ class Sprint3PerformanceOptimizer:
         print("\\n🎯 TARGET ASSESSMENT:")
         print("Target: 100,000 ops/sec")
         print(f"Achieved: {combined_ops_per_sec:,.0f} ops/sec")
-        print(f"Status: {'✅ TARGET EXCEEDED' if target_met else '⚠️  TARGET MISSED'}")
+        print(
+            f"Status: {
+                '✅ TARGET EXCEEDED' if target_met else '⚠️  TARGET MISSED'}"
+        )
 
         if target_met:
-            print("🎉 SPRINT 3 PHASE 1 SUCCESS: 100K+ ops/sec target achieved!")
+            print(
+                "🎉 SPRINT 3 PHASE 1 SUCCESS: 100K+ ops/sec target achieved!"
+            )
 
         return {
             "baseline_ops_per_sec": baseline_ops_per_sec,
@@ -652,10 +708,14 @@ class Sprint3PerformanceOptimizer:
         from .gamma import gammaln_safe
 
         # Use vectorized gamma functions
-        log_gamma_half_plus_1 = np.array([gammaln_safe(hd + 1) for hd in half_d])
+        log_gamma_half_plus_1 = np.array(
+            [gammaln_safe(hd + 1) for hd in half_d]
+        )
         log_gamma_half = np.array([gammaln_safe(hd) for hd in half_d])
 
-        log_complexity = d * log_pi + np.log(2) - log_gamma_half_plus_1 - log_gamma_half
+        log_complexity = (
+            d * log_pi + np.log(2) - log_gamma_half_plus_1 - log_gamma_half
+        )
 
         return np.exp(log_complexity)
 
@@ -712,7 +772,9 @@ class Sprint3PerformanceOptimizer:
 
             # Use optimized gamma computation
             log_gamma_vals = np.array([gammaln_safe(hd) for hd in half_d])
-            log_gamma_plus_one_vals = np.array([gammaln_safe(hd + 1) for hd in half_d])
+            log_gamma_plus_one_vals = np.array(
+                [gammaln_safe(hd + 1) for hd in half_d]
+            )
 
             # Compute in log space for numerical stability
             log_complexity = (
@@ -752,7 +814,9 @@ def sprint3_performance_validation():
     print("Validating optimization accuracy...")
     test_dims = np.random.uniform(0.1, 10.0, 1000)
     baseline_results = [complexity_measure(d) for d in test_dims]
-    optimized_results = optimizer._combined_optimized_complexity_measure(test_dims)
+    optimized_results = optimizer._combined_optimized_complexity_measure(
+        test_dims
+    )
 
     max_rel_error = np.max(
         np.abs(baseline_results - optimized_results)
@@ -767,9 +831,15 @@ def sprint3_performance_validation():
     sprint3_success = results["target_met"] and accuracy_ok
 
     print("\\n🎯 SPRINT 3 ASSESSMENT")
-    print(f"Performance Target: {'✅ MET' if results['target_met'] else '❌ MISSED'}")
+    print(
+        f"Performance Target: {
+            '✅ MET' if results['target_met'] else '❌ MISSED'}"
+    )
     print(f"Accuracy Target: {'✅ MET' if accuracy_ok else '❌ MISSED'}")
-    print(f"Overall: {'🎉 SPRINT 3 SUCCESS' if sprint3_success else '⚠️  NEEDS WORK'}")
+    print(
+        f"Overall: {
+            '🎉 SPRINT 3 SUCCESS' if sprint3_success else '⚠️  NEEDS WORK'}"
+    )
 
     if sprint3_success:
         print("\\n🏆 EXCEPTIONAL DELIVERY ACHIEVED!")
@@ -788,7 +858,10 @@ if __name__ == "__main__":
     try:
         sprint2_results = sprint2_gate1_validation()
         print(
-            f"Sprint 2 baseline established: {min([r.operations_per_second for r in sprint2_results['benchmark_results'].values()]):,.0f} ops/sec"
+            f"Sprint 2 baseline established: {
+                min(
+                    [
+                        r.operations_per_second for r in sprint2_results['benchmark_results'].values()]):,.0f} ops/sec"
         )
     except Exception as e:
         print(f"Sprint 2 validation skipped: {e}")
@@ -800,7 +873,9 @@ if __name__ == "__main__":
         sprint3_results = sprint3_performance_validation()
 
         if sprint3_results["sprint3_success"]:
-            print("\\n🎯 SPRINT 3 COMPLETE - READY FOR FINAL QUARTERLY DELIVERY")
+            print(
+                "\\n🎯 SPRINT 3 COMPLETE - READY FOR FINAL QUARTERLY DELIVERY"
+            )
         else:
             print("\\n⚠️  SPRINT 3 NEEDS ADDITIONAL OPTIMIZATION")
 

@@ -17,20 +17,26 @@ from scipy.special import gamma
 
 from .mathematics import PHI, PI
 
+
 # Mock matplotlib components for deprecated code
 class _MockMatplotlib:
     def axes(self, *args, **kwargs):
         return None
+
     def show(self):
         pass
+
 
 class _MockWidget:
     def __init__(self, *args, **kwargs):
         pass
+
     def on_changed(self, func):
         pass
+
     def on_clicked(self, func):
         pass
+
 
 plt = _MockMatplotlib()
 Slider = _MockWidget
@@ -42,7 +48,7 @@ def _deprecated_viz_warning():
         "PreGeometry matplotlib visualization DEPRECATED. "
         "Use 'python -m dimensional --pregeometry' or modern dashboard instead.",
         DeprecationWarning,
-        stacklevel=2
+        stacklevel=2,
     )
 
 
@@ -78,7 +84,7 @@ class PreGeometry:
                     try:
                         v = PI ** (n / 2) / gamma(n / 2 + 1)
                         s = 2 * PI ** (n / 2) / gamma(n / 2)
-                    except:
+                    except BaseException:
                         v = 1.0
                         s = 2.0
             else:
@@ -100,7 +106,7 @@ class PreGeometry:
                         else 2 * PI ** (n / 2) / abs(gamma(n / 2))
                     )
                     s = magnitude_s * np.exp(1j * phase)
-                except:
+                except BaseException:
                     v = 0j
                     s = 0j
 
@@ -131,7 +137,7 @@ class PreGeometry:
 
     def evolve_wavefunction(self, dt):
         """Evolve the pre-geometric wavefunction."""
-        self.time += d
+        self.time += dt
 
         # The fundamental equation: ∂Ψ/∂n = iφΨ
         for i in range(len(self.psi)):
@@ -145,7 +151,7 @@ class PreGeometry:
             self.psi[i] *= np.exp(1j * PHI * dt)
 
             # Diffusion term for stability
-            self.psi[i] += 0.01 * grad2 * d
+            self.psi[i] += 0.01 * grad2 * dt
 
         # Renormalize
         norm = np.sqrt(np.sum(np.abs(self.psi) ** 2))
@@ -189,9 +195,9 @@ class PreGeometryVisualizer:
         self.ax2d = self.fig.add_subplot(122)
 
         # Basic 3D axis setup (replacing setup_3d_axis functionality)
-        self.ax3d.set_xlabel('x')
-        self.ax3d.set_ylabel('y')
-        self.ax3d.set_zlabel('Pre-Geometric Potential')
+        self.ax3d.set_xlabel("x")
+        self.ax3d.set_ylabel("y")
+        self.ax3d.set_zlabel("Pre-Geometric Potential")
         self.ax3d.set_title("Pre-Geometric Potential Field")
 
         # Controls
@@ -250,9 +256,8 @@ class PreGeometryVisualizer:
         self.btn_auto.label.set_text("Stop" if self.auto_evolve else "Auto")
 
         if self.auto_evolve and self.anim is None:
-            self.anim = animation.FuncAnimation(
-                self.fig, self.animate_frame, interval=50, blit=False
-            )
+            # TODO: Replace with modern visualization backend
+            self.anim = None  # animation.FuncAnimation deprecated
         elif not self.auto_evolve and self.anim is not None:
             self.anim.event_source.stop()
             self.anim = None
@@ -305,7 +310,8 @@ class PreGeometryVisualizer:
 
         # Get probability density and phase
         prob_density = self.pregeom.get_probability_density()[::10]
-        phase_field = self.pregeom.get_phase_field()[::10]
+        # phase_field = self.pregeom.get_phase_field()[::10]  # Unused in
+        # deprecated viz
 
         # Create surface using probability as radius
         R = np.outer(np.ones_like(theta), prob_density * 5 + 0.1)
@@ -313,15 +319,16 @@ class PreGeometryVisualizer:
         Y = R * np.cos(Theta)
         Z = R * np.sin(Theta)
 
-        # Color by phase
-        colors = np.outer(np.ones_like(theta), phase_field)
-        colors_normalized = (colors + PI) / (2 * PI)
+        # Color by phase (deprecated visualization code)
+        # colors = np.outer(np.ones_like(theta), phase_field)  # Unused
+        # colors_normalized = (colors + PI) / (2 * PI)  # Unused in deprecated
+        # code
 
         self.ax3d.plot_surface(
             X,
             Y,
             Z,
-            facecolors=cm.hsv(colors_normalized),
+            facecolors=None,  # cm.hsv deprecated
             alpha=0.8,
             linewidth=0,
             antialiased=True,
@@ -395,19 +402,30 @@ class PreGeometryVisualizer:
         # Fill probability density
         prob = self.pregeom.get_probability_density()
         self.ax2d.fill_between(
-            self.pregeom.n_range, 0, prob, alpha=0.3, color="purple", label="|Ψ|²"
+            self.pregeom.n_range,
+            0,
+            prob,
+            alpha=0.3,
+            color="purple",
+            label="|Ψ|²",
         )
 
         # Mark critical points
-        self.ax2d.axvline(-1, color="gold", linestyle="--", alpha=0.5, label="n=-1")
-        self.ax2d.axvline(0, color="black", linestyle="--", alpha=0.5, label="void")
+        self.ax2d.axvline(
+            -1, color="gold", linestyle="--", alpha=0.5, label="n=-1"
+        )
+        self.ax2d.axvline(
+            0, color="black", linestyle="--", alpha=0.5, label="void"
+        )
         self.ax2d.axvline(
             PHI - 1, color="green", linestyle="--", alpha=0.5, label="φ-1"
         )
 
         self.ax2d.set_xlabel("Dimension n")
         self.ax2d.set_ylabel("Wavefunction Ψ")
-        self.ax2d.set_title(f"Pre-Geometric Wavefunction (t={self.pregeom.time:.2f})")
+        self.ax2d.set_title(
+            f"Pre-Geometric Wavefunction (t={self.pregeom.time:.2f})"
+        )
         self.ax2d.legend(loc="upper right", fontsize=8)
         self.ax2d.grid(True, alpha=0.3)
         self.ax2d.set_xlim([-1, 1])
@@ -447,7 +465,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-
     def _get_mathematical_results(self):
         """Get mathematical results without matplotlib visualization."""
         return {
@@ -455,7 +472,7 @@ if __name__ == "__main__":
             "oscillation_data": self.oscillation_data,
             "potential_field": self.potential_field,
             "dimensional_seeds": self.dimensional_seeds,
-            "time": self.time
+            "time": self.time,
         }
 
     def compute_pre_geometric_state(self):
@@ -464,9 +481,9 @@ if __name__ == "__main__":
         oscillation = np.sin(self.oscillation_rate * self.time)
 
         # Potential field computation
-        self.potential_field = np.array([
-            self._potential_at_n(n) for n in self.n_range
-        ])
+        self.potential_field = np.array(
+            [self._potential_at_n(n) for n in self.n_range]
+        )
 
         # Dimensional seeds
         self.dimensional_seeds = self._find_dimensional_seeds()
@@ -475,12 +492,15 @@ if __name__ == "__main__":
         self.oscillation_data = {
             "amplitude": oscillation,
             "frequency": self.oscillation_rate,
-            "phase": self.time % (2 * PI / self.oscillation_rate)
+            "phase": self.time % (2 * PI / self.oscillation_rate),
         }
 
         return {
-            "potential_range": [np.min(self.potential_field), np.max(self.potential_field)],
+            "potential_range": [
+                np.min(self.potential_field),
+                np.max(self.potential_field),
+            ],
             "dimensional_seed_count": len(self.dimensional_seeds),
             "oscillation_amplitude": oscillation,
-            "mathematical_state": "pre_geometric"
+            "mathematical_state": "pre_geometric",
         }

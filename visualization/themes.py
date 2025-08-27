@@ -52,4 +52,4 @@ def get_theme(name="mathematical"):
 
 def apply_theme(name="mathematical"):
     """DEPRECATED: matplotlib eliminated. Themes handled by modern backends."""
-    theme = get_theme(name)
+    get_theme(name)

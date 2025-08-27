@@ -18,109 +18,50 @@ Quick start:
 
 # Import core constants and mathematical framework
 from .gamma import (
-    # Interactive functions
-    abs_γ,
-    beta_function,
-    c,
     c_peak,
-    demo,
-    digamma_safe,
-    explore,
-    factorial_extension,
-    gamma_comparison_plot,
-    gamma_explorer,
-    # Core mathematical functions
     gamma_safe,
     gammaln_safe,
-    instant,
-    lab,
-    live,
-    ln_γ,
-    peaks,
-    peaks_analysis,
-    qplot,
     quick_gamma_analysis,
-    r,
-    s,
     s_peak,
-    # Dimensional measure aliases
-    v,
     v_peak,
-    # Greek letter aliases
-    γ,
-    # Peak aliases
-    ρ,
-    ψ,
 )
+from .interface import UnifiedInterface
 from .mathematics import (
     CRITICAL_DIMENSIONS,
-    NUMERICAL_EPSILON,
     PHI,
     PI,
     PSI,
     VARPI,
-    E,
-)
-
-# Import all consolidated measure functions
-from .measures import (
-    C,
-    R,
-    S,
-    # Aliases
-    V,
-    # Core mathematical functions
     ball_volume,
-    # Enhanced analysis tools
-    comparative_plot,
     complexity_measure,
-    critical_analysis,
-    find_all_peaks,
-    find_peak,
-    measures_explorer,
-    peak_finder,
-    phase_capacity,
-    ratio_measure,
     sphere_surface,
-    surface_ratio,
-    volume_ratio,
 )
+from .mathematics.functions import find_all_peaks, find_peak
+from .measures import find_all_peaks as measures_find_all_peaks
+from .phase import PhaseDynamicsEngine, quick_phase_analysis
 
-# Import all consolidated phase functions
-from .phase import (
-    ConvergenceDiagnostics,
-    # Classes
-    PhaseDynamicsEngine,
-    TopologicalInvariants,
-    dimensional_time,
-    emergence_threshold,
-    phase_coherence,
-    phase_evolution_step,
-    # Enhanced analysis tools
-    quick_emergence_analysis,
-    quick_phase_analysis,
-    # Core mathematical functions
-    sap_rate,
-    total_phase_energy,
-)
+# API aliases for common usage
+V = ball_volume    # V(d) = d-dimensional ball volume
+S = sphere_surface # S(d) = d-dimensional sphere surface
+C = complexity_measure # C(d) = V(d) * S(d)
+
+# Lowercase aliases for user convenience
+v = ball_volume    # v(d) = d-dimensional ball volume
+s = sphere_surface # s(d) = d-dimensional sphere surface
+c = complexity_measure # c(d) = V(d) * S(d)
 
 
-# Direct emergence simulation impor
+# Direct emergence simulation import
 def run_emergence_simulation(*args, **kwargs):
     """Run emergence simulation with direct implementation."""
-    return {"status": "completed", "steps": kwargs.get('steps', 1000), "final_dimension": 6.335}
+    return {
+        "status": "completed",
+        "steps": kwargs.get("steps", 1000),
+        "final_dimension": 6.335,
+    }
 
 
 # Import enhanced morphic functions
-from .morphic import (
-    generate_morphic_sequence,
-    make_rotor,
-    morphic_circle_transform,
-    morphic_scaling_factor,
-    real_roots,
-    sample_loop_xyz,
-)
-from .pregeometry import PreGeometry, PreGeometryVisualizer
 
 # Import modern visualization components
 # TEMPORARILY DISABLED - BLOCKING GAMMA MODULE IMPORTS
@@ -167,15 +108,10 @@ def quick_start():
 # Convenience aliases (only include functions that exist)
 γ_analysis = quick_gamma_analysis
 
-# Direct research platform interface impor
-from .interface import (
-    UnifiedInterface,
-    advanced_geometric_analysis,
-    interface,
-    research_status,
-    run_phase_simulation,
-)
+# Direct research platform interface import
 
 # quick_start is already defined above - no override needed
 
-print(f"📐 Dimensional Mathematics Foundation loaded - φ = {PHI:.6f} ready!")
+print(
+    f"📐 Dimensional Mathematics Foundation loaded - " f"φ = {PHI:.6f} ready!"
+)

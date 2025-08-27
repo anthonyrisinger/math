@@ -25,6 +25,7 @@ from .mathematics import (
 
 # CORE MATHEMATICAL FUNCTIONS - CONSOLIDATED FROM CORE/
 
+
 def _validate_dimension(d, function_name="measure"):
     """
     Validate dimensional input and issue warnings for edge cases.
@@ -43,7 +44,8 @@ def _validate_dimension(d, function_name="measure"):
         negative_values = d_array[d_array < 0]
         if len(negative_values) == 1:
             warnings.warn(
-                f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
+                f"Negative dimension d={
+                    negative_values[0]:.3f} in {function_name}(). "
                 f"Returning mathematical extension value. "
                 f"Physical dimensions are typically d ≥ 0.",
                 UserWarning,
@@ -64,7 +66,8 @@ def _validate_dimension(d, function_name="measure"):
         large_values = d_array[d_array > 100]
         if len(large_values) == 1:
             warnings.warn(
-                f"Large dimension d={large_values[0]:.1f} in {function_name}() "
+                f"Large dimension d={
+                    large_values[0]:.1f} in {function_name}() "
                 f"may underflow to zero due to gamma function behavior.",
                 UserWarning,
                 stacklevel=3,
@@ -124,13 +127,17 @@ def ball_volume(d):
         # Small values: direct computation
         if np.any(~large_mask):
             d_small = d[~large_mask]
-            log_vol = (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2 + 1)
+            log_vol = (d_small / 2) * np.log(PI) - gammaln_safe(
+                d_small / 2 + 1
+            )
             result[~large_mask] = np.exp(log_vol)
 
         # Large values: use log space
         if np.any(large_mask):
             d_large = d[large_mask]
-            log_vol = (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2 + 1)
+            log_vol = (d_large / 2) * np.log(PI) - gammaln_safe(
+                d_large / 2 + 1
+            )
             result[large_mask] = np.exp(np.real(log_vol))
 
         return result if d.ndim > 0 else float(result)
@@ -192,7 +199,9 @@ def sphere_surface(d):
         if np.any(~large_mask):
             d_small = d[~large_mask]
             log_surf = (
-                np.log(2) + (d_small / 2) * np.log(PI) - gammaln_safe(d_small / 2)
+                np.log(2)
+                + (d_small / 2) * np.log(PI)
+                - gammaln_safe(d_small / 2)
             )
             result[~large_mask] = np.exp(log_surf)
 
@@ -200,7 +209,9 @@ def sphere_surface(d):
         if np.any(large_mask):
             d_large = d[large_mask]
             log_surf = (
-                np.log(2) + (d_large / 2) * np.log(PI) - gammaln_safe(d_large / 2)
+                np.log(2)
+                + (d_large / 2) * np.log(PI)
+                - gammaln_safe(d_large / 2)
             )
             result[large_mask] = np.exp(np.real(log_surf))
 
@@ -339,11 +350,15 @@ def find_all_peaks(d_min=0.1, d_max=15.0, resolution=10000):
     results["volume_peak"] = (vol_peak_d, vol_peak_val)
 
     # Surface peak
-    surf_peak_d, surf_peak_val = find_peak(sphere_surface, d_min, d_max, resolution)
+    surf_peak_d, surf_peak_val = find_peak(
+        sphere_surface, d_min, d_max, resolution
+    )
     results["surface_peak"] = (surf_peak_d, surf_peak_val)
 
     # Complexity peak
-    comp_peak_d, comp_peak_val = find_peak(complexity_measure, d_min, d_max, resolution)
+    comp_peak_d, comp_peak_val = find_peak(
+        complexity_measure, d_min, d_max, resolution
+    )
     results["complexity_peak"] = (comp_peak_d, comp_peak_val)
 
     return results
@@ -362,6 +377,7 @@ C = complexity_measure
 R = ratio_measure
 
 # ENHANCED ANALYSIS TOOLS (previously in dimensional/measures.py)
+
 
 def measures_explorer(d_range=(0.1, 10), num_points=1000, show_peaks=True):
     """
@@ -432,9 +448,15 @@ def peak_finder(measure_name, d_range=(0.1, 15), resolution=10000):
     }
 
     if measure_name not in measure_funcs:
-        raise ValueError(f"Unknown measure: {measure_name}. Choose from {list(measure_funcs.keys())}")
+        raise ValueError(
+            f"Unknown measure: {measure_name}. Choose from {
+                list(
+                    measure_funcs.keys())}"
+        )
 
-    return find_peak(measure_funcs[measure_name], d_range[0], d_range[1], resolution)
+    return find_peak(
+        measure_funcs[measure_name], d_range[0], d_range[1], resolution
+    )
 
 
 def critical_analysis(d_values=None):
