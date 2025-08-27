@@ -1,3 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dimensional-mathematics"
+version = "1.0.0"
+authors = [
+    {name = "Advanced Mathematics Research", email = "research@dimensional.math"},
+]
+description = "Advanced dimensional mathematics package with spectral analysis, algebraic structures, and phase dynamics"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent", 
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+keywords = ["mathematics", "spectral-analysis", "algebra", "phase-dynamics", "dimensional-analysis"]
+
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0", 
+    "matplotlib>=3.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=22.0",
+    "ruff>=0.1.0",
+    "mypy>=0.991",
+]
+demo = [
+    "jupyter>=1.0.0",
+    "ipywidgets>=8.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/dimensional-math/dimensional-mathematics"
+"Bug Tracker" = "https://github.com/dimensional-math/dimensional-mathematics/issues"
+"Documentation" = "https://dimensional-math.readthedocs.io/"
+
+[project.scripts]
+dimensional-demo = "demo.advanced_math_demo:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dimensional*", "demo*"]
+exclude = ["tests*"]
+
 [tool.ruff]
 target-version = "py39"
 
@@ -19,6 +80,7 @@ extend-select = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "conftest.py" = ["F401", "F841"]  # Allow test setup patterns
+"demo/*" = ["E501"]  # Allow longer lines in demo code for readability
 
 [tool.black]
 line-length = 88

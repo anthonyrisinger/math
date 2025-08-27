@@ -45,9 +45,38 @@ from .gamma import (
     quick_gamma_analysis,
     s_peak,
     v_peak,
+    peaks,
     lab,
     explore,
     instant,
+)
+
+# Import spectral analysis capabilities  
+from .spectral import (
+    DimensionalOperator,
+    dimensional_spectral_density,
+    detect_dimensional_resonances,
+    analyze_critical_point_spectrum,
+    quick_spectral_analysis,
+    analyze_emergence_spectrum,
+    fractal_harmonic_analysis,
+    dimensional_wavelet_analysis,
+)
+
+# Import algebraic structures
+from .algebra import (
+    CliffordAlgebra,
+    CliffordMultivector,
+    LieAlgebra,
+    LieGroup,
+    SO3LieAlgebra,
+    SO3Group,
+    SLnLieAlgebra,
+    SLnGroup,
+    Quaternion,
+    Octonion,
+    DimensionalGroupAction,
+    analyze_dimensional_symmetries,
 )
 
 # Import enhanced research CLI functions (gracefully handle missing deps)
