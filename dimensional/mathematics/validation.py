@@ -258,7 +258,7 @@ class PropertyValidator:
             print("FAILED TESTS:")
             for category_name, category_results in all_results.items():
                 failed_tests = [
-                    name for name, result in category_results.items() if not resul
+                    name for name, result in category_results.items() if not result
                 ]
                 if failed_tests:
                     print(f"  {category_name}: {failed_tests}")

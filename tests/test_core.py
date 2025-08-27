@@ -727,7 +727,7 @@ class TestVisualizationCompat:
 
             result = instant()
             assert isinstance(result, dict)
-            assert "panels" in resul
+            assert "panels" in result
         except ImportError:
             pytest.skip("Instant visualization not available")
 
@@ -741,7 +741,7 @@ class TestVisualizationCompat:
 
             result = explore(4.0)
             assert isinstance(result, dict)
-            assert "dimension" in resul
+            assert "dimension" in result
             assert result["dimension"] == 4.0
         except ImportError:
             pytest.skip("Explore function not available")

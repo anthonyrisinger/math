@@ -163,7 +163,7 @@ class PlotlyDashboard(VisualizationBackend):
         return self.fig
 
     def _render_grid_layout(
-        self, geometry: dict, topology: dict, measures: dict, parameters: dic
+        self, geometry: dict, topology: dict, measures: dict, parameters: dict
     ) -> None:
         """Render mathematical grid layout components."""
 
@@ -287,7 +287,7 @@ class PlotlyDashboard(VisualizationBackend):
         self._apply_orthographic_camera(scene_name)
 
     def _render_torus_topology(
-        self, data: dict, row: int, col: int, dimension: floa
+        self, data: dict, row: int, col: int, dimension: float
     ) -> None:
         """Render dimension-dependent torus."""
         u = np.linspace(0, 2 * np.pi, 30)
@@ -313,7 +313,7 @@ class PlotlyDashboard(VisualizationBackend):
         self.fig.add_trace(torus, row=row, col=col)
 
     def _render_gamma_topology(
-        self, data: dict, row: int, col: int, dimension: floa
+        self, data: dict, row: int, col: int, dimension: float
     ) -> None:
         """Render gamma function topology."""
         # Create gamma-based surface
@@ -347,7 +347,7 @@ class PlotlyDashboard(VisualizationBackend):
         self.fig.add_trace(gamma_surface, row=row, col=col)
 
     def _render_default_topology(
-        self, data: dict, row: int, col: int, dimension: floa
+        self, data: dict, row: int, col: int, dimension: float
     ) -> None:
         """Render default topological view."""
         # Simple parametric surface
@@ -371,7 +371,7 @@ class PlotlyDashboard(VisualizationBackend):
         self.fig.add_trace(sphere, row=row, col=col)
 
     def _render_morphic_transformations(
-        self, morphic_data: dict, row: int, col: in
+        self, morphic_data: dict, row: int, col: int
     ) -> None:
         """Render morphic transformations with golden ratio."""
         phi = (1 + np.sqrt(5)) / 2  # Golden ratio
@@ -466,7 +466,7 @@ class PlotlyDashboard(VisualizationBackend):
         )
 
     def _render_unified_layout(
-        self, geometry: dict, topology: dict, measures: dict, parameters: dic
+        self, geometry: dict, topology: dict, measures: dict, parameters: dict
     ) -> None:
         """Render unified single-view layout."""
         # Render main component based on priority

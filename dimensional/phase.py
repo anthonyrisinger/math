@@ -605,7 +605,7 @@ class PhaseDynamicsEngine:
         weighted_sum = 0.0
         for d in range(len(energies)):
             weight = energies[d] / total_energy
-            weighted_sum += d * weigh
+            weighted_sum += d * weight
 
         return float(weighted_sum)
 

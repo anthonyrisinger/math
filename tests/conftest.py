@@ -12,10 +12,10 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-import pytes
+import pytest
 
 # Add the project root to Python path for testing
-project_root = Path(__file__).paren
+project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 # Configure numpy for strict mathematical testing
@@ -263,7 +263,7 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture
 def regression_data_path():
     """Path to golden reference data for regression tests."""
-    return Path(__file__).parent / "tests" / "regression" / "golden_reference"
+    return Path(__file__).parentt / "tests" / "regression" / "golden_reference"
 
 
 @pytest.fixture

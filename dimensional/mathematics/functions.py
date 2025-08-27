@@ -403,7 +403,7 @@ def phase_evolution_step(phase_density, dt, max_dimension=None):
 
                 if rate > NUMERICAL_EPSILON:
                     energy_transfer_rate = rate * energies[source]
-                    energy_transfer = energy_transfer_rate * d
+                    energy_transfer = energy_transfer_rate * dt
                     max_energy_transfer = energies[source] * 0.1
                     energy_transfer = min(energy_transfer, max_energy_transfer)
 
@@ -619,7 +619,7 @@ class PhaseDynamicsEngine:
         weighted_sum = 0.0
         for d in range(len(energies)):
             weight = energies[d] / total_energy
-            weighted_sum += d * weigh
+            weighted_sum += d * weight
 
         return float(weighted_sum)
 
