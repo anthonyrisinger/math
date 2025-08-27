@@ -22,6 +22,13 @@ import numpy as np
 from .emergence_framework import EmergenceFramework
 from .geometric_measures import PHI, PI, VARPI, E, GeometricMeasures
 
+# Import modern visualization backend
+try:
+    from ..visualization.modernized_dashboard import create_modern_dashboard
+    MODERN_VIZ_AVAILABLE = True
+except ImportError:
+    MODERN_VIZ_AVAILABLE = False
+
 
 class RealityModeler:
     """

@@ -21,6 +21,13 @@ import numpy as np
 
 from .geometric_measures import PHI, E, GeometricMeasures
 
+# Import modern visualization backend
+try:
+    from ..visualization.modernized_dashboard import create_modern_dashboard
+    MODERN_VIZ_AVAILABLE = True
+except ImportError:
+    MODERN_VIZ_AVAILABLE = False
+
 
 class EmergenceFramework:
     """
@@ -223,69 +230,57 @@ class EmergenceFramework:
         }
 
     def plot_emergence_evolution(self):
-        """Plot the complete emergence evolution."""
+        """Plot the complete emergence evolution using modern dashboard."""
         if not self.history["time"]:
             print("⚠️  No simulation history available. Run simulation first.")
             return
 
-        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-        fig.suptitle("Dimensional Emergence Evolution", fontsize=16)
+        if not MODERN_VIZ_AVAILABLE:
+            print("⚠️  Modern visualization not available. Data computed but not displayed.")
+            return self._compute_evolution_data()
 
+        # Use modern dashboard for visualization
+        dashboard = create_modern_dashboard(backend="plotly")
+        
+        # Prepare data for modern backend
+        evolution_data = self._compute_evolution_data()
+        
+        # Render using modern backend
+        scene_data = {
+            "geometry": {"evolution": evolution_data},
+            "topology": {},
+            "measures": {"emergence_analysis": evolution_data},
+            "parameters": {"time_evolution": True}
+        }
+        
+        print("📊 Rendering emergence evolution with modern dashboard...")
+        dashboard.render_scene(scene_data)
+        dashboard.show()
+        
+        return evolution_data
+
+    def _compute_evolution_data(self):
+        """Compute evolution data for visualization."""
         times = np.array(self.history["time"])
         dimensions = np.array(self.history["dimension"])
         phase_densities = np.array(self.history["phase_densities"])
-
-        # Dimensional evolution
-        axes[0, 0].plot(times, dimensions, "b-", linewidth=2)
-        axes[0, 0].set_xlabel("Emergent Time")
-        axes[0, 0].set_ylabel("Effective Dimension")
-        axes[0, 0].set_title("Dimensional Evolution")
-        axes[0, 0].grid(True, alpha=0.3)
-
-        # Mark emergence events
-        for d in self.emerged:
-            if d > 0:  # Skip initial void
-                axes[0, 0].axhline(d, color="red", linestyle="--", alpha=0.5)
-
-        # Phase density evolution
-        for i in range(min(8, self.max_dimensions)):
-            phase_mags = np.abs(phase_densities[:, i])
-            axes[0, 1].plot(times, phase_mags, label=f"d={i}", linewidth=2)
-
-        axes[0, 1].set_xlabel("Emergent Time")
-        axes[0, 1].set_ylabel("Phase Density Magnitude")
-        axes[0, 1].set_title("Phase Evolution")
-        axes[0, 1].legend()
-        axes[0, 1].grid(True, alpha=0.3)
-
+        
         # Final phase distribution
         final_phases = np.abs(self.phase_density) ** 2
-        dims = np.arange(len(final_phases))
-        axes[1, 0].bar(dims, final_phases, alpha=0.7, color="purple")
-        axes[1, 0].set_xlabel("Dimension")
-        axes[1, 0].set_ylabel("Phase Probability")
-        axes[1, 0].set_title("Final Dimensional Distribution")
-        axes[1, 0].grid(True, alpha=0.3)
-
+        
         # Dimensional potential landscape
         d_range = np.linspace(0, 10, 1000)
         potential = [self.dimensional_potential(d) for d in d_range]
-
-        axes[1, 1].plot(d_range, potential, "g-", linewidth=2, label="Potential")
-        axes[1, 1].axvline(
-            self.dimension,
-            color="red",
-            linestyle="--",
-            label=f"Final d={self.dimension:.3f}",
-        )
-        axes[1, 1].set_xlabel("Dimension")
-        axes[1, 1].set_ylabel("Emergence Potential")
-        axes[1, 1].set_title("Dimensional Potential Landscape")
-        axes[1, 1].legend()
-        axes[1, 1].grid(True, alpha=0.3)
-
-        plt.tight_layout()
-        plt.show()
+        
+        return {
+            "times": times,
+            "dimensions": dimensions,
+            "phase_densities": phase_densities,
+            "final_phases": final_phases,
+            "emerged_dimensions": list(self.emerged),
+            "potential_landscape": {"d_range": d_range, "potential": potential},
+            "current_dimension": self.dimension
+        }
 
     def interactive_exploration(self):
         """Interactive exploration of dimensional emergence."""
@@ -319,13 +314,7 @@ class EmergenceFramework:
                 d_range = np.linspace(0, 10, 1000)
                 potential = [self.dimensional_potential(d) for d in d_range]
 
-                plt.figure(figsize=(10, 6))
-                plt.plot(d_range, potential, "b-", linewidth=2)
-                plt.xlabel("Dimension")
-                plt.ylabel("Emergence Potential")
-                plt.title("Dimensional Potential Landscape")
-                plt.grid(True, alpha=0.3)
-                plt.show()
+                self._plot_potential_landscape()
 
             elif choice == "4":
                 print("\nCurrent phase coherence:")
@@ -341,6 +330,27 @@ class EmergenceFramework:
             else:
                 print("❌ Invalid choice")
 
+
+    def _plot_potential_landscape(self):
+        """Plot potential landscape using modern backend."""
+        d_range = np.linspace(0, 10, 1000)
+        potential = [self.dimensional_potential(d) for d in d_range]
+
+        if MODERN_VIZ_AVAILABLE:
+            dashboard = create_modern_dashboard(backend="plotly")
+            scene_data = {
+                "geometry": {"potential_landscape": {"d_range": d_range, "potential": potential}},
+                "topology": {},
+                "measures": {},
+                "parameters": {"current_dimension": self.dimension}
+            }
+            print("📈 Rendering potential landscape with modern dashboard...")
+            dashboard.render_scene(scene_data)
+            dashboard.show()
+        else:
+            print("🔢 Potential landscape computed:")
+            print(f"   Range: {min(potential):.4f} to {max(potential):.4f}")
+            print(f"   Peak at d≈{d_range[np.argmax(potential)]:.2f}")
 
 # Convenience functions
 def run_emergence(steps=1000):

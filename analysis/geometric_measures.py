@@ -17,6 +17,13 @@ import warnings
 from typing import Any, Union
 
 import numpy as np
+
+# Import modern visualization backend
+try:
+    from ..visualization.modernized_dashboard import create_modern_dashboard
+    MODERN_VIZ_AVAILABLE = True
+except ImportError:
+    MODERN_VIZ_AVAILABLE = False
 from scipy.special import gamma, gammaln
 
 warnings.filterwarnings("ignore")

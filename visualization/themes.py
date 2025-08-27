@@ -51,6 +51,5 @@ def get_theme(name="mathematical"):
 
 
 def apply_theme(name="mathematical"):
-    """Apply theme to matplotlib."""
+    """DEPRECATED: matplotlib eliminated. Themes handled by modern backends."""
     theme = get_theme(name)
-    plt.rcParams.update(theme)
