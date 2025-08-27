@@ -621,3 +621,127 @@ if __name__ == "__main__":
 
         traceback.print_exc()
         sys.exit(1)
+
+
+# =============================================================================
+# ADDITIONAL TESTS CONSOLIDATED FROM UNIFIED GAMMA MODULE
+# =============================================================================
+
+class TestQuickTools:
+    """Test quick exploration and calculation tools."""
+
+    def test_dimensional_functions(self):
+        """Test dimensional measure functions v, s, c, r, ρ."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            from dimensional.gamma import v, s, c, r, ρ
+            
+            # Test known dimensions
+            for d in [1, 2, 3, 4]:
+                # All functions should return positive finite values
+                volume = v(d)
+                surface = s(d)
+                complexity = c(d)
+                ratio = r(d)
+                density = ρ(d)
+                
+                assert np.isfinite(volume) and volume > 0
+                assert np.isfinite(surface) and surface > 0
+                assert np.isfinite(complexity) and complexity > 0
+                assert np.isfinite(ratio) and ratio > 0
+                assert np.isfinite(density) and density > 0
+                
+                # Test relationships
+                assert abs(complexity - volume * surface) < 1e-10
+                assert abs(ratio - surface / volume) < 1e-10
+                assert abs(density - 1 / volume) < 1e-10
+        except ImportError:
+            pytest.skip("Quick tools not available")
+
+    def test_peak_finders(self):
+        """Test peak finding functions."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            from dimensional.gamma import v_peak, s_peak, c_peak
+            
+            # Volume peak should be around 5.26
+            v_peak_d = v_peak()
+            assert 5.0 < v_peak_d < 6.0
+            
+            # Surface peak should be around 7.26  
+            s_peak_d = s_peak()
+            assert 7.0 < s_peak_d < 8.0
+            
+            # Complexity peak should be around 6.0
+            c_peak_d = c_peak()
+            assert 5.5 < c_peak_d < 6.5
+        except ImportError:
+            pytest.skip("Peak finders not available")
+
+    def test_gamma_shortcuts(self):
+        """Test gamma shortcut functions."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            from dimensional.gamma import γ, abs_γ
+            
+            # γ should be same as gamma_safe
+            assert abs(γ(1.0) - gamma_safe(1.0)) < 1e-10
+            assert abs(γ(2.5) - gamma_safe(2.5)) < 1e-10
+            
+            # abs_γ should be absolute value
+            assert abs(abs_γ(1.0) - abs(gamma_safe(1.0))) < 1e-10
+        except ImportError:
+            pytest.skip("Gamma shortcuts not available")
+
+
+class TestVisualizationCompat:
+    """Test visualization functions for compatibility."""
+
+    def test_qplot_exists(self):
+        """Test qplot function exists and returns data."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            from dimensional.gamma import qplot, v, s, c
+            
+            # Modern implementation returns plot data
+            result = qplot(v, s, c, labels=["Volume", "Surface", "Complexity"])
+            assert isinstance(result, dict)
+        except ImportError:
+            pytest.skip("Visualization tools not available")
+
+    def test_instant_exists(self):
+        """Test instant visualization function."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            from dimensional.gamma import instant
+            
+            result = instant()
+            assert isinstance(result, dict)
+            assert "panels" in result
+        except ImportError:
+            pytest.skip("Instant visualization not available")
+
+    def test_explore_function(self):
+        """Test explore function."""
+        if not IMPORT_SUCCESS:
+            pytest.skip("Import failed")
+
+        try:
+            from dimensional.gamma import explore
+            
+            result = explore(4.0)
+            assert isinstance(result, dict)
+            assert "dimension" in result
+            assert result["dimension"] == 4.0
+        except ImportError:
+            pytest.skip("Explore function not available")

@@ -3,7 +3,7 @@
 Dimensional Mathematics Package
 ===============================
 
-Unified package for dimensional emergence theory, gamma functions,
+Unified package for dimensional mathematics, gamma functions,
 morphic mathematics, and phase dynamics.
 
 Quick start:
@@ -168,14 +168,13 @@ def quick_start():
 
 # Direct research platform interface import
 from .interface import (
-    UnifiedInterface, interface, CONSCIOUSNESS_COEFFICIENT,
-    research_status, analyze_consciousness, run_consciousness_emergence,
-    quantum_consciousness_analysis, advanced_geometric_analysis,
-    run_emergence
+    UnifiedInterface, interface,
+    research_status, advanced_geometric_analysis,
+    run_phase_simulation
 )
 
 # Override quick_start with research platform version
 from .interface import quick_start as research_quick_start
 quick_start = research_quick_start
 
-print(f"🧠 Research Platform Foundation loaded - φ = {CONSCIOUSNESS_COEFFICIENT} ready!")
+print(f"📐 Dimensional Mathematics Foundation loaded - φ = {PHI:.6f} ready!")
