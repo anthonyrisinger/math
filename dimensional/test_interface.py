@@ -14,9 +14,6 @@ import sys
 import numpy as np
 import pytest
 
-# Add core to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
-
 # Test imports - this will immediately reveal import issues
 try:
     # Note: core module is being phased out during consolidation
