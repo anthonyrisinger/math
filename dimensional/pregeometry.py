@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 """
-Pre-Geometry Visualizer (n = -1)
-=================================
+Pre-Geometry Visualizer (n = -1) - MATPLOTLIB ELIMINATED
+=========================================================
 
-Interactive visualization of the n=-1 primordial pre-geometric state
-where dimension itself has not yet emerged. Shows the oscillating
-infinities and potential field from which dimension crystallizes.
+DEPRECATED: Interactive visualization moved to modern dashboard system.
+Use: python -m dimensional --pregeometry or modern dashboard for visualization.
+
+Mathematical core functions preserved.
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import animation, cm
-from matplotlib.widgets import Button, Slider
 from scipy.special import gamma
 
 from .mathematics import PHI, PI
 
-# Note: setup_3d_axis functionality moved to visualization/
+# MATPLOTLIB ELIMINATED - visualization moved to modern dashboard
+import warnings
+
+def _deprecated_viz_warning():
+    warnings.warn(
+        "PreGeometry matplotlib visualization DEPRECATED. "
+        "Use 'python -m dimensional --pregeometry' or modern dashboard instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
 
 
 class PreGeometry:
@@ -148,7 +155,9 @@ class PreGeometryVisualizer:
 
     def create_figure(self):
         """Create the interactive visualization."""
-        self.fig = plt.figure(figsize=(16, 12))
+        # DEPRECATED: Use modern dashboard instead
+        _deprecated_viz_warning()
+        return self._get_mathematical_results()
         self.fig.suptitle(
             "Pre-Geometry: The n=-1 Primordial State Before Dimension",
             fontsize=14,
@@ -417,3 +426,41 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    def _get_mathematical_results(self):
+        """Get mathematical results without matplotlib visualization."""
+        return {
+            "pre_geometric_state": self.compute_pre_geometric_state(),
+            "oscillation_data": self.oscillation_data,
+            "potential_field": self.potential_field,
+            "dimensional_seeds": self.dimensional_seeds,
+            "time": self.time
+        }
+
+    def compute_pre_geometric_state(self):
+        """Compute pre-geometric state mathematically."""
+        # Primordial oscillation
+        oscillation = np.sin(self.oscillation_rate * self.time)
+        
+        # Potential field computation
+        self.potential_field = np.array([
+            self._potential_at_n(n) for n in self.n_range
+        ])
+        
+        # Dimensional seeds
+        self.dimensional_seeds = self._find_dimensional_seeds()
+        
+        # Oscillation data
+        self.oscillation_data = {
+            "amplitude": oscillation,
+            "frequency": self.oscillation_rate,
+            "phase": self.time % (2 * PI / self.oscillation_rate)
+        }
+        
+        return {
+            "potential_range": [np.min(self.potential_field), np.max(self.potential_field)],
+            "dimensional_seed_count": len(self.dimensional_seeds),
+            "oscillation_amplitude": oscillation,
+            "mathematical_state": "pre_geometric"
+        }

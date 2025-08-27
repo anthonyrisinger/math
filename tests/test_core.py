@@ -363,15 +363,13 @@ class TestVisualization:
             pytest.skip("Import failed")
 
         try:
-            import matplotlib.pyplot as plt
-
+            # Test deprecated function now returns None
             fig, ax = create_3d_figure(figsize=(6, 4))
 
-            # Should return figure and axis
-            assert fig is not None
-            assert ax is not None
-
-            plt.close(fig)
+            # MATPLOTLIB ELIMINATED - function now returns None
+            assert fig is None
+            assert ax is None
+            print("✅ Deprecated 3D figure creation handled correctly")
 
         except ImportError:
             pytest.skip("Matplotlib not available")

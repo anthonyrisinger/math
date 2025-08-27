@@ -718,7 +718,7 @@ def setup_3d_axis(
     Parameters
     ----------
     ax : Axes3D
-        Matplotlib 3D axis object
+        DEPRECATED: Matplotlib eliminated. Use modern visualization.
     title : str
         Axis title
     xlim, ylim, zlim : tuple, optional
@@ -776,10 +776,18 @@ def create_3d_figure(figsize=(10, 8), dpi=100):
     Returns
     -------
     tuple
-        (figure, axis) pair
+        DEPRECATED: Returns (None, None). Use modern visualization instead.
     """
-    import matplotlib.pyplot as plt
+    # MATPLOTLIB ELIMINATED - Use modern visualization instead
+    print("⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization.")
+    print("    Example: python -m dimensional --plot 3d")
+    return None, None
 
-    fig = plt.figure(figsize=figsize, dpi=dpi)
-    ax = fig.add_subplot(111, projection="3d")
-    return fig, setup_3d_axis(ax)
+def create_figure_3d(figsize=(12, 9), dpi=100):
+    """DEPRECATED: Create 3D figure.
+    
+    Use modern dashboard visualization instead.
+    """
+    print("⚠️  create_figure_3d() deprecated. Use dimensional CLI or modern dashboard for 3D visualization.")
+    print("    Example: python -m dimensional --plot 3d")
+    return None, None
