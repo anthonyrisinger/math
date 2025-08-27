@@ -48,8 +48,18 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.cache
+nosetests.xml
+cover/
 
-# Claude AI collaboration files
+# Claude AI collaboration files (keep essential protocol files)
 .claude/status.md
 .claude/context.md
 .claude/protocol.md
@@ -59,12 +69,30 @@ htmlcov/
 .claude/COLLABORATION_PROTOCOL.md
 .claude/CLEANUP_SUMMARY.md
 .claude/PHASE_*_SUMMARY.md
+.claude/settings.local.json
+
+# Build and development artifacts  
+build/
+dist/
+*.egg-info/
+.eggs/
+.tox/
+.nox/
+.venv/
+venv/
+env/
+ENV/
 
 # Development tools and configs
 .flake8
 .ruff.toml
 lint.sh
 *.sh.log
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
 
 # Temporary files and outputs
 LINTING_REPORT.md
