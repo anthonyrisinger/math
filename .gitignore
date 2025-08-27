@@ -49,11 +49,16 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 
-# Claude AI collaboration files (keep .claude/COLLABORATION_PROTOCOL.md)
+# Claude AI collaboration files
 .claude/status.md
 .claude/context.md
+.claude/protocol.md
 .claude/*.txt
 .claude/*.log
+.claude/*_SUMMARY.md
+.claude/COLLABORATION_PROTOCOL.md
+.claude/CLEANUP_SUMMARY.md
+.claude/PHASE_*_SUMMARY.md
 
 # Development tools and configs
 .flake8
@@ -63,6 +68,9 @@ lint.sh
 
 # Temporary files and outputs
 LINTING_REPORT.md
+IPO_QUALITY_REPORT.md
+DELIVERY_SUMMARY.md
+PRODUCTION_GUIDE.md
 *.tmp
 *.temp
 

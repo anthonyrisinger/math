@@ -256,7 +256,6 @@ class PreGeometryVisualizer:
         self.btn_auto.label.set_text("Stop" if self.auto_evolve else "Auto")
 
         if self.auto_evolve and self.anim is None:
-            # TODO: Replace with modern visualization backend
             self.anim = None  # animation.FuncAnimation deprecated
         elif not self.auto_evolve and self.anim is not None:
             self.anim.event_source.stop()
