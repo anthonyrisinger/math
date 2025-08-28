@@ -158,12 +158,10 @@ def _validate_dimension(d, function_name="measure"):
     if np.any(d_array < 0):
         negative_values = d_array[d_array < 0]
         if len(negative_values) == 1:
-            warnings.warn(
-                f"Negative dimension d={
-                    negative_values[0]:.3f} in {function_name}(). "
-                f"Returning mathematical extension value.",
-                UserWarning,
-                stacklevel=3,
+            from . import DimensionalError
+            raise DimensionalError(
+                f"Negative dimension d={negative_values[0]:.3f} in {function_name}(). "
+                f"Mathematical extension not supported."
             )
 
     if np.any(d_array > 100):

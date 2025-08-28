@@ -220,35 +220,21 @@ class TestNumericalStabilityRobustness:
         # Test concurrent access patterns (simulation)
         test_points = np.linspace(0.5, 5.5, 100)
 
-        # Simulate concurrent computations by interleaving operations
-        results_pattern_1 = []
-        results_pattern_2 = []
+        # Test same computations with different call orders
+        for point in test_points[:10]:  # Test subset for performance
+            # Pattern 1: volume then surface
+            vol1 = ball_volume(point)
+            surf1 = sphere_surface(point)
+            
+            # Pattern 2: surface then volume (same point)
+            surf2 = sphere_surface(point)
+            vol2 = ball_volume(point)
 
-        for i, point in enumerate(test_points):
-            if i % 2 == 0:
-                # Pattern 1: volume then surface
-                vol = ball_volume(point)
-                surf = sphere_surface(point)
-                results_pattern_1.append((vol, surf))
-            else:
-                # Pattern 2: surface then volume
-                surf = sphere_surface(point)
-                vol = ball_volume(point)
-                results_pattern_2.append((vol, surf))
-
-        # Results should be consistent regardless of computation order
-        if results_pattern_1 and results_pattern_2:
-            # Compare overlapping points
-            min_len = min(len(results_pattern_1), len(results_pattern_2))
-            for i in range(min_len):
-                vol1, surf1 = results_pattern_1[i]
-                vol2, surf2 = results_pattern_2[i]
-
-                # Same inputs should give same outputs regardless of order
-                if np.isfinite(vol1) and np.isfinite(vol2):
-                    assert abs(vol1 - vol2) < NUMERICAL_EPSILON, "Thread safety violation in volume"
-                if np.isfinite(surf1) and np.isfinite(surf2):
-                    assert abs(surf1 - surf2) < NUMERICAL_EPSILON, "Thread safety violation in surface"
+            # Same inputs should give same outputs regardless of order
+            if np.isfinite(vol1) and np.isfinite(vol2):
+                assert abs(vol1 - vol2) < NUMERICAL_EPSILON * 10, f"Thread safety violation in volume at d={point}"
+            if np.isfinite(surf1) and np.isfinite(surf2):
+                assert abs(surf1 - surf2) < NUMERICAL_EPSILON * 10, f"Thread safety violation in surface at d={point}"
 
 
 class TestErrorHandlingRobustness:

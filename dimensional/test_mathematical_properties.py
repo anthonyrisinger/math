@@ -388,8 +388,13 @@ class TestNumericalConsistencyProperties:
 
             if np.isfinite(gamma_direct) and np.isfinite(log_gamma) and gamma_direct > 0:
                 log_from_direct = np.log(gamma_direct)
-                relative_error = abs(log_from_direct - log_gamma) / abs(log_gamma)
-                assert relative_error < NUMERICAL_EPSILON * 1000, f"Log-space inconsistency for z={z}"
+                if abs(log_gamma) < NUMERICAL_EPSILON:
+                    # Handle near-zero log values (gamma ≈ 1)
+                    absolute_error = abs(log_from_direct - log_gamma)
+                    assert absolute_error < NUMERICAL_EPSILON * 1000, f"Log-space inconsistency for z={z}"
+                else:
+                    relative_error = abs(log_from_direct - log_gamma) / abs(log_gamma)
+                    assert relative_error < NUMERICAL_EPSILON * 1000, f"Log-space inconsistency for z={z}"
 
     def test_array_scalar_consistency(self):
         """Test consistency between array and scalar operations."""
