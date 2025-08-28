@@ -234,6 +234,3 @@ def quick_start():
 
 # quick_start is already defined above - no override needed
 
-print(
-    f"📐 Dimensional Mathematics Foundation loaded - " f"φ = {PHI:.6f} ready!"
-)

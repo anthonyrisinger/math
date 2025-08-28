@@ -109,10 +109,4 @@ CONTROL_SEMANTICS_MAINTAINED = True
 CLI_COMPATIBILITY_PRESERVED = True
 MATHEMATICAL_INTEGRITY_ENFORCED = True
 
-print("✅ PHASE 2: VISUALIZATION MODERNIZATION COMPLETE")
-print("💀 Matplotlib dependencies eliminated with extreme prejudice")
-print("⚡ Modern backends: Kingdon (geometric algebra) + Plotly (interactive)")
-print("📐 Orthographic constraints: ✅ (box 1:1:1, view deg(φ-1), -45°)")
-print("🎮 Control semantics: ✅ (Additive/Multiplicative/Boundary)")
-print("💻 CLI compatibility: ✅ (modern interface available)")
-print("🧮 Mathematical integrity: ✅ (theoretical grounding preserved)")
+# Suppress verbose output during import
