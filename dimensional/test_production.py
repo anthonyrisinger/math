@@ -113,19 +113,19 @@ class TestPerformanceCharacteristics:
     def test_peak_finding_robustness(self):
         """Test that peak finding algorithms are robust."""
         # Test peak finding functions
-        v_peak = dm.v_peak()
-        s_peak = dm.s_peak()
-        c_peak = dm.c_peak()
+        v_peak_d, v_peak_val = dm.v_peak()
+        s_peak_d, s_peak_val = dm.s_peak()
+        c_peak_d, c_peak_val = dm.c_peak()
 
         # Peaks should be reasonable values
-        assert 5.0 < v_peak < 6.0
-        assert 7.0 < s_peak < 8.0
-        assert 5.5 < c_peak < 6.5
+        assert 5.0 < v_peak_d < 6.0
+        assert 7.0 < s_peak_d < 8.0
+        assert 5.5 < c_peak_d < 6.5
 
         # Test that peaks are actually maxima
         epsilon = 0.01
-        assert dm.V(v_peak) > dm.V(v_peak - epsilon)
-        assert dm.V(v_peak) > dm.V(v_peak + epsilon)
+        assert dm.V(v_peak_d) > dm.V(v_peak_d - epsilon)
+        assert dm.V(v_peak_d) > dm.V(v_peak_d + epsilon)
 
 
 class TestErrorHandlingRobustness:

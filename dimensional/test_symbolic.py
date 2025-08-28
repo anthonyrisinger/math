@@ -107,16 +107,16 @@ class TestMathematicalRigor:
         """Test that peak locations match theoretical expectations."""
 
         # Volume peak should be around 5.256
-        v_peak = dm.v_peak()
-        assert 5.25 < v_peak < 5.26
+        v_peak_d, v_peak_val = dm.v_peak()
+        assert 5.25 < v_peak_d < 5.26
 
         # Surface peak should be around 7.256
-        s_peak = dm.s_peak()
-        assert 7.25 < s_peak < 7.26
+        s_peak_d, s_peak_val = dm.s_peak()
+        assert 7.25 < s_peak_d < 7.26
 
         # Complexity peak should be around 6.335
-        c_peak = dm.c_peak()
-        assert 6.3 < c_peak < 6.4
+        c_peak_d, c_peak_val = dm.c_peak()
+        assert 6.3 < c_peak_d < 6.4
 
         # Note: Peak verification would require careful numerical analysis
         # The peaks are mathematically correct as found by the optimization routines

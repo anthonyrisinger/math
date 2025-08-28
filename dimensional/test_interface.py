@@ -662,16 +662,19 @@ class TestQuickTools:
             from dimensional.gamma import c_peak, s_peak, v_peak
 
             # Volume peak should be around 5.26
-            v_peak_d = v_peak()
+            v_peak_d, v_peak_val = v_peak()
             assert 5.0 < v_peak_d < 6.0
+            assert v_peak_val > 0
 
             # Surface peak should be around 7.26
-            s_peak_d = s_peak()
+            s_peak_d, s_peak_val = s_peak()
             assert 7.0 < s_peak_d < 8.0
+            assert s_peak_val > 0
 
             # Complexity peak should be around 6.0
-            c_peak_d = c_peak()
+            c_peak_d, c_peak_val = c_peak()
             assert 5.5 < c_peak_d < 6.5
+            assert c_peak_val > 0
         except ImportError:
             pytest.skip("Peak finders not available")
 
