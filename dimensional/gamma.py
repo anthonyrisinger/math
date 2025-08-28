@@ -92,17 +92,27 @@ def gamma_safe(z):
                 gamma_1_minus_z = gamma_safe(1 - z_safe)
                 reflection_result = np.pi / (np.sin(np.pi * z_safe) * gamma_1_minus_z)
 
-                # Handle the indexing properly
-                neg_indices = np.where(negative_frac_mask)[0]
-                safe_neg_indices = neg_indices[sin_safe_mask]
-                result[safe_neg_indices] = reflection_result
+                # Handle the indexing properly for both scalar and array cases
+                if negative_frac_mask.ndim == 0:
+                    # Scalar case
+                    result = reflection_result
+                else:
+                    # Array case
+                    neg_indices = np.where(negative_frac_mask)[0]
+                    safe_neg_indices = neg_indices[sin_safe_mask]
+                    result[safe_neg_indices] = reflection_result
 
             # For cases where sin(π*z) ≈ 0, return infinity
             unsafe_mask = ~sin_safe_mask
             if np.any(unsafe_mask):
-                neg_indices = np.where(negative_frac_mask)[0]
-                unsafe_neg_indices = neg_indices[unsafe_mask]
-                result[unsafe_neg_indices] = np.inf
+                if negative_frac_mask.ndim == 0:
+                    # Scalar case
+                    result = np.inf
+                else:
+                    # Array case
+                    neg_indices = np.where(negative_frac_mask)[0]
+                    unsafe_neg_indices = neg_indices[unsafe_mask]
+                    result[unsafe_neg_indices] = np.inf
 
         return result if z.ndim > 0 else float(result)
 
@@ -131,17 +141,27 @@ def gamma_safe(z):
                 # Check if result would overflow
                 overflow_stirling = log_stirling >= LOG_SPACE_THRESHOLD
                 if np.any(overflow_stirling):
-                    large_indices = np.where(large_mask)[0]
-                    stirling_indices = large_indices[stirling_mask]
-                    overflow_indices = stirling_indices[overflow_stirling]
-                    result[overflow_indices] = np.inf
+                    if large_mask.ndim == 0:
+                        # Scalar case
+                        result = np.inf
+                    else:
+                        # Array case
+                        large_indices = np.where(large_mask)[0]
+                        stirling_indices = large_indices[stirling_mask]
+                        overflow_indices = stirling_indices[overflow_stirling]
+                        result[overflow_indices] = np.inf
 
                 safe_stirling = log_stirling < LOG_SPACE_THRESHOLD
                 if np.any(safe_stirling):
-                    large_indices = np.where(large_mask)[0]
-                    stirling_indices = large_indices[stirling_mask]
-                    safe_indices = stirling_indices[safe_stirling]
-                    result[safe_indices] = np.exp(log_stirling[safe_stirling])
+                    if large_mask.ndim == 0:
+                        # Scalar case
+                        result = np.exp(log_stirling[safe_stirling])
+                    else:
+                        # Array case
+                        large_indices = np.where(large_mask)[0]
+                        stirling_indices = large_indices[stirling_mask]
+                        safe_indices = stirling_indices[safe_stirling]
+                        result[safe_indices] = np.exp(log_stirling[safe_stirling])
 
             # Use scipy gammaln for moderately large values
             gammaln_mask = ~stirling_mask

@@ -1191,6 +1191,33 @@ class PhaseDynamicsEngine:
 
         return base_state
 
+    def inject_energy(self, amount: float, target_dimension: float):
+        """
+        Inject energy into a specific dimensional level.
+        
+        Parameters
+        ----------
+        amount : float
+            Amount of energy to inject
+        target_dimension : float
+            Target dimension level for energy injection
+        """
+        # Convert fractional dimension to integer index (simple mapping)
+        dim_index = int(np.clip(np.round(target_dimension), 0, self.max_dim - 1))
+        
+        # Inject energy as phase magnitude increase
+        current_phase = self.phase_density[dim_index]
+        current_magnitude = np.abs(current_phase)
+        current_phase_angle = np.angle(current_phase)
+        
+        # Increase magnitude while preserving phase
+        new_magnitude = current_magnitude + amount
+        self.phase_density[dim_index] = new_magnitude * np.exp(1j * current_phase_angle)
+        
+        # Update emerged dimensions set if energy exceeds threshold
+        if new_magnitude > 1e-6:
+            self.emerged.add(dim_index)
+
 
 # ENHANCED ANALYSIS TOOLS (previously in dimensional/phase.py)
 
