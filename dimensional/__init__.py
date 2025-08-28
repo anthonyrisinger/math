@@ -104,13 +104,68 @@ S = s = sphere_surface       # S(d) = s(d) = d-dimensional sphere surface
 C = c = complexity_measure   # C(d) = c(d) = V(d) * S(d)
 
 
-# Direct emergence simulation import
+# Emergence simulation - Production implementation
 def run_emergence_simulation(*args, **kwargs):
-    """Run emergence simulation with direct implementation."""
+    """
+    Run emergence simulation using phase dynamics engine.
+    
+    This function provides a production-ready interface to phase dynamics
+    emergence patterns across dimensional transitions.
+    
+    Parameters
+    ----------
+    steps : int, optional
+        Number of evolution steps (default: 1000)
+    initial_dimension : float, optional
+        Starting dimension (default: 3.0)
+    coupling_strength : float, optional
+        Phase coupling parameter (default: 0.1)
+        
+    Returns
+    -------
+    dict
+        Simulation results with final state and emergence metrics
+    """
+    import numpy as np
+    from .phase import PhaseDynamicsEngine
+    
+    # Extract parameters with defaults
+    steps = kwargs.get("steps", 1000)
+    initial_dim = kwargs.get("initial_dimension", 3.0)
+    coupling = kwargs.get("coupling_strength", 0.1)
+    
+    # Initialize phase dynamics engine
+    engine = PhaseDynamicsEngine(
+        max_dimensions=int(initial_dim * 2),  # Use enough dimensions
+        use_adaptive=True
+    )
+    
+    # Run emergence simulation
+    final_dimension = initial_dim
+    for _ in range(steps):
+        # Simple evolution step
+        engine.step(dt=0.01)
+        # Track emergence patterns
+        if len(engine.phase_state_history) > 10:
+            # Basic convergence check
+            recent_phases = engine.phase_state_history[-10:]
+            variance = sum(np.mean(np.abs(p - engine.phase_density) ** 2) for p in recent_phases) / 10
+            if variance < 1e-6:
+                break
+    
+    # Calculate emerged dimension from phase state
+    phase_magnitudes = np.abs(engine.phase_density)
+    active_dimensions = np.sum(phase_magnitudes > 1e-6)
+    final_dimension = float(initial_dim + active_dimensions * 0.1)
+    
     return {
         "status": "completed",
-        "steps": kwargs.get("steps", 1000),
-        "final_dimension": 6.335,
+        "steps_executed": len(engine.history),
+        "final_dimension": final_dimension,
+        "convergence_achieved": len(engine.history) < steps,
+        "active_dimensions": int(active_dimensions),
+        "phase_magnitudes": phase_magnitudes.tolist(),
+        "phase_engine": engine
     }
 
 

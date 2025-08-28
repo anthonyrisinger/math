@@ -152,10 +152,31 @@ class CliffordAlgebra:
         return tuple(result_indices), sign * perm_sign
 
     def _permutation_sign(self, original: list, final: list) -> int:
-        """Compute sign of permutation needed to sort original to final order."""
-        # Simplified: count inversions in the sorting process
-        # This is approximate - full implementation would track exact permutation
-        return 1  # Placeholder for now
+        """
+        Compute sign of permutation needed to sort original to final order.
+        
+        Uses inversion counting algorithm to determine parity.
+        """
+        if len(original) != len(final) or set(original) != set(final):
+            raise ValueError("Lists must contain same elements")
+        
+        # Create mapping from element to position in final order
+        final_positions = {elem: pos for pos, elem in enumerate(final)}
+        
+        # Map original to position indices in final order
+        position_sequence = [final_positions[elem] for elem in original]
+        
+        # Count inversions in position sequence
+        inversions = 0
+        n = len(position_sequence)
+        
+        for i in range(n):
+            for j in range(i + 1, n):
+                if position_sequence[i] > position_sequence[j]:
+                    inversions += 1
+        
+        # Return -1 for odd number of inversions, +1 for even
+        return -1 if inversions % 2 == 1 else 1
 
     def multivector(self, coefficients: np.ndarray) -> 'CliffordMultivector':
         """Create multivector from coefficients."""

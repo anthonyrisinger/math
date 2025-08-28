@@ -730,22 +730,8 @@ def peaks():
     }
 
 
-# Mock interactive classes
-class GammaLab:
-    def __init__(self, start_d=4.0):
-        self.d = start_d
-        self.mode = 0
-        self.modes = ["volume", "surface", "complexity"]
-
-    def show(self):
-        """Show the gamma lab interface."""
-        explore(self.d)
-
-
-class LiveGamma:
-    def __init__(self, expr_file=None):
-        self.d = 4.0
-        self.expr_file = expr_file
+# Interactive classes now provided by research_cli module
+# Legacy compatibility maintained through function redirects below
 
 
 def lab(start_d=4.0):
