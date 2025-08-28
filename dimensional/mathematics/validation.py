@@ -324,24 +324,134 @@ def cross_package_consistency_test() -> dict[str, bool]:
     return results
 
 
+class ConvergenceDiagnostics:
+    """Advanced convergence diagnostics for fractional dimensions."""
+
+    def __init__(self, tolerance=NUMERICAL_EPSILON):
+        self.tolerance = tolerance
+        self.test_results = {}
+
+    def richardson_extrapolation(self, func, x, h_sequence=None):
+        """Richardson extrapolation for convergence analysis."""
+        if h_sequence is None:
+            h_sequence = [1e-1, 5e-2, 1e-2, 5e-3, 1e-3]
+
+        results = []
+        for h in h_sequence:
+            try:
+                # Central difference approximation
+                if x > h and func(x + h) is not None and func(x - h) is not None:
+                    derivative = (func(x + h) - func(x - h)) / (2 * h)
+                    if np.isfinite(derivative):
+                        results.append(derivative)
+            except (OverflowError, ZeroDivisionError, ValueError):
+                continue
+
+        if len(results) >= 3:
+            errors = np.abs(np.diff(results))
+            convergence_rate = errors[-1] / errors[-2] if len(errors) >= 2 else None
+            converged = errors[-1] < self.tolerance if len(errors) >= 1 else False
+
+            return {
+                'derivatives': results,
+                'errors': errors.tolist(),
+                'convergence_rate': convergence_rate,
+                'converged': converged,
+                'method': 'richardson'
+            }
+
+        return {'error': 'insufficient_data', 'method': 'richardson'}
+
+    def aitken_acceleration(self, sequence):
+        """Aitken acceleration for sequence convergence."""
+        if len(sequence) < 3:
+            return {'error': 'insufficient_data', 'method': 'aitken'}
+
+        accelerated = []
+        for i in range(len(sequence) - 2):
+            s_n = sequence[i]
+            s_n1 = sequence[i + 1]
+            s_n2 = sequence[i + 2]
+
+            denom = s_n2 - 2*s_n1 + s_n
+            if abs(denom) > self.tolerance:
+                acc = s_n2 - (s_n2 - s_n1)**2 / denom
+                accelerated.append(acc)
+
+        if len(accelerated) >= 2:
+            convergence_improvement = abs(accelerated[-1] - accelerated[-2])
+            return {
+                'accelerated_sequence': accelerated,
+                'convergence_improvement': convergence_improvement,
+                'converged': convergence_improvement < self.tolerance,
+                'method': 'aitken'
+            }
+
+        return {'error': 'acceleration_failed', 'method': 'aitken'}
+
+    def fractional_convergence_test(self, func, x_base, fractional_steps=10):
+        """Test convergence in fractional domain around x_base."""
+        # Generate fractional perturbations
+        eps_values = np.logspace(-12, -3, fractional_steps)
+        forward_diffs = []
+        backward_diffs = []
+
+        for eps in eps_values:
+            try:
+                if x_base + eps > 0 and x_base - eps != x_base:  # Avoid pole regions
+                    f_plus = func(x_base + eps)
+                    f_minus = func(x_base - eps)
+                    f_base = func(x_base)
+
+                    if all(np.isfinite([f_plus, f_minus, f_base])):
+                        forward_diffs.append((f_plus - f_base) / eps)
+                        backward_diffs.append((f_base - f_minus) / eps)
+            except (OverflowError, ValueError, ZeroDivisionError):
+                continue
+
+        if len(forward_diffs) >= 3 and len(backward_diffs) >= 3:
+            # Check consistency between forward and backward differences
+            diff_consistency = [abs(f - b) for f, b in zip(forward_diffs, backward_diffs)]
+            avg_consistency = np.mean(diff_consistency)
+
+            # Richardson extrapolation on differences
+            richardson_forward = self.richardson_extrapolation(func, x_base)
+
+            return {
+                'forward_differences': forward_diffs,
+                'backward_differences': backward_diffs,
+                'consistency_errors': diff_consistency,
+                'avg_consistency': avg_consistency,
+                'richardson_result': richardson_forward,
+                'converged': avg_consistency < self.tolerance * 100,  # Relaxed for fractional
+                'method': 'fractional_domain'
+            }
+
+        return {'error': 'insufficient_fractional_data', 'method': 'fractional_domain'}
+
+
 class NumericalStabilityTester:
-    """Test numerical stability across parameter ranges."""
+    """Test numerical stability across parameter ranges with convergence diagnostics."""
 
     def __init__(self):
         self.test_results = {}
+        self.convergence = ConvergenceDiagnostics()
 
     def test_gamma_stability(self) -> dict[str, Any]:
-        """Test gamma function stability across wide parameter ranges."""
+        """Test gamma function stability with enhanced convergence diagnostics."""
         results = {}
 
-        # Test ranges
+        # Test ranges with enhanced fractional coverage
         small_positive = np.logspace(-10, -1, 20)
+        fractional_range = np.linspace(0.001, 3.999, 50)  # Avoid integer boundaries
         normal_range = np.linspace(0.1, 10, 50)
         large_values = np.logspace(1, 2, 20)  # Up to 100
+        negative_fractional = np.linspace(-3.999, -0.001, 30)  # Negative fractional
 
-        # Test small positive values
+        # Test small positive values with convergence
         small_results = []
-        for z in small_positive:
+        small_convergence = []
+        for i, z in enumerate(small_positive):
             try:
                 result = gamma_safe(z)
                 small_results.append(
@@ -352,6 +462,12 @@ class NumericalStabilityTester:
                         "positive": result > 0,
                     }
                 )
+
+                # Sample convergence tests (every 5th point)
+                if i % 5 == 0:
+                    conv_test = self.convergence.fractional_convergence_test(gamma_safe, z)
+                    small_convergence.append(conv_test)
+
             except Exception as e:
                 small_results.append(
                     {
@@ -372,39 +488,111 @@ class NumericalStabilityTester:
                 1 for r in small_results if r.get("positive", False)
             )
             / len(small_results),
+            "convergence_tests": len([c for c in small_convergence if c.get('converged', False)])
         }
 
-        # Test normal range
+        # Test fractional range with enhanced validation
+        fractional_results = []
+        fractional_convergence = []
+        for i, z in enumerate(fractional_range):
+            try:
+                result = gamma_safe(z)
+                fractional_results.append(result)
+
+                # Convergence test every 10th point
+                if i % 10 == 0:
+                    conv_test = self.convergence.fractional_convergence_test(gamma_safe, z)
+                    fractional_convergence.append(conv_test)
+
+            except Exception:
+                fractional_results.append(np.nan)
+
+        finite_fractional = [r for r in fractional_results if np.isfinite(r)]
+        results["fractional_range"] = {
+            "count": len(fractional_results),
+            "finite_count": len(finite_fractional),
+            "finite_ratio": len(finite_fractional) / len(fractional_results),
+            "all_positive": all(r > 0 for r in finite_fractional) if finite_fractional else False,
+            "convergence_passed": sum(1 for c in fractional_convergence if c.get('converged', False)),
+            "convergence_tested": len(fractional_convergence)
+        }
+
+        # Test negative fractional values (most challenging)
+        negative_results = []
+        negative_convergence = []
+        for i, z in enumerate(negative_fractional):
+            try:
+                result = gamma_safe(z)
+                negative_results.append(result)
+
+                # Test convergence for negative fractional values
+                if i % 5 == 0 and abs(z - round(z)) > 0.1:  # Avoid near-poles
+                    conv_test = self.convergence.fractional_convergence_test(gamma_safe, z)
+                    negative_convergence.append(conv_test)
+
+            except Exception:
+                negative_results.append(np.nan)
+
+        finite_negative = [r for r in negative_results if np.isfinite(r)]
+        results["negative_fractional"] = {
+            "count": len(negative_results),
+            "finite_count": len(finite_negative),
+            "finite_ratio": len(finite_negative) / len(negative_results) if negative_results else 0,
+            "convergence_passed": sum(1 for c in negative_convergence if c.get('converged', False)),
+            "reflection_formula_tests": len(negative_convergence)
+        }
+
+        # Test normal range (enhanced)
         normal_results = [gamma_safe(z) for z in normal_range]
+        normal_convergence = []
+        for i, z in enumerate(normal_range[::5]):  # Sample every 5th
+            conv_test = self.convergence.fractional_convergence_test(gamma_safe, z)
+            normal_convergence.append(conv_test)
+
         results["normal_range"] = {
             "all_finite": all(np.isfinite(r) for r in normal_results),
             "all_positive": all(r > 0 for r in normal_results),
+            "convergence_passed": sum(1 for c in normal_convergence if c.get('converged', False)),
             "monotonic_in_parts": True,  # Gamma has complex monotonicity
         }
 
-        # Test large values
+        # Test large values with Stirling approximation validation
         large_results = [gamma_safe(z) for z in large_values]
+        stirling_tests = []
+        for z in large_values[::3]:  # Sample every 3rd
+            gamma_val = gamma_safe(z)
+            if np.isfinite(gamma_val) and z > 0:
+                # Stirling approximation: Γ(z) ≈ √(2π/z) * (z/e)^z
+                stirling_approx = np.sqrt(2 * np.pi / z) * (z / np.e) ** z
+                if np.isfinite(stirling_approx) and stirling_approx > 0:
+                    relative_error = abs(gamma_val - stirling_approx) / stirling_approx
+                    stirling_tests.append(relative_error)
+
         results["large_values"] = {
             "all_finite_or_inf": all(
                 np.isfinite(r) or np.isinf(r) for r in large_results
             ),
             "no_nan": not any(np.isnan(r) for r in large_results),
+            "stirling_approximation_errors": stirling_tests,
+            "mean_stirling_error": np.mean(stirling_tests) if stirling_tests else 0
         }
 
         return results
 
     def test_measure_stability(self) -> dict[str, Any]:
-        """Test dimensional measure stability."""
+        """Test dimensional measure stability with convergence diagnostics."""
         results = {}
 
-        # Test fractional dimensions
+        # Test fractional dimensions with enhanced coverage
         fractional_dims = np.linspace(0.001, 10, 200)
+        very_fractional = np.array([0.1, 0.25, 0.5, 0.75, 1.25, 1.5, 2.25, 2.5, 3.14159, 4.5, 5.26, 7.26])  # Key points
 
         volumes = []
         surfaces = []
         complexities = []
+        measure_convergence = []
 
-        for d in fractional_dims:
+        for i, d in enumerate(fractional_dims):
             try:
                 v = ball_volume(d)
                 s = sphere_surface(d)
@@ -413,6 +601,16 @@ class NumericalStabilityTester:
                 volumes.append(v)
                 surfaces.append(s)
                 complexities.append(c)
+
+                # Test convergence at key fractional points
+                if d in very_fractional:
+                    vol_conv = self.convergence.fractional_convergence_test(ball_volume, d)
+                    surf_conv = self.convergence.fractional_convergence_test(sphere_surface, d)
+                    measure_convergence.append({
+                        'dimension': d,
+                        'volume_convergence': vol_conv,
+                        'surface_convergence': surf_conv
+                    })
 
             except Exception:
                 volumes.append(np.nan)
@@ -423,16 +621,39 @@ class NumericalStabilityTester:
         surfaces = np.array(surfaces)
         complexities = np.array(complexities)
 
+        # Peak finding with enhanced accuracy
+        finite_vols = volumes[np.isfinite(volumes)]
+        finite_surfs = surfaces[np.isfinite(surfaces)]
+        finite_dims = fractional_dims[np.isfinite(volumes)]
+
+        vol_peak_idx = np.argmax(finite_vols) if len(finite_vols) > 0 else -1
+        surf_peak_idx = np.argmax(finite_surfs) if len(finite_surfs) > 0 else -1
+
+        peak_analysis = {}
+        if vol_peak_idx >= 0:
+            peak_analysis['volume_peak_dimension'] = finite_dims[vol_peak_idx]
+            peak_analysis['volume_peak_value'] = finite_vols[vol_peak_idx]
+        if surf_peak_idx >= 0:
+            peak_analysis['surface_peak_dimension'] = finite_dims[surf_peak_idx]
+            peak_analysis['surface_peak_value'] = finite_surfs[surf_peak_idx]
+
         results["fractional_dimensions"] = {
             "volume_finite_ratio": np.mean(np.isfinite(volumes)),
             "surface_finite_ratio": np.mean(np.isfinite(surfaces)),
             "complexity_finite_ratio": np.mean(np.isfinite(complexities)),
             "volume_positive_ratio": np.mean(
                 volumes[np.isfinite(volumes)] > 0
-            ),
+            ) if np.any(np.isfinite(volumes)) else 0,
             "surface_positive_ratio": np.mean(
                 surfaces[np.isfinite(surfaces)] > 0
+            ) if np.any(np.isfinite(surfaces)) else 0,
+            "convergence_tests": len(measure_convergence),
+            "convergence_passed": sum(
+                1 for test in measure_convergence
+                if test['volume_convergence'].get('converged', False) and
+                   test['surface_convergence'].get('converged', False)
             ),
+            "peak_analysis": peak_analysis
         }
 
         return results

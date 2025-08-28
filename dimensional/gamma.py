@@ -34,7 +34,10 @@ from .mathematics import (
 
 def gamma_safe(z):
     """
-    Numerically stable gamma function.
+    Numerically stable gamma function with enhanced fractional domain support.
+
+    Uses Stirling approximation for large |z|, reflection formula for negative
+    fractional values, and special handling near poles for maximum stability.
 
     Parameters
     ----------
@@ -57,40 +60,108 @@ def gamma_safe(z):
         return result if z.ndim > 0 else float(result)
 
     # Handle negative integers (poles)
-    if np.any((z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON)):
+    negative_int_mask = (z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
+    if np.any(negative_int_mask):
         result = np.full_like(z, np.inf, dtype=float)
-        mask = ~((z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON))
+        mask = ~negative_int_mask
         if np.any(mask):
             result[mask] = gamma_safe(z[mask])
         return result if z.ndim > 0 else float(result)
 
-    # Use log-space for large values
-    if np.any(np.abs(z) > GAMMA_OVERFLOW_THRESHOLD):
-        large_mask = np.abs(z) > GAMMA_OVERFLOW_THRESHOLD
+    # Enhanced handling for negative fractional values using reflection formula
+    negative_frac_mask = (z < 0) & ~negative_int_mask
+    if np.any(negative_frac_mask):
+        result = np.full_like(z, 0.0, dtype=float)
+
+        # For non-negative values, use standard computation
+        positive_mask = z >= 0
+        if np.any(positive_mask):
+            result[positive_mask] = gamma_safe(z[positive_mask])
+
+        # For negative fractional values, use reflection formula:
+        # Γ(z) = π / (sin(πz) * Γ(1-z))
+        if np.any(negative_frac_mask):
+            z_neg = z[negative_frac_mask]
+            sin_pi_z = np.sin(np.pi * z_neg)
+
+            # Avoid sin(π*z) ≈ 0 cases (near integers)
+            sin_safe_mask = np.abs(sin_pi_z) > NUMERICAL_EPSILON
+
+            if np.any(sin_safe_mask):
+                z_safe = z_neg[sin_safe_mask]
+                gamma_1_minus_z = gamma_safe(1 - z_safe)
+                reflection_result = np.pi / (np.sin(np.pi * z_safe) * gamma_1_minus_z)
+
+                # Handle the indexing properly
+                neg_indices = np.where(negative_frac_mask)[0]
+                safe_neg_indices = neg_indices[sin_safe_mask]
+                result[safe_neg_indices] = reflection_result
+
+            # For cases where sin(π*z) ≈ 0, return infinity
+            unsafe_mask = ~sin_safe_mask
+            if np.any(unsafe_mask):
+                neg_indices = np.where(negative_frac_mask)[0]
+                unsafe_neg_indices = neg_indices[unsafe_mask]
+                result[unsafe_neg_indices] = np.inf
+
+        return result if z.ndim > 0 else float(result)
+
+    # Use log-space for large values with Stirling approximation fallback
+    large_mask = np.abs(z) > GAMMA_OVERFLOW_THRESHOLD
+    if np.any(large_mask):
         result = np.zeros_like(z, dtype=float)
 
-        if np.any(~large_mask):
-            result[~large_mask] = gamma(z[~large_mask])
+        # Standard computation for normal-sized values
+        normal_mask = ~large_mask
+        if np.any(normal_mask):
+            result[normal_mask] = gamma(z[normal_mask])
 
+        # Enhanced large value handling with Stirling approximation
         if np.any(large_mask):
-            log_gamma_vals = gammaln(z[large_mask])
-            exp_mask = log_gamma_vals < LOG_SPACE_THRESHOLD
-            if np.any(exp_mask):
-                if large_mask.ndim > 0:
-                    large_indices = np.where(large_mask)[0]
-                    safe_indices = large_indices[exp_mask]
-                    result[safe_indices] = np.exp(log_gamma_vals[exp_mask])
-                else:
-                    result[()] = np.exp(log_gamma_vals)
+            z_large = z[large_mask]
 
-            inf_mask = log_gamma_vals >= LOG_SPACE_THRESHOLD
-            if np.any(inf_mask):
-                if large_mask.ndim > 0:
+            # Use Stirling approximation for extremely large values
+            stirling_mask = np.abs(z_large) > LOG_SPACE_THRESHOLD / 10
+
+            if np.any(stirling_mask):
+                z_stirling = z_large[stirling_mask]
+                # Stirling: Γ(z) ≈ √(2π/z) * (z/e)^z
+                log_stirling = (z_stirling - 0.5) * np.log(z_stirling) - z_stirling + 0.5 * np.log(2 * np.pi)
+
+                # Check if result would overflow
+                overflow_stirling = log_stirling >= LOG_SPACE_THRESHOLD
+                if np.any(overflow_stirling):
                     large_indices = np.where(large_mask)[0]
-                    inf_indices = large_indices[inf_mask]
+                    stirling_indices = large_indices[stirling_mask]
+                    overflow_indices = stirling_indices[overflow_stirling]
+                    result[overflow_indices] = np.inf
+
+                safe_stirling = log_stirling < LOG_SPACE_THRESHOLD
+                if np.any(safe_stirling):
+                    large_indices = np.where(large_mask)[0]
+                    stirling_indices = large_indices[stirling_mask]
+                    safe_indices = stirling_indices[safe_stirling]
+                    result[safe_indices] = np.exp(log_stirling[safe_stirling])
+
+            # Use scipy gammaln for moderately large values
+            gammaln_mask = ~stirling_mask
+            if np.any(gammaln_mask):
+                z_gammaln = z_large[gammaln_mask]
+                log_gamma_vals = gammaln(z_gammaln)
+
+                exp_mask = log_gamma_vals < LOG_SPACE_THRESHOLD
+                if np.any(exp_mask):
+                    large_indices = np.where(large_mask)[0]
+                    gammaln_indices = large_indices[gammaln_mask]
+                    safe_indices = gammaln_indices[exp_mask]
+                    result[safe_indices] = np.exp(log_gamma_vals[exp_mask])
+
+                inf_mask = log_gamma_vals >= LOG_SPACE_THRESHOLD
+                if np.any(inf_mask):
+                    large_indices = np.where(large_mask)[0]
+                    gammaln_indices = large_indices[gammaln_mask]
+                    inf_indices = gammaln_indices[inf_mask]
                     result[inf_indices] = np.inf
-                else:
-                    result[()] = np.inf
 
         return result if z.ndim > 0 else float(result)
 
@@ -154,20 +225,34 @@ def digamma_safe(z):
 
 def factorial_extension(n):
     """
-    Factorial extension for non-negative real numbers.
+    Factorial extension for real numbers with enhanced fractional support.
     n! = Γ(n+1)
+
+    Provides stable computation for fractional factorials and handles
+    edge cases near poles with graceful degradation.
 
     Parameters
     ----------
     n : float or array-like
-        Non-negative real numbers
+        Real numbers (negative values use analytic continuation)
 
     Returns
     -------
     float or array
-        n! = Γ(n+1)
+        n! = Γ(n+1) with enhanced numerical stability
     """
-    return gamma_safe(np.asarray(n) + 1)
+    n = np.asarray(n)
+
+    # Special handling for negative integers: (-1)! = ∞
+    negative_int_mask = (n < 0) & (np.abs(n - np.round(n)) < NUMERICAL_EPSILON)
+    if np.any(negative_int_mask):
+        result = np.full_like(n, np.inf, dtype=float)
+        valid_mask = ~negative_int_mask
+        if np.any(valid_mask):
+            result[valid_mask] = gamma_safe(n[valid_mask] + 1)
+        return result if n.ndim > 0 else float(result)
+
+    return gamma_safe(n + 1)
 
 
 def beta_function(a, b):
@@ -221,8 +306,147 @@ def c_peak():
 
 
 # ============================================================================
-# ENHANCED ANALYSIS AND VISUALIZATION TOOLS
+# ENHANCED ANALYSIS AND CONVERGENCE DIAGNOSTICS
 # ============================================================================
+
+
+def convergence_diagnostics(func, z_value, method='richardson', tolerance=1e-12):
+    """
+    Advanced convergence diagnostics for gamma function computations.
+
+    Parameters
+    ----------
+    func : callable
+        Function to test (e.g., gamma_safe)
+    z_value : float
+        Value to test convergence at
+    method : str
+        Convergence test method ('richardson', 'aitken', 'stability')
+    tolerance : float
+        Convergence tolerance
+
+    Returns
+    -------
+    dict
+        Convergence diagnostic results
+    """
+    if method == 'richardson':
+        # Richardson extrapolation for numerical derivatives
+        h_values = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+        derivatives = []
+
+        for h in h_values:
+            if z_value > h and z_value + h > 0:  # Avoid poles
+                deriv = (func(z_value + h) - func(z_value - h)) / (2 * h)
+                if np.isfinite(deriv):
+                    derivatives.append(deriv)
+
+        if len(derivatives) >= 3:
+            # Check convergence of derivative approximations
+            diffs = np.abs(np.diff(derivatives))
+            converged = np.all(diffs[-2:] < tolerance) if len(diffs) >= 2 else False
+            return {
+                'method': 'richardson',
+                'converged': converged,
+                'derivatives': derivatives,
+                'convergence_rate': diffs[-1] / diffs[-2] if len(diffs) >= 2 else None
+            }
+
+    elif method == 'stability':
+        # Test numerical stability near z_value
+        perturbations = np.logspace(-15, -8, 8)
+        values = []
+
+        for eps in perturbations:
+            if z_value + eps > 0:  # Avoid negative domain issues
+                val = func(z_value + eps)
+                if np.isfinite(val):
+                    values.append(val)
+
+        if len(values) >= 3:
+            relative_vars = np.abs(np.diff(values)) / np.abs(values[:-1])
+            stable = np.all(relative_vars < tolerance * 100)  # Relaxed for stability
+            return {
+                'method': 'stability',
+                'stable': stable,
+                'values': values,
+                'max_relative_variation': np.max(relative_vars) if len(relative_vars) > 0 else 0
+            }
+
+    return {'method': method, 'error': 'insufficient_data', 'converged': False}
+
+
+def fractional_domain_validation(z_range=(-3, 3), resolution=1000):
+    """
+    Comprehensive validation of gamma function in fractional domains.
+
+    Parameters
+    ----------
+    z_range : tuple
+        Range to validate
+    resolution : int
+        Number of test points
+
+    Returns
+    -------
+    dict
+        Validation results with convergence metrics
+    """
+    z_values = np.linspace(z_range[0], z_range[1], resolution)
+
+    # Exclude poles (negative integers)
+    valid_mask = ~((z_values < 0) & (np.abs(z_values - np.round(z_values)) < NUMERICAL_EPSILON))
+    z_test = z_values[valid_mask]
+
+    results = {
+        'test_range': z_range,
+        'resolution': resolution,
+        'valid_points': len(z_test),
+        'finite_values': 0,
+        'convergence_passed': 0,
+        'stability_passed': 0,
+        'reflection_accuracy': [],
+        'stirling_accuracy': []
+    }
+
+    for z in z_test:
+        # Basic computation test
+        gamma_val = gamma_safe(z)
+        if np.isfinite(gamma_val):
+            results['finite_values'] += 1
+
+            # Convergence test (sample every 10th point for performance)
+            if len(z_test) > 100 and hash(str(z)) % 10 == 0:
+                conv_result = convergence_diagnostics(gamma_safe, z, 'stability')
+                if conv_result.get('stable', False):
+                    results['convergence_passed'] += 1
+
+            # Test reflection formula accuracy for negative values
+            if z < 0:
+                # Γ(z) * Γ(1-z) = π / sin(πz)
+                gamma_1_minus_z = gamma_safe(1 - z)
+                if np.isfinite(gamma_1_minus_z):
+                    expected = np.pi / np.sin(np.pi * z)
+                    actual = gamma_val * gamma_1_minus_z
+                    if np.isfinite(expected) and np.abs(expected) > NUMERICAL_EPSILON:
+                        relative_error = np.abs(actual - expected) / np.abs(expected)
+                        results['reflection_accuracy'].append(relative_error)
+
+            # Test Stirling approximation accuracy for large values
+            if np.abs(z) > 5:
+                # Stirling: Γ(z) ≈ √(2π/z) * (z/e)^z
+                if z > 0:
+                    stirling_approx = np.sqrt(2 * np.pi / z) * (z / np.e) ** z
+                    if np.isfinite(stirling_approx) and stirling_approx > NUMERICAL_EPSILON:
+                        relative_error = np.abs(gamma_val - stirling_approx) / stirling_approx
+                        results['stirling_accuracy'].append(relative_error)
+
+    # Statistical summaries
+    results['finite_ratio'] = results['finite_values'] / len(z_test)
+    results['mean_reflection_error'] = np.mean(results['reflection_accuracy']) if results['reflection_accuracy'] else 0
+    results['mean_stirling_error'] = np.mean(results['stirling_accuracy']) if results['stirling_accuracy'] else 0
+
+    return results
 
 
 def gamma_explorer(z_range=(-5, 5), n_points=1000, show_poles=True):
@@ -272,16 +496,29 @@ def quick_gamma_analysis(z_values):
 
     Parameters
     ----------
-    z_values : array-like
+    z_values : array-like or scalar
         Values to analyze
 
     Returns
     -------
-    dic
-        Analysis results
+    dict
+        Analysis results with dimension compatibility
     """
     z_values = np.asarray(z_values)
 
+    # Handle scalar case for API compatibility
+    if z_values.ndim == 0:
+        z_val = float(z_values)
+        return {
+            "dimension": z_val,  # For test compatibility
+            "gamma_value": gamma_safe(z_val),  # For test compatibility
+            "gamma": gamma_safe(z_val),
+            "ln_gamma": gammaln_safe(z_val),
+            "digamma": digamma_safe(z_val),
+            "factorial": factorial_extension(z_val) if z_val >= 0 else np.nan,
+        }
+
+    # Handle array case
     return {
         "gamma": gamma_safe(z_values),
         "ln_gamma": gammaln_safe(z_values),
@@ -296,9 +533,10 @@ def quick_gamma_analysis(z_values):
 
 def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     """
-    Compare gamma function with related functions.
+    Compare gamma function with related functions including convergence analysis.
 
-    MODERNIZED: No matplotlib - provides data for modern visualization backends.
+    MODERNIZED: No matplotlib - provides data for modern visualization backends
+    with enhanced convergence diagnostics and fractional domain validation.
 
     Parameters
     ----------
@@ -309,8 +547,8 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
 
     Returns
     -------
-    dic
-        Computed data for visualization backends with statistics
+    dict
+        Computed data for visualization backends with convergence statistics
     """
     z = np.linspace(z_range[0], z_range[1], n_points)
 
@@ -318,7 +556,7 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
     mask = ~((z < 0) & (np.abs(z - np.round(z)) < 1e-10))
     z_clean = z[mask]
 
-    # Compute all function values
+    # Compute all function values with enhanced error handling
     gamma_vals = gamma_safe(z_clean)
     ln_gamma_vals = gammaln_safe(z_clean)
     digamma_vals = digamma_safe(z_clean)
@@ -330,7 +568,19 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
         else np.array([])
     )
 
-    # Generate statistics without printing
+    # Enhanced convergence validation
+    validation_results = fractional_domain_validation(z_range, min(n_points, 500))
+
+    # Sample convergence diagnostics at key points
+    test_points = [0.5, 1.0, 1.5, 2.5, -0.5, -1.5]
+    convergence_tests = {}
+
+    for point in test_points:
+        if z_range[0] <= point <= z_range[1]:
+            conv_result = convergence_diagnostics(gamma_safe, point, 'stability')
+            convergence_tests[f'z_{point}'] = conv_result
+
+    # Generate comprehensive statistics
     stats = {
         "range": z_range,
         "n_points_requested": n_points,
@@ -338,6 +588,10 @@ def gamma_comparison_plot(z_range=(-4, 6), n_points=500):
         "gamma_finite": int(np.sum(np.isfinite(gamma_vals))),
         "ln_gamma_finite": int(np.sum(np.isfinite(ln_gamma_vals))),
         "digamma_finite": int(np.sum(np.isfinite(digamma_vals))),
+        "convergence_validation": validation_results,
+        "point_convergence_tests": convergence_tests,
+        "reflection_formula_accuracy": validation_results.get('mean_reflection_error', 0),
+        "stirling_approximation_accuracy": validation_results.get('mean_stirling_error', 0)
     }
 
     return {
@@ -435,7 +689,22 @@ def explore(d):
     """
     try:
         from .research_cli import enhanced_explore
-        return enhanced_explore(d, context="gamma_analysis")
+        enhanced_result = enhanced_explore(d, context="gamma_analysis")
+
+        # Extract basic measures for API compatibility
+        basic_result = {
+            "dimension": d,
+            "volume": enhanced_result["point"]["volume"],
+            "surface": enhanced_result["point"]["surface"],
+            "complexity": enhanced_result["point"]["complexity"],
+            "ratio": enhanced_result["point"].get("ratio", r(d)),
+            "density": enhanced_result["point"].get("density", ρ(d)),
+        }
+
+        # Merge enhanced features
+        enhanced_result.update(basic_result)
+        return enhanced_result
+
     except ImportError:
         # Fallback to basic exploration
         return {

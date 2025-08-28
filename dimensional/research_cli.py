@@ -332,11 +332,16 @@ class InteractiveParameterSweep:
 
 
 class PublicationExporter:
-    """Export research results for publication-quality figures."""
+    """Export research results for publication-quality figures and academic formats."""
 
     def __init__(self, base_path: Path = None):
         self.base_path = base_path or Path.cwd() / "exports"
         self.base_path.mkdir(parents=True, exist_ok=True)
+
+        # Create subdirectories for different formats
+        (self.base_path / "latex").mkdir(exist_ok=True)
+        (self.base_path / "figures").mkdir(exist_ok=True)
+        (self.base_path / "data").mkdir(exist_ok=True)
 
     def export_csv_data(self, sweep: ParameterSweep) -> Path:
         """Export sweep data as CSV for external plotting."""
@@ -413,6 +418,216 @@ class PublicationExporter:
                 })
 
         return crossings
+
+    def export_latex_paper(self, session: ResearchSession, title: str = None) -> Path:
+        """Export complete LaTeX paper template with research results."""
+        title = title or f"Dimensional Analysis Results - Session {session.session_id}"
+        filepath = self.base_path / "latex" / f"paper_{session.session_id}.tex"
+
+        # Generate LaTeX content
+        latex_content = self._generate_latex_paper(session, title)
+
+        with open(filepath, 'w') as f:
+            f.write(latex_content)
+
+        # Also create supporting files
+        self._export_latex_figures(session)
+        self._export_latex_tables(session)
+
+        console.print(f"[green]📄 LaTeX paper exported to {filepath}[/green]")
+        console.print(f"[yellow]💡 Compile with: pdflatex {filepath.name}[/yellow]")
+
+        return filepath
+
+    def _generate_latex_paper(self, session: ResearchSession, title: str) -> str:
+        """Generate complete LaTeX paper content."""
+
+        # Calculate key statistics
+        peak_analysis = self._analyze_peaks(session)
+        critical_crossings = self._find_critical_crossings(session)
+
+        latex_template = f'''\\documentclass[12pt,a4paper]{{article}}
+\\usepackage{{amsmath,amssymb,amsthm}}
+\\usepackage{{graphicx}}
+\\usepackage{{booktabs}}
+\\usepackage{{geometry}}
+\\geometry{{margin=1in}}
+
+\\title{{{title}}}
+\\author{{Dimensional Mathematics Research Platform}}
+\\date{{\\today}}
+
+\\begin{{document}}
+\\maketitle
+
+\\begin{{abstract}}
+This paper presents computational analysis of dimensional mathematics conducted using the Advanced Dimensional Mathematics Research Platform. We investigate the behavior of ball volumes $V(d)$, sphere surfaces $S(d)$, and their complexity measure $C(d) = V(d) \\cdot S(d)$ across dimensional space, with particular focus on critical dimensional transitions and peak phenomena.
+\\end{{abstract}}
+
+\\section{{Introduction}}
+The study of dimensional mathematics reveals fundamental insights into the geometric structure of high-dimensional spaces. This investigation focuses on three key measures:
+\\begin{{align}}
+V(d) &= \\frac{{\\pi^{{d/2}}}}{{\\Gamma(d/2 + 1)}} \\quad \\text{{(Unit ball volume)}} \\\\
+S(d) &= \\frac{{2\\pi^{{d/2}}}}{{\\Gamma(d/2)}} \\quad \\text{{(Unit sphere surface area)}} \\\\
+C(d) &= V(d) \\cdot S(d) \\quad \\text{{(Complexity measure)}}
+\\end{{align}}
+
+\\section{{Methodology}}
+Computational analysis was performed using the dimensional mathematics research platform with the following parameters:
+\\begin{{itemize}}
+\\item Session ID: \\texttt{{{session.session_id}}}
+\\item Analysis period: {session.start_time.strftime("%Y-%m-%d %H:%M")} - {datetime.now().strftime("%Y-%m-%d %H:%M")}
+\\item Total data points: {len(session.points)}
+\\item Parameter sweeps: {len(session.sweeps)}
+\\end{{itemize}}
+
+\\section{{Results}}
+
+\\subsection{{Peak Analysis}}
+'''
+
+        # Add peak analysis section
+        if peak_analysis:
+            latex_template += "The following dimensional peaks were identified:\n\n"
+            latex_template += "\\begin{table}[h]\n\\centering\n\\begin{tabular}{lcc}\n"
+            latex_template += "\\toprule\n"
+            latex_template += "Measure & Peak Dimension & Peak Value \\\\\n"
+            latex_template += "\\midrule\n"
+
+            for measure, data in peak_analysis.items():
+                measure_name = measure.replace('_', ' ').title()
+                latex_template += f"{measure_name} & {data['dimension']:.6f} & {data['value']:.6f} \\\\\n"
+
+            latex_template += "\\bottomrule\n\\end{tabular}\n"
+            latex_template += "\\caption{Peak analysis results}\n\\end{table}\n\n"
+
+        # Add critical crossings section
+        if critical_crossings:
+            latex_template += "\\subsection{Critical Dimension Analysis}\n"
+            latex_template += "Analysis of behavior near known critical dimensions:\n\n"
+
+            for crossing in critical_crossings[:3]:  # Limit to first 3
+                latex_template += f"At $d \\approx {crossing['target_dimension']:.6f}$ ({crossing['critical_dimension']}), "
+                latex_template += f"measured values: $V = {crossing['measures']['volume']:.6f}$, "
+                latex_template += f"$S = {crossing['measures']['surface']:.6f}$, "
+                latex_template += f"$C = {crossing['measures']['complexity']:.6f}$.\n\n"
+
+        # Conclusion
+        latex_template += '''\\section{Conclusion}
+This computational investigation demonstrates the power of systematic dimensional analysis using advanced mathematical software. The peak phenomena and critical dimension behavior provide important insights into the geometric structure of high-dimensional spaces.
+
+\\section{References}
+\\begin{thebibliography}{9}
+\\bibitem{gamma}
+E. T. Whittaker and G. N. Watson, \\emph{A Course of Modern Analysis}, Cambridge University Press, 1996.
+
+\\bibitem{dimensional}
+H. S. M. Coxeter, \\emph{Introduction to Geometry}, Wiley, 1969.
+\\end{thebibliography}
+
+\\end{document}
+'''
+
+        return latex_template
+
+    def _export_latex_figures(self, session: ResearchSession) -> None:
+        """Export publication-quality figures for LaTeX inclusion."""
+        figures_path = self.base_path / "figures"
+
+        # Export matplotlib figures if available
+        try:
+            import matplotlib.pyplot as plt
+            plt.style.use('seaborn-v0_8-paper')
+
+            if session.points:
+                # Create dimensional analysis plot
+                dims = [p.dimension for p in session.points]
+                vols = [p.volume for p in session.points]
+                surfs = [p.surface for p in session.points]
+                comps = [p.complexity for p in session.points]
+
+                fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+                fig.suptitle('Dimensional Analysis Results', fontsize=16)
+
+                axes[0,0].plot(dims, vols, 'b-', linewidth=2, label='V(d)')
+                axes[0,0].set_xlabel('Dimension d')
+                axes[0,0].set_ylabel('Volume V(d)')
+                axes[0,0].grid(True, alpha=0.3)
+
+                axes[0,1].plot(dims, surfs, 'r-', linewidth=2, label='S(d)')
+                axes[0,1].set_xlabel('Dimension d')
+                axes[0,1].set_ylabel('Surface S(d)')
+                axes[0,1].grid(True, alpha=0.3)
+
+                axes[1,0].plot(dims, comps, 'g-', linewidth=2, label='C(d)')
+                axes[1,0].set_xlabel('Dimension d')
+                axes[1,0].set_ylabel('Complexity C(d)')
+                axes[1,0].grid(True, alpha=0.3)
+
+                # Combined plot
+                axes[1,1].plot(dims, vols, 'b-', alpha=0.7, label='V(d)')
+                axes[1,1].plot(dims, surfs, 'r-', alpha=0.7, label='S(d)')
+                axes[1,1].plot(dims, comps, 'g-', alpha=0.7, label='C(d)')
+                axes[1,1].set_xlabel('Dimension d')
+                axes[1,1].set_ylabel('Normalized Values')
+                axes[1,1].legend()
+                axes[1,1].grid(True, alpha=0.3)
+
+                plt.tight_layout()
+                plt.savefig(figures_path / f'analysis_{session.session_id}.pdf',
+                          dpi=300, bbox_inches='tight')
+                plt.close()
+
+                console.print(f"[green]📊 Publication figures saved to {figures_path}[/green]")
+
+        except ImportError:
+            console.print("[yellow]⚠️  Matplotlib not available for figure generation[/yellow]")
+
+    def _export_latex_tables(self, session: ResearchSession) -> None:
+        """Export LaTeX table files."""
+        tables_path = self.base_path / "latex"
+
+        if session.points:
+            # Export key data points as LaTeX table
+            table_file = tables_path / f"data_table_{session.session_id}.tex"
+
+            with open(table_file, 'w') as f:
+                f.write("\\begin{table}[h]\n\\centering\n")
+                f.write("\\begin{tabular}{cccc}\n")
+                f.write("\\toprule\n")
+                f.write("Dimension & Volume & Surface & Complexity \\\\\n")
+                f.write("\\midrule\n")
+
+                # Export every 10th point or up to 20 points
+                points = session.points[::max(1, len(session.points)//20)][:20]
+
+                for point in points:
+                    f.write(f"{point.dimension:.3f} & {point.volume:.6f} & "
+                           f"{point.surface:.6f} & {point.complexity:.6f} \\\\\n")
+
+                f.write("\\bottomrule\n")
+                f.write("\\end{tabular}\n")
+                f.write(f"\\caption{{Sample dimensional analysis data (Session {session.session_id})}}\n")
+                f.write("\\end{table}\n")
+
+    def export_bibtex_entry(self, session: ResearchSession) -> Path:
+        """Generate BibTeX entry for citation."""
+        filepath = self.base_path / "latex" / f"citation_{session.session_id}.bib"
+
+        bibtex_entry = f'''@misc{{dimensional_analysis_{session.session_id},
+    title={{Dimensional Analysis Results - Session {session.session_id}}},
+    author={{Dimensional Mathematics Research Platform}},
+    year={{{datetime.now().year}}},
+    month={{{datetime.now().month}}},
+    note={{Computational analysis using Advanced Dimensional Mathematics Platform}},
+    url={{https://github.com/dimensional-math/dimensional-mathematics}}
+}}
+'''
+
+        with open(filepath, 'w') as f:
+            f.write(bibtex_entry)
+
+        return filepath
 
 
 # Enhanced Research Functions
@@ -517,15 +732,28 @@ def enhanced_lab(start_dimension: float = 4.0, session_id: str = None) -> Resear
                     console.print("[yellow]No bookmarks yet[/yellow]")
 
             elif command == "export":
+                # Export all formats for publication readiness
                 if session.sweeps:
                     for sweep in session.sweeps:
                         csv_path = exporter.export_csv_data(sweep)
                         session.exports.append(str(csv_path))
-                        console.print(f"[green]Exported sweep to {csv_path}[/green]")
+                        console.print(f"[green]📊 Exported sweep data to {csv_path}[/green]")
 
                 json_path = exporter.export_json_analysis(session)
                 session.exports.append(str(json_path))
-                console.print(f"[green]Exported analysis to {json_path}[/green]")
+                console.print(f"[green]📄 Exported analysis to {json_path}[/green]")
+
+                # Export LaTeX paper and supporting files
+                latex_path = exporter.export_latex_paper(session)
+                session.exports.append(str(latex_path))
+
+                # Export BibTeX citation
+                bib_path = exporter.export_bibtex_entry(session)
+                session.exports.append(str(bib_path))
+                console.print(f"[green]📚 Citation exported to {bib_path}[/green]")
+
+                console.print("\n[bold green]🎯 Publication Package Complete![/bold green]")
+                console.print(f"[cyan]📁 All exports saved to: {exporter.base_path}[/cyan]")
 
             elif command == "save":
                 filepath = persistence.save_session(session)
@@ -571,7 +799,7 @@ def enhanced_lab(start_dimension: float = 4.0, session_id: str = None) -> Resear
   bookmark <name>   - Save current dimension
   bookmarks        - Show all bookmarks
   critical         - Show critical dimensions
-  export           - Export data for publication
+  export           - Export complete publication package (CSV, JSON, LaTeX, BibTeX)
   save             - Save session
   load <id>        - Load session
   sessions         - List available sessions

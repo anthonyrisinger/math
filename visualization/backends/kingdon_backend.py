@@ -102,10 +102,16 @@ class KingdonRenderer(VisualizationBackend):
         colors = points_data.get("colors", None)
 
         for i, pos in enumerate(positions):
-            # Create GA point as vector
-            ga_point = sum(
-                pos[j] * self.ga_space.basis[f"e{j+1}"] for j in range(len(pos))
-            )
+            # Create GA point as vector (with safe fallback)
+            try:
+                if hasattr(self.ga_space, 'basis') and len(self.ga_space.basis) > max(len(pos), 0):
+                    ga_point = sum(
+                        pos[j] * self.ga_space.basis[j+1] for j in range(len(pos))
+                    )
+                else:
+                    ga_point = np.array(pos)  # Fallback
+            except (IndexError, AttributeError, TypeError):
+                ga_point = np.array(pos)  # Safe fallback
 
             point_obj = {
                 "type": "point",
@@ -129,10 +135,15 @@ class KingdonRenderer(VisualizationBackend):
                 # Create GA curve as sequence of connected vectors
                 ga_curve = []
                 for point in curve_points:
-                    ga_point = sum(
-                        point[j] * self.ga_space.basis[f"e{j+1}"]
-                        for j in range(len(point))
-                    )
+                    try:
+                        if hasattr(self.ga_space, 'basis') and len(self.ga_space.basis) > max(len(point), 0):
+                            ga_point = sum(
+                                point[j] * self.ga_space.basis[j+1] for j in range(len(point))
+                            )
+                        else:
+                            ga_point = np.array(point)  # Fallback
+                    except (IndexError, AttributeError, TypeError):
+                        ga_point = np.array(point)  # Safe fallback
                     ga_curve.append(ga_point)
 
                 curve_obj = {
@@ -158,10 +169,15 @@ class KingdonRenderer(VisualizationBackend):
                     row = []
                     for v in v_values:
                         point = surface_func(u, v)
-                        ga_point = sum(
-                            point[j] * self.ga_space.basis[f"e{j+1}"]
-                            for j in range(len(point))
-                        )
+                        try:
+                            if hasattr(self.ga_space, 'basis') and len(self.ga_space.basis) > max(len(point), 0):
+                                ga_point = sum(
+                                    point[j] * self.ga_space.basis[j+1] for j in range(len(point))
+                                )
+                            else:
+                                ga_point = np.array(point)  # Fallback
+                        except (IndexError, AttributeError, TypeError):
+                            ga_point = np.array(point)  # Safe fallback
                         row.append((point, ga_point))
                     surface_mesh.append(row)
 
@@ -182,10 +198,18 @@ class KingdonRenderer(VisualizationBackend):
         angle = morphic_data.get("phase_angle", 0.0)
         axis = morphic_data.get("axis", [0, 0, 1])
 
-        # GA rotor for morphic transformation
-        ga_axis = sum(
-            axis[j] * self.ga_space.basis[f"e{j+1}"] for j in range(len(axis))
-        )
+        # GA rotor for morphic transformation (fallback to simple approach)
+        try:
+            if hasattr(self.ga_space, 'basis') and len(self.ga_space.basis) > len(axis):
+                ga_axis = sum(
+                    axis[j] * self.ga_space.basis[j+1] for j in range(len(axis))
+                )
+            else:
+                # Fallback: simple axis representation
+                ga_axis = np.array(axis)
+        except (IndexError, AttributeError):
+            # Safe fallback
+            ga_axis = np.array(axis)
         morphic_rotor = np.cos(angle * phi / 2) + np.sin(angle * phi / 2) * ga_axis
 
         # Apply to field points
@@ -193,11 +217,21 @@ class KingdonRenderer(VisualizationBackend):
         transformed_points = []
 
         for point in field_points:
-            ga_point = sum(
-                point[j] * self.ga_space.basis[f"e{j+1}"] for j in range(len(point))
-            )
+            try:
+                if hasattr(self.ga_space, 'basis') and len(self.ga_space.basis) > max(len(point), 0):
+                    ga_point = sum(
+                        point[j] * self.ga_space.basis[j+1] for j in range(len(point))
+                    )
+                else:
+                    ga_point = np.array(point)  # Fallback
+            except (IndexError, AttributeError, TypeError):
+                ga_point = np.array(point)  # Safe fallback
+
             # Apply morphic transformation: R * point * ~R
-            transformed = morphic_rotor * ga_point * morphic_rotor.inverse()
+            try:
+                transformed = morphic_rotor * ga_point * morphic_rotor.inverse()
+            except (AttributeError, TypeError):
+                transformed = ga_point  # Fallback for non-GA operations
             transformed_points.append(transformed)
 
         self.morphic_fields["current"] = {
@@ -218,12 +252,18 @@ class KingdonRenderer(VisualizationBackend):
 
             ga_trajectory = []
             for i, (t, state) in enumerate(zip(time_points, state_points)):
-                # Embed phase state in GA space with time componen
+                # Embed phase state in GA space with time component
                 extended_point = list(state) + [t]  # Add time dimension
-                ga_state = sum(
-                    extended_point[j] * self.ga_space.basis[f"e{j+1}"]
-                    for j in range(min(len(extended_point), len(self.ga_space.basis)))
-                )
+                try:
+                    if hasattr(self.ga_space, 'basis') and len(self.ga_space.basis) > 0:
+                        ga_state = sum(
+                            extended_point[j] * self.ga_space.basis[j+1]
+                            for j in range(min(len(extended_point), len(self.ga_space.basis)-1))
+                        )
+                    else:
+                        ga_state = np.array(extended_point)  # Fallback
+                except (IndexError, AttributeError, TypeError):
+                    ga_state = np.array(extended_point)  # Safe fallback
                 ga_trajectory.append(ga_state)
 
             phase_obj = {

@@ -197,6 +197,185 @@ def emergence_threshold(dimension, phase_density):
     return current_phase >= capacity * 0.95
 
 
+def advanced_emergence_detection(phase_density, previous_states=None, spectral_threshold=0.1):
+    """
+    Advanced multi-scale emergence detection with spectral signature analysis.
+
+    Detects emergence patterns across multiple temporal and dimensional scales,
+    identifying critical transitions, spectral signatures, and invariant jumps.
+
+    Parameters
+    ----------
+    phase_density : array-like
+        Current phase densities across dimensions
+    previous_states : list, optional
+        Historical phase states for temporal analysis
+    spectral_threshold : float
+        Minimum spectral power for emergence detection
+
+    Returns
+    -------
+    dict
+        Comprehensive emergence analysis
+    """
+    phase_density = np.asarray(phase_density, dtype=complex)
+    n_dims = len(phase_density)
+
+    # Current emergence status using standard threshold
+    current_emerged = set()
+    emergence_strengths = {}
+    critical_transitions = []
+
+    for d in range(n_dims):
+        if emergence_threshold(d, phase_density):
+            current_emerged.add(d)
+
+        # Calculate emergence strength (0 to 1 scale)
+        current_phase = abs(phase_density[d])
+        try:
+            capacity = phase_capacity(d)
+            emergence_strengths[d] = min(1.0, current_phase / capacity)
+        except (ValueError, OverflowError):
+            emergence_strengths[d] = 0.0
+
+    # Temporal pattern analysis if history available
+    temporal_patterns = {}
+    if previous_states and len(previous_states) > 5:
+        # Extract emergence strength time series
+        history_length = min(len(previous_states), 100)  # Last 100 states
+        recent_states = previous_states[-history_length:]
+
+        for d in range(n_dims):
+            # Build emergence strength time series
+            strength_series = []
+            for past_state in recent_states:
+                past_phase = abs(past_state[d]) if d < len(past_state) else 0.0
+                try:
+                    capacity = phase_capacity(d)
+                    strength = min(1.0, past_phase / capacity)
+                except (ValueError, OverflowError):
+                    strength = 0.0
+                strength_series.append(strength)
+
+            strength_series = np.array(strength_series)
+
+            # Detect critical transitions (sudden changes)
+            if len(strength_series) > 3:
+                gradient = np.gradient(strength_series)
+                acceleration = np.gradient(gradient)
+
+                # Critical transition indicators
+                max_gradient = np.max(np.abs(gradient))
+                max_acceleration = np.max(np.abs(acceleration))
+                final_gradient = gradient[-1] if len(gradient) > 0 else 0.0
+
+                # Oscillation detection
+                from scipy.fft import fft
+                if len(strength_series) >= 8:
+                    fft_signal = fft(strength_series - np.mean(strength_series))
+                    power_spectrum = np.abs(fft_signal)**2
+                    dominant_frequency_power = np.max(power_spectrum[1:len(power_spectrum)//2])
+                    oscillation_strength = dominant_frequency_power / np.sum(power_spectrum)
+                else:
+                    oscillation_strength = 0.0
+
+                temporal_patterns[d] = {
+                    'strength_series': strength_series,
+                    'max_gradient': max_gradient,
+                    'max_acceleration': max_acceleration,
+                    'current_gradient': final_gradient,
+                    'oscillation_strength': oscillation_strength,
+                    'is_critical_transition': max_gradient > 0.1 and max_acceleration > 0.05
+                }
+
+                # Mark critical transitions
+                if temporal_patterns[d]['is_critical_transition']:
+                    critical_transitions.append({
+                        'dimension': d,
+                        'type': 'emergence_acceleration',
+                        'strength': max_acceleration,
+                        'gradient': max_gradient
+                    })
+
+    # Multi-dimensional coupling analysis
+    coupling_analysis = {}
+    if n_dims > 1:
+        # Phase coherence matrix
+        coherence_matrix = np.zeros((n_dims, n_dims))
+        for i in range(n_dims):
+            for j in range(n_dims):
+                if i != j and abs(phase_density[i]) > NUMERICAL_EPSILON and abs(phase_density[j]) > NUMERICAL_EPSILON:
+                    phase_i = np.angle(phase_density[i])
+                    phase_j = np.angle(phase_density[j])
+                    # Phase coupling strength
+                    coherence_matrix[i, j] = abs(np.exp(1j * (phase_i - phase_j)))
+
+        coupling_analysis['coherence_matrix'] = coherence_matrix
+        coupling_analysis['max_coupling'] = np.max(coherence_matrix)
+        coupling_analysis['mean_coupling'] = np.mean(coherence_matrix[coherence_matrix > 0])
+
+        # Identify strongly coupled dimension pairs
+        strong_couplings = []
+        for i in range(n_dims):
+            for j in range(i+1, n_dims):
+                if coherence_matrix[i, j] > 0.7:  # Strong coupling threshold
+                    strong_couplings.append({
+                        'dimensions': (i, j),
+                        'coupling_strength': coherence_matrix[i, j],
+                        'phase_difference': np.angle(phase_density[i] / phase_density[j]) if abs(phase_density[j]) > NUMERICAL_EPSILON else 0.0
+                    })
+
+        coupling_analysis['strong_couplings'] = strong_couplings
+
+    # Spectral emergence signatures
+    spectral_signatures = {}
+    if n_dims > 2:
+        # Analyze spectral content of phase density pattern
+        try:
+            from scipy.fft import fft
+
+            # Real and imaginary parts
+            real_spectrum = fft(np.real(phase_density))
+            imag_spectrum = fft(np.imag(phase_density))
+
+            # Power spectral density
+            power_spectrum = np.abs(real_spectrum)**2 + np.abs(imag_spectrum)**2
+
+            # Identify spectral peaks
+            spectral_peaks = []
+            for k in range(1, len(power_spectrum)//2):
+                if (power_spectrum[k] > spectral_threshold * np.max(power_spectrum) and
+                    power_spectrum[k] > power_spectrum[k-1] and
+                    power_spectrum[k] > power_spectrum[k+1]):
+                    spectral_peaks.append({
+                        'frequency_mode': k,
+                        'power': power_spectrum[k],
+                        'normalized_power': power_spectrum[k] / np.max(power_spectrum)
+                    })
+
+            spectral_signatures = {
+                'power_spectrum': power_spectrum,
+                'spectral_peaks': spectral_peaks,
+                'spectral_centroid': np.sum(np.arange(len(power_spectrum)) * power_spectrum) / np.sum(power_spectrum),
+                'spectral_width': np.sqrt(np.sum((np.arange(len(power_spectrum)) -
+                                               np.sum(np.arange(len(power_spectrum)) * power_spectrum) / np.sum(power_spectrum))**2 * power_spectrum) / np.sum(power_spectrum)),
+                'total_spectral_power': np.sum(power_spectrum)
+            }
+        except Exception:
+            spectral_signatures = {'error': 'spectral_analysis_failed'}
+
+    return {
+        'current_emerged': current_emerged,
+        'emergence_strengths': emergence_strengths,
+        'critical_transitions': critical_transitions,
+        'temporal_patterns': temporal_patterns,
+        'coupling_analysis': coupling_analysis,
+        'spectral_signatures': spectral_signatures,
+        'total_emergence_activity': sum(emergence_strengths.values()),
+        'n_critical_transitions': len(critical_transitions)
+    }
+
+
 def total_phase_energy(phase_density):
     """
     Calculate total phase energy in the system.
@@ -300,15 +479,39 @@ def rk45_step(phase_density, dt, max_dimension=None, tol=1e-9):
 
 
 class ConvergenceDiagnostics:
-    """Track convergence metrics."""
+    """Advanced convergence diagnostics with mathematical rigor.
 
-    def __init__(self, history_size=100):
+    Tracks multiple convergence metrics including energy conservation,
+    spectral radius convergence, emergence pattern stability, and
+    topological invariant preservation.
+    """
+
+    def __init__(self, history_size=100, strict_tolerance=1e-12):
         self.history_size = history_size
+        self.strict_tolerance = strict_tolerance
+
+        # Core metrics
         self.energy_history = []
         self.rate_history = []
 
-    def update(self, total_energy, flow_matrix):
-        """Update with latest state."""
+        # Advanced metrics
+        self.emergence_activity_history = []
+        self.coherence_history = []
+        self.invariant_violation_history = []
+        self.spectral_metrics_history = []
+
+        # Convergence state tracking
+        self.convergence_achieved = False
+        self.convergence_time = None
+        self.convergence_metrics = {}
+
+        # Statistical analysis
+        self.trend_analysis = {}
+        self.stability_windows = [10, 25, 50]  # Different window sizes for analysis
+
+    def update(self, total_energy, flow_matrix, additional_metrics=None):
+        """Update with latest state and additional metrics."""
+        # Core metrics
         self.energy_history.append(total_energy)
         if len(self.energy_history) > self.history_size:
             self.energy_history.pop(0)
@@ -319,38 +522,290 @@ class ConvergenceDiagnostics:
         if len(self.rate_history) > self.history_size:
             self.rate_history.pop(0)
 
-    def is_converged(self, energy_tolerance=1e-9, rate_tolerance=1e-9):
-        """Check for convergence."""
-        if len(self.energy_history) < self.history_size:
+        # Advanced metrics if provided
+        if additional_metrics:
+            if 'emergence_activity' in additional_metrics:
+                self.emergence_activity_history.append(additional_metrics['emergence_activity'])
+                if len(self.emergence_activity_history) > self.history_size:
+                    self.emergence_activity_history.pop(0)
+
+            if 'coherence' in additional_metrics:
+                self.coherence_history.append(additional_metrics['coherence'])
+                if len(self.coherence_history) > self.history_size:
+                    self.coherence_history.pop(0)
+
+            if 'invariant_violations' in additional_metrics:
+                n_violations = len(additional_metrics['invariant_violations'])
+                self.invariant_violation_history.append(n_violations)
+                if len(self.invariant_violation_history) > self.history_size:
+                    self.invariant_violation_history.pop(0)
+
+        # Update trend analysis
+        self._update_trend_analysis()
+
+        # Check convergence state
+        self._update_convergence_state()
+
+    def _update_trend_analysis(self):
+        """Update statistical trend analysis."""
+        if len(self.energy_history) < 10:
+            return
+
+        # Energy trend analysis
+        energy_array = np.array(self.energy_history[-50:])  # Last 50 points
+        if len(energy_array) > 5:
+            # Linear regression for trend detection
+            x = np.arange(len(energy_array))
+            energy_trend_coeff = np.polyfit(x, energy_array, 1)[0]  # Linear coefficient
+            energy_r_squared = np.corrcoef(x, energy_array)[0, 1]**2
+
+            self.trend_analysis['energy_trend_slope'] = energy_trend_coeff
+            self.trend_analysis['energy_trend_r2'] = energy_r_squared
+
+        # Rate trend analysis
+        if len(self.rate_history) > 5:
+            rate_array = np.array(self.rate_history[-50:])
+            x = np.arange(len(rate_array))
+            rate_trend_coeff = np.polyfit(x, rate_array, 1)[0]
+
+            self.trend_analysis['rate_trend_slope'] = rate_trend_coeff
+
+        # Volatility analysis (rolling standard deviation)
+        for window in self.stability_windows:
+            if len(self.energy_history) >= window:
+                recent_energy = np.array(self.energy_history[-window:])
+                energy_volatility = np.std(recent_energy) / np.mean(recent_energy)
+                self.trend_analysis[f'energy_volatility_w{window}'] = energy_volatility
+
+            if len(self.rate_history) >= window:
+                recent_rates = np.array(self.rate_history[-window:])
+                rate_volatility = np.std(recent_rates) / (np.mean(recent_rates) + 1e-15)
+                self.trend_analysis[f'rate_volatility_w{window}'] = rate_volatility
+
+    def _update_convergence_state(self):
+        """Update overall convergence state assessment."""
+        if self.convergence_achieved:
+            return  # Already converged
+
+        # Multi-criteria convergence check
+        criteria_met = []
+
+        # Energy stability criterion
+        if len(self.energy_history) >= 25:
+            energy_stability = self.trend_analysis.get('energy_volatility_w25', 1.0)
+            criteria_met.append(energy_stability < 1e-8)
+
+        # Rate convergence criterion
+        if len(self.rate_history) >= 25:
+            recent_rates = self.rate_history[-25:]
+            rate_mean = np.mean(recent_rates)
+            criteria_met.append(rate_mean < 1e-9)
+
+        # Trend stability criterion
+        energy_trend_slope = abs(self.trend_analysis.get('energy_trend_slope', 1.0))
+        criteria_met.append(energy_trend_slope < 1e-10)
+
+        # Invariant preservation criterion
+        if len(self.invariant_violation_history) >= 10:
+            recent_violations = self.invariant_violation_history[-10:]
+            criteria_met.append(sum(recent_violations) == 0)
+        else:
+            criteria_met.append(True)  # No violations recorded yet
+
+        # Convergence achieved if most criteria are met
+        convergence_score = sum(criteria_met) / len(criteria_met) if criteria_met else 0.0
+
+        if convergence_score >= 0.8 and not self.convergence_achieved:
+            self.convergence_achieved = True
+            self.convergence_time = len(self.energy_history)
+            self.convergence_metrics = {
+                'convergence_score': convergence_score,
+                'criteria_met': criteria_met,
+                'energy_stability': self.trend_analysis.get('energy_volatility_w25', 0.0),
+                'rate_level': np.mean(self.rate_history[-10:]) if len(self.rate_history) >= 10 else 0.0
+            }
+
+    def is_converged(self, energy_tolerance=1e-9, rate_tolerance=1e-9,
+                    require_trend_stability=True):
+        """Enhanced convergence detection with multiple criteria."""
+        if len(self.energy_history) < 25:  # Need sufficient history
             return False
 
-        # Energy stability
-        energy_std = np.std(self.energy_history)
-        energy_converged = energy_std < energy_tolerance
+        # Energy stability check
+        energy_std = np.std(self.energy_history[-25:])
+        energy_mean = np.mean(self.energy_history[-25:])
+        energy_stability = energy_std / (energy_mean + 1e-15)
+        energy_converged = energy_stability < energy_tolerance
 
-        # Rate of change stability
-        rate_mean = np.mean(self.rate_history)
+        # Rate convergence check
+        rate_mean = np.mean(self.rate_history[-25:]) if len(self.rate_history) >= 25 else 1.0
         rate_converged = rate_mean < rate_tolerance
 
-        return energy_converged and rate_converged
+        # Trend stability check
+        trend_stable = True
+        if require_trend_stability:
+            energy_trend = abs(self.trend_analysis.get('energy_trend_slope', 1.0))
+            trend_stable = energy_trend < 1e-10
+
+        return energy_converged and rate_converged and trend_stable
+
+    def get_convergence_quality_score(self):
+        """Calculate overall convergence quality score (0-1)."""
+        if len(self.energy_history) < 10:
+            return 0.0
+
+        scores = []
+
+        # Energy conservation score
+        if len(self.energy_history) >= 2:
+            initial_energy = self.energy_history[0] if self.energy_history[0] != 0 else 1.0
+            final_energy = self.energy_history[-1]
+            conservation_error = abs(final_energy - initial_energy) / abs(initial_energy)
+            energy_score = max(0, 1.0 - conservation_error * 1e6)
+            scores.append(energy_score)
+
+        # Stability score
+        if len(self.energy_history) >= 25:
+            volatility = self.trend_analysis.get('energy_volatility_w25', 1.0)
+            stability_score = max(0, 1.0 - volatility * 1e8)
+            scores.append(stability_score)
+
+        # Rate convergence score
+        if len(self.rate_history) >= 25:
+            rate_level = np.mean(self.rate_history[-25:])
+            rate_score = max(0, 1.0 - rate_level * 1e8)
+            scores.append(rate_score)
+
+        # Invariant preservation score
+        if len(self.invariant_violation_history) >= 10:
+            violations = sum(self.invariant_violation_history[-10:])
+            invariant_score = 1.0 if violations == 0 else max(0, 1.0 - violations * 0.1)
+            scores.append(invariant_score)
+        else:
+            scores.append(1.0)  # Perfect if no violations recorded
+
+        return np.mean(scores) if scores else 0.0
 
     def get_diagnostics(self):
-        """Return diagnostic dictionary."""
+        """Return comprehensive diagnostic information."""
         # Calculate energy conservation error
+        energy_conservation_error = 0.0
         if len(self.energy_history) >= 2:
-            energy_conservation_error = abs(
-                self.energy_history[-1] - self.energy_history[0]
-            )
-        else:
-            energy_conservation_error = 0.0
+            initial = self.energy_history[0] if self.energy_history[0] != 0 else 1.0
+            final = self.energy_history[-1]
+            energy_conservation_error = abs(final - initial) / abs(initial)
 
-        return {
-            "energy_history": self.energy_history,
-            "rate_history": self.rate_history,
+        diagnostics = {
+            # Core metrics
+            "energy_history": self.energy_history.copy(),
+            "rate_history": self.rate_history.copy(),
             "converged": self.is_converged(),
             "is_converged": self.is_converged(),
             "energy_conservation_error": energy_conservation_error,
+
+            # Advanced metrics
+            "convergence_achieved": self.convergence_achieved,
+            "convergence_time": self.convergence_time,
+            "convergence_quality_score": self.get_convergence_quality_score(),
+            "trend_analysis": self.trend_analysis.copy(),
+
+            # Statistical summaries
+            "energy_statistics": self._get_energy_statistics(),
+            "rate_statistics": self._get_rate_statistics(),
+
+            # Advanced histories
+            "emergence_activity_history": self.emergence_activity_history.copy(),
+            "coherence_history": self.coherence_history.copy(),
+            "invariant_violation_history": self.invariant_violation_history.copy(),
         }
+
+        # Add convergence metrics if achieved
+        if self.convergence_achieved:
+            diagnostics["convergence_metrics"] = self.convergence_metrics.copy()
+
+        return diagnostics
+
+    def _get_energy_statistics(self):
+        """Get statistical summary of energy history."""
+        if not self.energy_history:
+            return {}
+
+        energy_array = np.array(self.energy_history)
+        return {
+            'mean': np.mean(energy_array),
+            'std': np.std(energy_array),
+            'min': np.min(energy_array),
+            'max': np.max(energy_array),
+            'range': np.max(energy_array) - np.min(energy_array),
+            'cv': np.std(energy_array) / (np.mean(energy_array) + 1e-15)  # Coefficient of variation
+        }
+
+    def _get_rate_statistics(self):
+        """Get statistical summary of rate history."""
+        if not self.rate_history:
+            return {}
+
+        rate_array = np.array(self.rate_history)
+        return {
+            'mean': np.mean(rate_array),
+            'std': np.std(rate_array),
+            'min': np.min(rate_array),
+            'max': np.max(rate_array),
+            'recent_mean': np.mean(rate_array[-10:]) if len(rate_array) >= 10 else np.mean(rate_array)
+        }
+
+    def reset(self):
+        """Reset all convergence metrics."""
+        self.energy_history.clear()
+        self.rate_history.clear()
+        self.emergence_activity_history.clear()
+        self.coherence_history.clear()
+        self.invariant_violation_history.clear()
+        self.spectral_metrics_history.clear()
+
+        self.convergence_achieved = False
+        self.convergence_time = None
+        self.convergence_metrics.clear()
+        self.trend_analysis.clear()
+
+    def export_convergence_report(self):
+        """Export detailed convergence report."""
+        diagnostics = self.get_diagnostics()
+        quality_score = self.get_convergence_quality_score()
+
+        report = f"""
+        📊 CONVERGENCE ANALYSIS REPORT
+        ==============================
+
+        🎯 Overall Quality Score: {quality_score:.4f}/1.0
+        🔄 Convergence Status: {'✅ ACHIEVED' if self.convergence_achieved else '⏳ IN PROGRESS'}
+
+        📈 Energy Conservation:
+           Error: {diagnostics['energy_conservation_error']:.2e}
+           Status: {'✅ EXCELLENT' if diagnostics['energy_conservation_error'] < 1e-10 else '⚠️  ACCEPTABLE' if diagnostics['energy_conservation_error'] < 1e-6 else '❌ POOR'}
+
+        📉 Stability Analysis:
+           Recent Volatility: {self.trend_analysis.get('energy_volatility_w25', 0):.2e}
+           Trend Slope: {self.trend_analysis.get('energy_trend_slope', 0):.2e}
+
+        🔬 Rate Analysis:
+           Current Rate: {np.mean(self.rate_history[-10:]) if len(self.rate_history) >= 10 else 0:.2e}
+           Trend: {'📉 DECREASING' if self.trend_analysis.get('rate_trend_slope', 0) < -1e-10 else '📈 INCREASING' if self.trend_analysis.get('rate_trend_slope', 0) > 1e-10 else '➡️  STABLE'}
+
+        🛡️  Topological Integrity:
+           Violations: {sum(self.invariant_violation_history[-10:]) if len(self.invariant_violation_history) >= 10 else 0}
+           Status: {'✅ PRESERVED' if (sum(self.invariant_violation_history[-10:]) == 0 if len(self.invariant_violation_history) >= 10 else True) else '⚠️  VIOLATIONS DETECTED'}
+
+        """
+
+        if self.convergence_achieved:
+            report += f"""
+        ⏱️  Convergence Details:
+           Time to Convergence: {self.convergence_time} steps
+           Final Score: {self.convergence_metrics.get('convergence_score', 0):.3f}
+           """
+
+        return report
 
 
 class TopologicalInvariants:
@@ -411,16 +866,25 @@ class TopologicalInvariants:
 
         return corrected_phase
 
+    def get_diagnostics(self):
+        """Get basic topological invariant diagnostics."""
+        return {
+            'chern_numbers': self.chern_numbers.tolist(),
+            'winding_numbers': self.winding_numbers.tolist(),
+            'linking_numbers': dict(self.linking_numbers),
+            'badges': [f"Chern = {self.chern_numbers[d]}" for d in range(self.max_dim)]
+        }
+
 
 class PhaseDynamicsEngine:
     """
-    Complete phase dynamics simulation engine.
+    Complete phase dynamics simulation engine with advanced emergence detection.
 
     Manages the evolution of phase densities across dimensions,
-    tracking emergence, clock rates, and energy flows.
+    tracking emergence, clock rates, energy flows, and critical transitions.
     """
 
-    def __init__(self, max_dimensions=12, use_adaptive=True):
+    def __init__(self, max_dimensions=12, use_adaptive=True, enable_advanced_detection=True):
         self.max_dim = max_dimensions
         self.phase_density = np.zeros(max_dimensions, dtype=complex)
         self.phase_density[0] = 1.0  # Start with unity at the void
@@ -432,7 +896,14 @@ class PhaseDynamicsEngine:
         self.diagnostics = ConvergenceDiagnostics()
         self.invariants = TopologicalInvariants(max_dimensions)
         self.use_adaptive = use_adaptive
-        self.dt_last = 0.1  # Initial guess for d
+        self.dt_last = 0.1  # Initial guess for dt
+
+        # Advanced emergence detection system
+        self.enable_advanced_detection = enable_advanced_detection
+        self.emergence_history = []  # Store emergence analysis results
+        self.critical_events = []   # Store critical transition events
+        self.phase_state_history = []  # Store phase densities for temporal analysis
+        self.max_history_length = 200  # Limit memory usage
 
     def step(self, dt):
         """Advance simulation by one time step."""
@@ -503,7 +974,7 @@ class PhaseDynamicsEngine:
             )
 
     def _update_emergence_and_history(self, dt):
-        """Helper to update emergence tracking and history."""
+        """Helper to update emergence tracking and history with advanced detection."""
         # Enforce topological invariants
         violations = self.invariants.update_invariants(self.phase_density)
         if violations:
@@ -512,29 +983,91 @@ class PhaseDynamicsEngine:
                 self.phase_density
             )
 
-        # Update diagnostics - pass total energy instead of phase array
+        # Update diagnostics with comprehensive metrics
         total_energy = np.sum(np.abs(self.phase_density) ** 2)
-        self.diagnostics.update(total_energy, self.flow_matrix)
 
-        # Check for new emergences
-        for d in range(1, self.max_dim):
-            if d not in self.emerged and emergence_threshold(
-                d, self.phase_density
-            ):
-                self.emerged.add(d)
+        # Prepare additional metrics for diagnostics
+        additional_metrics = {
+            'coherence': phase_coherence(self.phase_density)
+        }
 
-        self.time += d
+        if self.enable_advanced_detection and hasattr(self, 'emergence_history') and self.emergence_history:
+            latest_analysis = self.emergence_history[-1]['analysis']
+            additional_metrics['emergence_activity'] = latest_analysis.get('total_emergence_activity', 0.0)
+            additional_metrics['invariant_violations'] = violations
 
-        # Store history
-        self.history.append(
-            {
-                "time": self.time,
-                "phase_density": self.phase_density.copy(),
-                "emerged": self.emerged.copy(),
-                "total_energy": total_phase_energy(self.phase_density),
-                "coherence": phase_coherence(self.phase_density),
-            }
-        )
+        self.diagnostics.update(total_energy, self.flow_matrix, additional_metrics)
+
+        # Store current phase state for temporal analysis
+        self.phase_state_history.append(self.phase_density.copy())
+        if len(self.phase_state_history) > self.max_history_length:
+            self.phase_state_history.pop(0)
+
+        # Advanced emergence detection
+        if self.enable_advanced_detection:
+            emergence_analysis = advanced_emergence_detection(
+                self.phase_density,
+                self.phase_state_history if len(self.phase_state_history) > 5 else None
+            )
+
+            # Store emergence analysis
+            self.emergence_history.append({
+                'time': self.time,
+                'analysis': emergence_analysis
+            })
+            if len(self.emergence_history) > self.max_history_length:
+                self.emergence_history.pop(0)
+
+            # Process critical events
+            for transition in emergence_analysis['critical_transitions']:
+                critical_event = {
+                    'time': self.time,
+                    'dimension': transition['dimension'],
+                    'type': transition['type'],
+                    'strength': transition['strength'],
+                    'emergence_strength': emergence_analysis['emergence_strengths'].get(transition['dimension'], 0.0)
+                }
+                self.critical_events.append(critical_event)
+
+                # Print critical transition notifications
+                print(f"🚨 CRITICAL TRANSITION at t={self.time:.3f}: "
+                      f"Dim {transition['dimension']} {transition['type']} "
+                      f"(strength={transition['strength']:.3f})")
+
+            # Update emerged set with advanced detection
+            old_emerged = self.emerged.copy()
+            self.emerged = emergence_analysis['current_emerged'].union({0})  # Void always emerged
+
+            # Detect new emergences
+            newly_emerged = self.emerged - old_emerged
+            for d in newly_emerged:
+                print(f"✨ DIMENSION {d} EMERGED at t={self.time:.3f} "
+                      f"(strength={emergence_analysis['emergence_strengths'].get(d, 0.0):.3f})")
+        else:
+            # Standard emergence detection
+            for d in range(1, self.max_dim):
+                if d not in self.emerged and emergence_threshold(
+                    d, self.phase_density
+                ):
+                    self.emerged.add(d)
+
+        self.time += dt
+
+        # Store history with topological invariants
+        history_entry = {
+            "time": self.time,
+            "phase_density": self.phase_density.copy(),
+            "emerged": self.emerged.copy(),
+            "total_energy": total_phase_energy(self.phase_density),
+            "coherence": phase_coherence(self.phase_density),
+            "topological_invariants": self.invariants.get_diagnostics()
+        }
+
+        # Add advanced detection results to history if enabled
+        if self.enable_advanced_detection and hasattr(self, 'emergence_history') and self.emergence_history:
+            history_entry["emergence_analysis"] = self.emergence_history[-1]['analysis']
+
+        self.history.append(history_entry)
 
     def clock_rate_modulation(self, dimension):
         """
@@ -636,8 +1169,8 @@ class PhaseDynamicsEngine:
         return float(weighted_sum)
 
     def get_state(self):
-        """Get current state summary."""
-        return {
+        """Get current state summary with advanced emergence information."""
+        base_state = {
             "time": self.time,
             "emerged_dimensions": sorted(list(self.emerged)),
             "total_energy": total_phase_energy(self.phase_density),
@@ -647,27 +1180,43 @@ class PhaseDynamicsEngine:
             "effective_dimension": self.calculate_effective_dimension(),
         }
 
+        # Add advanced detection information if enabled
+        if self.enable_advanced_detection:
+            base_state.update({
+                "critical_events_count": len(self.critical_events),
+                "recent_critical_events": self.critical_events[-5:] if len(self.critical_events) > 0 else [],
+                "emergence_activity": self.emergence_history[-1]['analysis']['total_emergence_activity'] if self.emergence_history else 0.0,
+                "current_emergence_analysis": self.emergence_history[-1]['analysis'] if self.emergence_history else None
+            })
+
+        return base_state
+
 
 # ENHANCED ANALYSIS TOOLS (previously in dimensional/phase.py)
 
 
-def quick_emergence_analysis(max_dimensions=8, time_steps=500):
+def quick_emergence_analysis(max_dimensions=8, time_steps=500, enable_advanced=True):
     """
-    Perform a quick analysis of dimensional emergence patterns.
+    Perform comprehensive analysis of dimensional emergence patterns with advanced detection.
 
     Parameters
     ----------
-    max_dimensions : in
+    max_dimensions : int
         Maximum dimensions to simulate
-    time_steps : in
+    time_steps : int
         Number of evolution steps
+    enable_advanced : bool
+        Whether to use advanced emergence detection
 
     Returns
     -------
-    dic
-        Analysis results including emergence times and patterns
+    dict
+        Analysis results including emergence times, patterns, and critical events
     """
-    engine = PhaseDynamicsEngine(max_dimensions=max_dimensions)
+    engine = PhaseDynamicsEngine(
+        max_dimensions=max_dimensions,
+        enable_advanced_detection=enable_advanced
+    )
 
     results = []
     for step in range(time_steps):
@@ -675,37 +1224,79 @@ def quick_emergence_analysis(max_dimensions=8, time_steps=500):
 
         if step % 50 == 0:  # Sample every 50 steps
             state = engine.get_state()
-            results.append(
-                {
-                    "step": step,
-                    "time": state["time"],
-                    "emerged": list(state["emerged_dimensions"]),
-                    "effective_dimension": state["effective_dimension"],
-                    "total_energy": state["total_energy"],
-                }
-            )
+            sample_result = {
+                "step": step,
+                "time": state["time"],
+                "emerged": list(state["emerged_dimensions"]),
+                "effective_dimension": state["effective_dimension"],
+                "total_energy": state["total_energy"],
+            }
 
-    return {
+            # Add advanced detection results if enabled
+            if enable_advanced:
+                sample_result.update({
+                    "emergence_activity": state.get("emergence_activity", 0.0),
+                    "critical_events_count": state.get("critical_events_count", 0),
+                    "recent_transitions": len(state.get("recent_critical_events", []))
+                })
+
+            results.append(sample_result)
+
+    final_state = engine.get_state()
+    analysis_result = {
         "results": results,
-        "final_state": engine.get_state(),
+        "final_state": final_state,
         "max_dimensions": max_dimensions,
         "time_steps": time_steps,
     }
 
+    # Add comprehensive advanced analysis if enabled
+    if enable_advanced:
+        analysis_result.update({
+            "critical_events": engine.critical_events,
+            "emergence_history_length": len(engine.emergence_history),
+            "total_critical_events": len(engine.critical_events),
+            "emergence_timeline": [
+                {
+                    "time": event["time"],
+                    "dimension": event["dimension"],
+                    "type": event["type"],
+                    "strength": event["strength"]
+                } for event in engine.critical_events
+            ]
+        })
 
-def quick_phase_analysis(dimensions=None):
+        # Statistical analysis of emergence patterns
+        if engine.critical_events:
+            event_times = [e["time"] for e in engine.critical_events]
+            event_strengths = [e["strength"] for e in engine.critical_events]
+
+            analysis_result["emergence_statistics"] = {
+                "first_critical_event_time": min(event_times),
+                "last_critical_event_time": max(event_times),
+                "mean_event_strength": np.mean(event_strengths),
+                "max_event_strength": max(event_strengths),
+                "event_rate": len(engine.critical_events) / (time_steps * 0.01) if time_steps > 0 else 0.0
+            }
+
+    return analysis_result
+
+
+def quick_phase_analysis(dimensions=None, enable_advanced=True):
     """
-    Quick analysis of phase capacities and sapping rates.
+    Quick analysis of phase capacities, sapping rates, and emergence patterns.
 
     Parameters
     ----------
     dimensions : list or float, optional
         Dimensions to analyze. Defaults to [0, 1, 2, 3, 4, 5]
+    enable_advanced : bool
+        Whether to include advanced emergence detection
 
     Returns
     -------
     dic
-        Phase analysis results
+        Phase analysis results with enhanced detection
     """
     if dimensions is None:
         dimensions = [0, 1, 2, 3, 4, 5]
@@ -741,6 +1332,19 @@ def quick_phase_analysis(dimensions=None):
                     sapping_rates[f"to_dim_{target}"] = rate
 
         results[f"dimension_{d}"]["sapping_rates"] = sapping_rates
+
+    # Add advanced emergence analysis if requested
+    if enable_advanced:
+        advanced_analysis = advanced_emergence_detection(phase_density)
+        results["advanced_emergence"] = advanced_analysis
+
+        # Add summary metrics
+        results["emergence_summary"] = {
+            "total_emergence_activity": advanced_analysis["total_emergence_activity"],
+            "n_critical_transitions": advanced_analysis["n_critical_transitions"],
+            "spectral_peak_count": len(advanced_analysis["spectral_signatures"].get("spectral_peaks", [])),
+            "max_coupling_strength": advanced_analysis["coupling_analysis"].get("max_coupling", 0.0)
+        }
 
     return results
 

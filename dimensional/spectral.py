@@ -661,6 +661,318 @@ def analyze_critical_point_spectrum(
     }
 
 
+def analyze_dimensional_transitions(
+    phase_engine=None,
+    transition_threshold: float = 0.1,
+    n_analysis_steps: int = 100
+) -> dict[str, Any]:
+    """
+    Analyze spectral signatures of dimensional transitions in phase dynamics.
+
+    Identifies critical transitions where dimensions emerge/collapse and
+    analyzes their spectral signatures for invariant preservation.
+
+    Parameters
+    ----------
+    phase_engine : PhaseDynamicsEngine, optional
+        Phase dynamics engine. If None, creates new one.
+    transition_threshold : float
+        Minimum change in emergence strength to classify as transition
+    n_analysis_steps : int
+        Number of evolution steps for analysis
+
+    Returns
+    -------
+    dict
+        Comprehensive transition analysis with spectral signatures
+    """
+    if phase_engine is None:
+        from .phase import PhaseDynamicsEngine
+        phase_engine = PhaseDynamicsEngine(max_dimensions=8, enable_advanced_detection=True)
+
+    # Collect phase evolution data
+    evolution_data = []
+    emergence_data = []
+    time_points = []
+
+    for step in range(n_analysis_steps):
+        # Record current state
+        current_state = phase_engine.get_state()
+        evolution_data.append(current_state['phase_densities'].copy())
+        time_points.append(current_state['time'])
+
+        # Record emergence analysis if available
+        if 'current_emergence_analysis' in current_state and current_state['current_emergence_analysis']:
+            emergence_data.append(current_state['current_emergence_analysis'])
+
+        # Evolve system
+        phase_engine.step(0.01)
+
+    evolution_data = np.array(evolution_data)  # Shape: (n_steps, n_dimensions)
+    time_points = np.array(time_points)
+
+    # Identify transition points
+    transition_events = []
+    if emergence_data:
+        for i in range(1, len(emergence_data)):
+            prev_strengths = emergence_data[i-1].get('emergence_strengths', {})
+            curr_strengths = emergence_data[i].get('emergence_strengths', {})
+
+            # Check for significant changes in emergence strengths
+            for dim in set(prev_strengths.keys()).union(curr_strengths.keys()):
+                prev_strength = prev_strengths.get(dim, 0.0)
+                curr_strength = curr_strengths.get(dim, 0.0)
+                strength_change = abs(curr_strength - prev_strength)
+
+                if strength_change > transition_threshold:
+                    transition_events.append({
+                        'step': i,
+                        'time': time_points[i],
+                        'dimension': dim,
+                        'strength_change': strength_change,
+                        'prev_strength': prev_strength,
+                        'curr_strength': curr_strength,
+                        'transition_type': 'emergence' if curr_strength > prev_strength else 'collapse'
+                    })
+
+    # Spectral analysis of transitions
+    transition_spectra = {}
+    for event in transition_events:
+        event_step = event['step']
+        dimension = event['dimension']
+
+        # Extract time series around transition
+        window_size = 20  # ±20 steps around transition
+        start_idx = max(0, event_step - window_size)
+        end_idx = min(len(evolution_data), event_step + window_size + 1)
+
+        if end_idx - start_idx > 10:  # Need sufficient data
+            window_evolution = evolution_data[start_idx:end_idx, dimension]
+            window_times = time_points[start_idx:end_idx]
+
+            # Spectral analysis of the transition
+            transition_spectrum = analyze_transition_spectral_signature(
+                window_evolution, window_times, event
+            )
+
+            event_key = f"transition_{event['step']}_dim_{dimension}"
+            transition_spectra[event_key] = {
+                'event_info': event,
+                'spectral_analysis': transition_spectrum,
+                'window_data': {
+                    'evolution': window_evolution,
+                    'times': window_times,
+                    'start_idx': start_idx,
+                    'end_idx': end_idx
+                }
+            }
+
+    # Global spectral evolution analysis
+    global_spectral_evolution = analyze_global_spectral_evolution(
+        evolution_data, time_points
+    )
+
+    return {
+        'evolution_data': evolution_data,
+        'time_points': time_points,
+        'emergence_data': emergence_data,
+        'transition_events': transition_events,
+        'transition_spectra': transition_spectra,
+        'global_spectral_evolution': global_spectral_evolution,
+        'n_transitions': len(transition_events),
+        'analysis_parameters': {
+            'n_analysis_steps': n_analysis_steps,
+            'transition_threshold': transition_threshold,
+            'max_dimensions': phase_engine.max_dim
+        }
+    }
+
+
+def analyze_transition_spectral_signature(
+    phase_evolution: np.ndarray,
+    time_points: np.ndarray,
+    transition_event: dict
+) -> dict[str, Any]:
+    """
+    Analyze spectral signature of a specific dimensional transition.
+
+    Parameters
+    ----------
+    phase_evolution : array
+        Phase density evolution for a single dimension
+    time_points : array
+        Time points corresponding to evolution
+    transition_event : dict
+        Information about the transition event
+
+    Returns
+    -------
+    dict
+        Spectral signature analysis
+    """
+    # Extract amplitude and phase components
+    amplitudes = np.abs(phase_evolution)
+    phases = np.angle(phase_evolution)
+
+    # Time derivatives
+    dt = time_points[1] - time_points[0] if len(time_points) > 1 else 0.01
+    amplitude_rate = np.gradient(amplitudes, dt)
+    phase_rate = np.gradient(np.unwrap(phases), dt)
+
+    # Spectral analysis of amplitude evolution
+    from scipy.fft import fft, fftfreq
+
+    # Detrend amplitude signal
+    amplitude_detrended = amplitudes - np.mean(amplitudes)
+
+    # Apply window to reduce spectral leakage
+    window = np.hanning(len(amplitude_detrended))
+    windowed_amplitude = amplitude_detrended * window
+
+    # FFT analysis
+    amplitude_fft = fft(windowed_amplitude)
+    freq_axis = fftfreq(len(amplitudes), dt)
+    amplitude_spectrum = np.abs(amplitude_fft)
+
+    # Find dominant frequencies
+    positive_freqs = freq_axis[freq_axis > 0]
+    positive_spectrum = amplitude_spectrum[freq_axis > 0]
+
+    # Peak detection in spectrum
+    spectral_peaks = []
+    for i in range(1, len(positive_spectrum) - 1):
+        if (positive_spectrum[i] > positive_spectrum[i-1] and
+            positive_spectrum[i] > positive_spectrum[i+1] and
+            positive_spectrum[i] > 0.1 * np.max(positive_spectrum)):
+            spectral_peaks.append({
+                'frequency': positive_freqs[i],
+                'power': positive_spectrum[i],
+                'relative_power': positive_spectrum[i] / np.max(positive_spectrum)
+            })
+
+    # Spectral moments
+    spectral_centroid = np.sum(positive_freqs * positive_spectrum) / np.sum(positive_spectrum) if np.sum(positive_spectrum) > 0 else 0.0
+    spectral_spread = np.sqrt(np.sum((positive_freqs - spectral_centroid)**2 * positive_spectrum) / np.sum(positive_spectrum)) if np.sum(positive_spectrum) > 0 else 0.0
+
+    # Phase coherence analysis
+    phase_coherence = np.abs(np.mean(np.exp(1j * phases))) if len(phases) > 0 else 0.0
+
+    # Transition sharpness metrics
+    max_amplitude_rate = np.max(np.abs(amplitude_rate))
+    max_phase_rate = np.max(np.abs(phase_rate))
+
+    return {
+        'amplitude_evolution': amplitudes,
+        'phase_evolution': phases,
+        'amplitude_rate': amplitude_rate,
+        'phase_rate': phase_rate,
+        'spectral_peaks': spectral_peaks,
+        'spectral_centroid': spectral_centroid,
+        'spectral_spread': spectral_spread,
+        'phase_coherence': phase_coherence,
+        'max_amplitude_rate': max_amplitude_rate,
+        'max_phase_rate': max_phase_rate,
+        'frequency_axis': positive_freqs,
+        'amplitude_spectrum': positive_spectrum,
+        'total_spectral_power': np.sum(positive_spectrum),
+        'transition_sharpness': max_amplitude_rate * max_phase_rate  # Combined sharpness metric
+    }
+
+
+def analyze_global_spectral_evolution(
+    evolution_data: np.ndarray,
+    time_points: np.ndarray
+) -> dict[str, Any]:
+    """
+    Analyze global spectral evolution across all dimensions.
+
+    Parameters
+    ----------
+    evolution_data : array, shape (n_steps, n_dimensions)
+        Phase density evolution across all dimensions
+    time_points : array
+        Time points for evolution
+
+    Returns
+    -------
+    dict
+        Global spectral evolution analysis
+    """
+    n_steps, n_dimensions = evolution_data.shape
+
+    # Compute total system energy evolution
+    total_energies = np.sum(np.abs(evolution_data)**2, axis=1)
+
+    # Compute dimensional entropy (measure of energy distribution)
+    dimensional_entropies = []
+    for step in range(n_steps):
+        energies = np.abs(evolution_data[step, :])**2
+        total_energy = np.sum(energies)
+        if total_energy > NUMERICAL_EPSILON:
+            probabilities = energies / total_energy
+            # Shannon entropy
+            entropy = -np.sum(probabilities * np.log(probabilities + NUMERICAL_EPSILON))
+            dimensional_entropies.append(entropy)
+        else:
+            dimensional_entropies.append(0.0)
+
+    dimensional_entropies = np.array(dimensional_entropies)
+
+    # Spectral analysis of global quantities
+    dt = time_points[1] - time_points[0] if len(time_points) > 1 else 0.01
+
+    from scipy.fft import fft, fftfreq
+
+    # Energy evolution spectrum
+    energy_detrended = total_energies - np.mean(total_energies)
+    energy_fft = fft(energy_detrended)
+    freq_axis = fftfreq(len(total_energies), dt)
+    energy_spectrum = np.abs(energy_fft)
+
+    # Entropy evolution spectrum
+    entropy_detrended = dimensional_entropies - np.mean(dimensional_entropies)
+    entropy_fft = fft(entropy_detrended)
+    entropy_spectrum = np.abs(entropy_fft)
+
+    # Cross-dimensional coherence matrix
+    coherence_matrix = np.zeros((n_dimensions, n_dimensions))
+    for i in range(n_dimensions):
+        for j in range(n_dimensions):
+            if i != j:
+                # Cross-correlation in frequency domain
+                signal_i = evolution_data[:, i]
+                signal_j = evolution_data[:, j]
+
+                # Compute coherence
+                fft_i = fft(signal_i - np.mean(signal_i))
+                fft_j = fft(signal_j - np.mean(signal_j))
+
+                cross_spectrum = fft_i * np.conj(fft_j)
+                auto_spectrum_i = fft_i * np.conj(fft_i)
+                auto_spectrum_j = fft_j * np.conj(fft_j)
+
+                coherence = np.abs(cross_spectrum)**2 / (auto_spectrum_i * auto_spectrum_j + NUMERICAL_EPSILON)
+                coherence_matrix[i, j] = np.mean(coherence.real)
+
+    # Global spectral features
+    positive_freqs = freq_axis[freq_axis > 0]
+    positive_energy_spectrum = energy_spectrum[freq_axis > 0]
+    positive_entropy_spectrum = entropy_spectrum[freq_axis > 0]
+
+    return {
+        'total_energy_evolution': total_energies,
+        'dimensional_entropy_evolution': dimensional_entropies,
+        'energy_spectrum': positive_energy_spectrum,
+        'entropy_spectrum': positive_entropy_spectrum,
+        'frequency_axis': positive_freqs,
+        'coherence_matrix': coherence_matrix,
+        'max_coherence': np.max(coherence_matrix),
+        'mean_coherence': np.mean(coherence_matrix[coherence_matrix > 0]),
+        'energy_spectral_centroid': np.sum(positive_freqs * positive_energy_spectrum) / np.sum(positive_energy_spectrum) if np.sum(positive_energy_spectrum) > 0 else 0.0,
+        'entropy_spectral_centroid': np.sum(positive_freqs * positive_entropy_spectrum) / np.sum(positive_entropy_spectrum) if np.sum(positive_entropy_spectrum) > 0 else 0.0
+    }
+
+
 # =============================================================================
 # CONVENIENCE FUNCTIONS FOR RESEARCH
 # =============================================================================
@@ -686,15 +998,27 @@ def quick_spectral_analysis(max_dimensions: int = 12, dt: float = 0.01) -> dict[
 def analyze_emergence_spectrum(
     n_steps: int = 500,
     dt: float = 0.01,
-    max_dimensions: int = 8
+    max_dimensions: int = 8,
+    include_transitions: bool = True
 ) -> dict[str, Any]:
-    """Comprehensive spectral analysis of dimensional emergence."""
+    """Comprehensive spectral analysis of dimensional emergence with transition detection."""
 
-    # Create phase engine
-    engine = PhaseDynamicsEngine(max_dimensions)
+    # Create phase engine with advanced detection
+    from .phase import PhaseDynamicsEngine
+    engine = PhaseDynamicsEngine(max_dimensions, enable_advanced_detection=True)
 
     # Resonance detection
     resonance_data = detect_dimensional_resonances(engine, n_steps, dt)
+
+    # Dimensional transition analysis
+    transition_analysis = None
+    if include_transitions:
+        # Reset engine for transition analysis
+        engine = PhaseDynamicsEngine(max_dimensions, enable_advanced_detection=True)
+        transition_analysis = analyze_dimensional_transitions(
+            phase_engine=engine,
+            n_analysis_steps=n_steps
+        )
 
     # Spectral signatures of measures
     complexity_spectrum = analyze_critical_point_spectrum(
@@ -705,7 +1029,7 @@ def analyze_emergence_spectrum(
         ball_volume, (0.1, 12.0), 1000
     )
 
-    return {
+    result = {
         'resonance_analysis': resonance_data,
         'complexity_spectrum': complexity_spectrum,
         'volume_spectrum': volume_spectrum,
@@ -715,6 +1039,25 @@ def analyze_emergence_spectrum(
             'max_dimensions': max_dimensions,
         }
     }
+
+    if transition_analysis:
+        result['transition_analysis'] = transition_analysis
+        result['n_detected_transitions'] = transition_analysis.get('n_transitions', 0)
+
+        # Add transition summary statistics
+        if transition_analysis['transition_events']:
+            transition_times = [e['time'] for e in transition_analysis['transition_events']]
+            transition_strengths = [e['strength_change'] for e in transition_analysis['transition_events']]
+
+            result['transition_statistics'] = {
+                'first_transition_time': min(transition_times),
+                'last_transition_time': max(transition_times),
+                'mean_transition_strength': np.mean(transition_strengths),
+                'max_transition_strength': max(transition_strengths),
+                'transition_rate': len(transition_analysis['transition_events']) / (n_steps * dt)
+            }
+
+    return result
 
 
 # =============================================================================
