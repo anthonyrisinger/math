@@ -295,17 +295,14 @@ class TestResearchCLIComponents:
         from datetime import datetime
 
         sweep = ParameterSweep(
-            sweep_id="test_sweep",
             parameter="dimension",
             start=2.0,
             end=8.0,
             steps=100,
-            results=[],
-            timestamp=datetime.now(),
-            notes="test sweep"
+            results=[]
         )
 
-        assert sweep.sweep_id == "test_sweep"
+        assert sweep.sweep_id.startswith("sweep_")
         assert sweep.parameter == "dimension"
         assert sweep.start == 2.0
         assert sweep.end == 8.0

@@ -57,7 +57,7 @@ def gamma_safe(z):
         mask = z != 0
         if np.any(mask):
             result[mask] = gamma_safe(z[mask])
-        return result if z.ndim > 0 else float(result)
+        return result if np.asarray(z).ndim > 0 else float(np.asarray(result).item())
 
     # Handle negative integers (poles)
     negative_int_mask = (z < 0) & (np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
@@ -66,7 +66,7 @@ def gamma_safe(z):
         mask = ~negative_int_mask
         if np.any(mask):
             result[mask] = gamma_safe(z[mask])
-        return result if z.ndim > 0 else float(result)
+        return result if np.asarray(z).ndim > 0 else float(np.asarray(result).item())
 
     # Enhanced handling for negative fractional values using reflection formula
     negative_frac_mask = (z < 0) & ~negative_int_mask
@@ -114,7 +114,7 @@ def gamma_safe(z):
                     unsafe_neg_indices = neg_indices[unsafe_mask]
                     result[unsafe_neg_indices] = np.inf
 
-        return result if z.ndim > 0 else float(result)
+        return result if np.asarray(z).ndim > 0 else float(np.asarray(result).item())
 
     # Use log-space for large values with Stirling approximation fallback
     large_mask = np.abs(z) > GAMMA_OVERFLOW_THRESHOLD
@@ -183,7 +183,7 @@ def gamma_safe(z):
                     inf_indices = gammaln_indices[inf_mask]
                     result[inf_indices] = np.inf
 
-        return result if z.ndim > 0 else float(result)
+        return result if np.asarray(z).ndim > 0 else float(np.asarray(result).item())
 
     return gamma(z)
 
@@ -210,7 +210,7 @@ def gammaln_safe(z):
             mask = ~(np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
             if np.any(mask):
                 result[mask] = gammaln_safe(z[mask])
-            return result if z.ndim > 0 else float(result)
+            return result if np.asarray(z).ndim > 0 else float(np.asarray(result).item())
 
     return gammaln(z)
 
@@ -238,7 +238,7 @@ def digamma_safe(z):
             mask = ~(np.abs(z - np.round(z)) < NUMERICAL_EPSILON)
             if np.any(mask):
                 result[mask] = digamma_safe(z[mask])
-            return result if z.ndim > 0 else float(result)
+            return result if np.asarray(z).ndim > 0 else float(np.asarray(result).item())
 
     return digamma(z)
 
