@@ -275,7 +275,11 @@ def advanced_emergence_detection(phase_density, previous_states=None, spectral_t
                     fft_signal = fft(strength_series - np.mean(strength_series))
                     power_spectrum = np.abs(fft_signal)**2
                     dominant_frequency_power = np.max(power_spectrum[1:len(power_spectrum)//2])
-                    oscillation_strength = dominant_frequency_power / np.sum(power_spectrum)
+                    total_power = np.sum(power_spectrum)
+                    if total_power > 0:
+                        oscillation_strength = dominant_frequency_power / total_power
+                    else:
+                        oscillation_strength = 0.0
                 else:
                     oscillation_strength = 0.0
 

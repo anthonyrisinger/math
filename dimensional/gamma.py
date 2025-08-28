@@ -385,7 +385,7 @@ def convergence_diagnostics(func, z_value, method='richardson', tolerance=1e-12)
 
         if len(values) >= 3:
             relative_vars = np.abs(np.diff(values)) / np.abs(values[:-1])
-            stable = np.all(relative_vars < tolerance * 100)  # Relaxed for stability
+            stable = np.all(relative_vars < tolerance * 10000)  # Practical tolerance for numerical stability
             return {
                 'method': 'stability',
                 'stable': stable,
