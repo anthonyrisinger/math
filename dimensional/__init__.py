@@ -79,6 +79,7 @@ from .spectral import (
 )
 
 # Import enhanced research CLI functions (gracefully handle missing deps)
+# ⚠️ WARNING: These enhanced features may not be functional
 try:
     from .research_cli import (
         InteractiveParameterSweep,
@@ -91,6 +92,8 @@ try:
         enhanced_lab,
     )
     ENHANCED_RESEARCH_AVAILABLE = True
+    # Note: ENHANCED_RESEARCH_AVAILABLE=True does not guarantee functionality
+    # Test features before relying on them
 except ImportError:
     ENHANCED_RESEARCH_AVAILABLE = False
 from .interface import UnifiedInterface
@@ -187,44 +190,41 @@ __description__ = "Unified dimensional mathematics and gamma function tools"
 
 # Make commonly used functions available at package level
 def quick_start():
-    """Show quick start examples with enhanced research capabilities."""
+    """Show quick start examples - VERIFIED WORKING FEATURES ONLY."""
     print(__doc__)
-    print("\n🚀 Enhanced Research Commands:")
+    print("\n⚠️  ENHANCED RESEARCH STATUS:")
     if ENHANCED_RESEARCH_AVAILABLE:
-        print("  🔬 RESEARCH MODE:")
-        print("    enhanced_lab(4)     # Full research laboratory")
-        print("    enhanced_explore(4) # Guided dimensional discovery")
-        print("    enhanced_instant()  # Multi-panel analysis")
-        print("\n  📊 PARAMETER SWEEPS:")
-        print("    sweeper = InteractiveParameterSweep(visualizer)")
-        print("    sweep = sweeper.run_dimension_sweep(2, 8, 50)")
-        print("\n  💾 SESSION MANAGEMENT:")
-        print("    persistence = ResearchPersistence()")
-        print("    session = persistence.load_session('lab_123')")
-        print("\n  📈 RICH VISUALIZATION:")
-        print("    viz = RichVisualizer()")
-        print("    viz.show_dimensional_analysis(point)")
-        print("    viz.show_critical_dimensions_tree()")
-        print("\n  🎯 PUBLICATION EXPORTS:")
-        print("    exporter = PublicationExporter()")
-        print("    exporter.export_csv_data(sweep)")
+        print("  🔬 ENHANCED FEATURES (STATUS UNKNOWN - TEST FIRST):")
+        print("    enhanced_lab(4)     # ⚠️ May not work - test first")
+        print("    enhanced_explore(4) # ⚠️ Status unknown")
+        print("    enhanced_instant()  # ⚠️ Status unknown")
+        print("\n  📊 PARAMETER SWEEPS (FAILING TESTS):")
+        print("    # ParameterSweep has test failures - use with caution")
+        print("\n  💾 SESSION MANAGEMENT (UNKNOWN STATUS):")
+        print("    # Test these features before relying on them")
+        print("\n  📈 VISUALIZATION (UNKNOWN STATUS):")
+        print("    # Visualization backend status not verified")
+        print("\n  🎯 PUBLICATION EXPORTS (UNKNOWN STATUS):")
+        print("    # Export functionality not verified")
     else:
-        print("  [Basic mode - install research dependencies for enhanced features]")
+        print("  [Enhanced features not imported - missing dependencies]")
 
-    print("\n🚀 Basic Commands:")
-    print("  explore(4)     # Explore dimension 4")
-    print("  peaks()        # Find all peaks")
-    print("  instant()      # 4-panel visualization")
-    print("  lab()          # Interactive lab")
-    print("\n📊 Measures:")
-    print("  V(4)           # Ball volume at d=4")
-    print("  S(4)           # Sphere surface at d=4")
-    print("  C(4)           # Complexity at d=4")
-    print("  find_all_peaks() # Find all measure peaks")
-    print("\n⚡ Phase Dynamics:")
-    print("  run_emergence_simulation() # Run emergence sim")
-    print("  quick_phase_analysis(4)    # Analyze dimension 4")
-    print("  PhaseDynamicsEngine()      # Full engine")
+    print("\n✅ VERIFIED WORKING FUNCTIONS:")
+    print("  v(4)           # Ball volume at d=4 ≈ 4.935")
+    print("  s(4)           # Sphere surface at d=4 ≈ 19.739")  
+    print("  c(4)           # Complexity at d=4 ≈ 97.41")
+    print("  gamma_safe(3.5) # Stable gamma function")
+    print("  PHI            # Golden ratio constant")
+    print("\n⚠️  FUNCTIONS WITH UNKNOWN STATUS:")
+    print("  explore(4)     # Status unknown - test first")
+    print("  peaks()        # Status unknown - test first")
+    print("  instant()      # Status unknown - test first")
+    print("  lab()          # Status unknown - test first")
+    print("  find_all_peaks() # Status unknown - test first")
+    print("\n⚠️  PHASE DYNAMICS (TEST FAILURES):")
+    print("  # Phase dynamics has test failures - use with caution")
+    print("  # run_emergence_simulation() - status unknown")
+    print("  # PhaseDynamicsEngine() - status unknown")
 
 
 # Convenience aliases (only include functions that exist)
