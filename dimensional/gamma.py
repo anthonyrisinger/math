@@ -285,24 +285,24 @@ def ρ(d):
 
 # Import peak finding functions - create shortcuts
 def v_peak():
-    """Find volume peak dimension."""
+    """Find volume peak dimension and value."""
     from .mathematics import ball_volume, find_peak
 
-    return find_peak(ball_volume)[0]
+    return find_peak(ball_volume)
 
 
 def s_peak():
-    """Find surface peak dimension."""
+    """Find surface peak dimension and value."""
     from .mathematics import find_peak, sphere_surface
 
-    return find_peak(sphere_surface)[0]
+    return find_peak(sphere_surface)
 
 
 def c_peak():
-    """Find complexity peak dimension."""
+    """Find complexity peak dimension and value."""
     from .mathematics import complexity_measure, find_peak
 
-    return find_peak(complexity_measure)[0]
+    return find_peak(complexity_measure)
 
 
 # ============================================================================

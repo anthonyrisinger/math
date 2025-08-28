@@ -158,11 +158,11 @@ class RichVisualizer:
 
             # Add special properties
             props = []
-            if "Volume" in name and abs(point.dimension - v_peak()) < 0.01:
+            if "Volume" in name and abs(point.dimension - v_peak()[0]) < 0.01:
                 props.append("PEAK")
-            if "Surface" in name and abs(point.dimension - s_peak()) < 0.01:
+            if "Surface" in name and abs(point.dimension - s_peak()[0]) < 0.01:
                 props.append("PEAK")
-            if "Complexity" in name and abs(point.dimension - c_peak()) < 0.01:
+            if "Complexity" in name and abs(point.dimension - c_peak()[0]) < 0.01:
                 props.append("PEAK")
 
             table.add_row(
@@ -917,10 +917,10 @@ def enhanced_instant(configuration: str = "research") -> dict[str, Any]:
 # Helper functions for discovery paths and instant analysis
 def _explore_peak_proximity(dimension: float) -> dict[str, Any]:
     """Analyze proximity to known peaks."""
-    # Peak functions return dimensions only
-    v_peak_dim = v_peak()
-    s_peak_dim = s_peak()
-    c_peak_dim = c_peak()
+    # Peak functions return (dimension, value) tuples
+    v_peak_dim, _ = v_peak()
+    s_peak_dim, _ = s_peak()
+    c_peak_dim, _ = c_peak()
 
     distances = {
         "volume_peak": abs(dimension - v_peak_dim),
@@ -1096,15 +1096,10 @@ def _instant_dimensional_measures() -> dict:
 
 def _instant_peak_analysis() -> dict:
     """Generate instant peak analysis."""
-    # Peak functions return single values (dimensions), we need to compute values
-    v_peak_dim = v_peak()
-    s_peak_dim = s_peak()
-    c_peak_dim = c_peak()
-
-    # Compute the actual values at peak dimensions
-    v_peak_val = v(v_peak_dim)
-    s_peak_val = s(s_peak_dim)
-    c_peak_val = c(c_peak_dim)
+    # Peak functions return (dimension, value) tuples
+    v_peak_dim, v_peak_val = v_peak()
+    s_peak_dim, s_peak_val = s_peak()
+    c_peak_dim, c_peak_val = c_peak()
 
     return {
         "volume_peak": {"dimension": v_peak_dim, "value": v_peak_val},
