@@ -770,9 +770,9 @@ def lab(start_d=4.0):
         from .research_cli import enhanced_lab
         return enhanced_lab(start_d)
     except ImportError:
-        # Fallback to basic lab if enhanced CLI unavailable
-        lab_instance = GammaLab(start_d=start_d)
-        return lab_instance
+        # Fallback to basic exploration if enhanced CLI unavailable
+        print(f"Enhanced lab unavailable. Running basic exploration at dimension {start_d}")
+        return explore(start_d)
 
 
 def demo():
