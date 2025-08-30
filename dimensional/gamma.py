@@ -769,7 +769,7 @@ def lab(start_d=4.0):
     # Non-interactive lab returns analysis data
     exploration_data = explore(start_d)
     peaks_data = peaks()
-    
+
     return {
         "dimension": start_d,
         "exploration": exploration_data,

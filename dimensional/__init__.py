@@ -213,14 +213,14 @@ def quick_start():
     print("  c(4)           # complexity measure at d=4 ≈ 97.41")
     print("  gamma_safe(3.5) # stable gamma function")
     print("  PHI            # golden ratio constant")
-    
+
     print("\n✅ exploration and analysis:")
     print("  explore(4)     # dimensional exploration with rich output")
     print("  peaks()        # all dimensional peaks analysis")
     print("  instant()      # comprehensive instant analysis")
     print("  lab(4)         # non-interactive analysis laboratory")
     print("  find_all_peaks() # mathematical peak finding")
-    
+
     print("\n✅ phase dynamics:")
     print("  run_emergence_simulation() # phase emergence simulation")
     print("  PhaseDynamicsEngine() # adaptive phase dynamics")
