@@ -501,15 +501,15 @@ def cli_peaks(
             border_style="magenta",
         )
     )
-    
+
     # Get and display peak results
     peak_results = peaks()
-    
+
     table = Table(title="🏔️ Critical Peaks")
     table.add_column("Measure", style="cyan")
     table.add_column("Peak Dimension", style="yellow")
     table.add_column("Peak Value", style="green")
-    
+
     for peak_name, peak_data in peak_results.items():
         if isinstance(peak_data, tuple) and len(peak_data) == 2:
             dimension, value = peak_data
@@ -526,7 +526,7 @@ def cli_peaks(
                 f"{dimension:.8f}",
                 "N/A"
             )
-    
+
     console.print(table)
 
 

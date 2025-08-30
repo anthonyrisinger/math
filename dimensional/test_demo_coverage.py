@@ -292,7 +292,6 @@ class TestResearchCLIComponents:
 
     def test_parameter_sweep_creation(self):
         """Test parameter sweep structure."""
-        from datetime import datetime
 
         sweep = ParameterSweep(
             parameter="dimension",

@@ -35,7 +35,7 @@ class TestAdvancedConvergenceAnalysis:
         """Test convergence using multiple numerical methods."""
         if self.convergence is None:
             pytest.skip("ConvergenceDiagnostics not available")
-            
+
         test_functions = [
             (gamma_safe, 2.5, "gamma function"),
             (ball_volume, 4.0, "ball volume"),
@@ -97,7 +97,7 @@ class TestAdvancedConvergenceAnalysis:
         """Test adaptive precision requirements for different domains."""
         if self.convergence is None:
             pytest.skip("ConvergenceDiagnostics not available")
-            
+
         # Test precision requirements vary by domain
         domains = {
             'small_positive': np.linspace(1e-6, 0.1, 20),
@@ -138,7 +138,7 @@ class TestAdvancedConvergenceAnalysis:
         """Test convergence rate analysis for iterative methods."""
         if self.convergence is None:
             pytest.skip("ConvergenceDiagnostics not available")
-            
+
         # Test phase dynamics convergence
         engine = PhaseDynamicsEngine(max_dimensions=5)
 
@@ -234,7 +234,7 @@ class TestNumericalStabilityRobustness:
             # Pattern 1: volume then surface
             vol1 = ball_volume(point)
             surf1 = sphere_surface(point)
-            
+
             # Pattern 2: surface then volume (same point)
             surf2 = sphere_surface(point)
             vol2 = ball_volume(point)
@@ -248,7 +248,7 @@ class TestNumericalStabilityRobustness:
 
 class TestErrorHandlingRobustness:
     """Test robust error handling and recovery."""
-    
+
     def setup_method(self):
         """Setup stability testing framework."""
         self.stability = None
@@ -257,7 +257,7 @@ class TestErrorHandlingRobustness:
         """Test graceful degradation under adverse conditions."""
         if self.stability is None:
             pytest.skip("NumericalStabilityTester not available")
-            
+
         # Test with problematic inputs
         problematic_inputs = [
             np.nan, np.inf, -np.inf,

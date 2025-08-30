@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Dimensional Mathematics Package
+dimensional mathematics package
 ===============================
 
-Unified package for dimensional mathematics, gamma functions,
+unified package for dimensional mathematics, gamma functions,
 morphic mathematics, and phase dynamics.
 
-Quick start:
+quick start:
     from dimensional import *
-    explore(4)      # Explore dimension 4
-    instant()       # Quick visualization
-    lab()          # Interactive lab
+    explore(4)      # explore dimension 4
+    instant()       # quick visualization
+    lab()          # interactive lab
 """
 
 # CONSOLIDATED MATHEMATICS IMPORT - Single source of truth
@@ -111,10 +111,10 @@ C = c = complexity_measure   # C(d) = c(d) = V(d) * S(d)
 def run_emergence_simulation(*args, **kwargs):
     """
     Run emergence simulation using phase dynamics engine.
-    
+
     This function provides a production-ready interface to phase dynamics
     emergence patterns across dimensional transitions.
-    
+
     Parameters
     ----------
     steps : int, optional
@@ -123,26 +123,25 @@ def run_emergence_simulation(*args, **kwargs):
         Starting dimension (default: 3.0)
     coupling_strength : float, optional
         Phase coupling parameter (default: 0.1)
-        
+
     Returns
     -------
     dict
         Simulation results with final state and emergence metrics
     """
     import numpy as np
-    from .phase import PhaseDynamicsEngine
-    
+
     # Extract parameters with defaults
     steps = kwargs.get("steps", 1000)
     initial_dim = kwargs.get("initial_dimension", 3.0)
-    coupling = kwargs.get("coupling_strength", 0.1)
-    
+    # coupling parameter extracted but not used in basic simulation
+
     # Initialize phase dynamics engine
     engine = PhaseDynamicsEngine(
         max_dimensions=int(initial_dim * 2),  # Use enough dimensions
         use_adaptive=True
     )
-    
+
     # Run emergence simulation
     final_dimension = initial_dim
     for _ in range(steps):
@@ -155,12 +154,12 @@ def run_emergence_simulation(*args, **kwargs):
             variance = sum(np.mean(np.abs(p - engine.phase_density) ** 2) for p in recent_phases) / 10
             if variance < 1e-6:
                 break
-    
+
     # Calculate emerged dimension from phase state
     phase_magnitudes = np.abs(engine.phase_density)
     active_dimensions = np.sum(phase_magnitudes > 1e-6)
     final_dimension = float(initial_dim + active_dimensions * 0.1)
-    
+
     return {
         "status": "completed",
         "steps_executed": len(engine.history),
@@ -192,39 +191,39 @@ __description__ = "Unified dimensional mathematics and gamma function tools"
 def quick_start():
     """Show quick start examples - VERIFIED WORKING FEATURES ONLY."""
     print(__doc__)
-    print("\n⚠️  ENHANCED RESEARCH STATUS:")
+    print("\n⚠️  enhanced research status:")
     if ENHANCED_RESEARCH_AVAILABLE:
-        print("  🔬 ENHANCED FEATURES (STATUS UNKNOWN - TEST FIRST):")
-        print("    enhanced_lab(4)     # ⚠️ May not work - test first")
-        print("    enhanced_explore(4) # ⚠️ Status unknown")
-        print("    enhanced_instant()  # ⚠️ Status unknown")
-        print("\n  📊 PARAMETER SWEEPS (FAILING TESTS):")
-        print("    # ParameterSweep has test failures - use with caution")
-        print("\n  💾 SESSION MANAGEMENT (UNKNOWN STATUS):")
-        print("    # Test these features before relying on them")
-        print("\n  📈 VISUALIZATION (UNKNOWN STATUS):")
-        print("    # Visualization backend status not verified")
-        print("\n  🎯 PUBLICATION EXPORTS (UNKNOWN STATUS):")
-        print("    # Export functionality not verified")
+        print("  🔬 enhanced features (status unknown - test first):")
+        print("    enhanced_lab(4)     # ⚠️ may not work - test first")
+        print("    enhanced_explore(4) # ⚠️ status unknown")
+        print("    enhanced_instant()  # ⚠️ status unknown")
+        print("\n  📊 parameter sweeps (failing tests):")
+        print("    # parametersweep has test failures - use with caution")
+        print("\n  💾 session management (unknown status):")
+        print("    # test these features before relying on them")
+        print("\n  📈 visualization (unknown status):")
+        print("    # visualization backend status not verified")
+        print("\n  🎯 publication exports (unknown status):")
+        print("    # export functionality not verified")
     else:
-        print("  [Enhanced features not imported - missing dependencies]")
+        print("  [enhanced features not imported - missing dependencies]")
 
-    print("\n✅ VERIFIED WORKING FUNCTIONS:")
-    print("  v(4)           # Ball volume at d=4 ≈ 4.935")
-    print("  s(4)           # Sphere surface at d=4 ≈ 19.739")  
-    print("  c(4)           # Complexity at d=4 ≈ 97.41")
-    print("  gamma_safe(3.5) # Stable gamma function")
-    print("  PHI            # Golden ratio constant")
-    print("\n⚠️  FUNCTIONS WITH UNKNOWN STATUS:")
-    print("  explore(4)     # Status unknown - test first")
-    print("  peaks()        # Status unknown - test first")
-    print("  instant()      # Status unknown - test first")
-    print("  lab()          # Status unknown - test first")
-    print("  find_all_peaks() # Status unknown - test first")
-    print("\n⚠️  PHASE DYNAMICS (TEST FAILURES):")
-    print("  # Phase dynamics has test failures - use with caution")
+    print("\n✅ verified working functions:")
+    print("  v(4)           # ball volume measure at d=4 ≈ 4.935")
+    print("  s(4)           # sphere surface measure at d=4 ≈ 19.739")
+    print("  c(4)           # complexity measure at d=4 ≈ 97.41")
+    print("  gamma_safe(3.5) # stable gamma function")
+    print("  phi            # golden ratio constant")
+    print("\n⚠️  functions with unknown status:")
+    print("  explore(4)     # status unknown - test first")
+    print("  peaks()        # status unknown - test first")
+    print("  instant()      # status unknown - test first")
+    print("  lab()          # status unknown - test first")
+    print("  find_all_peaks() # status unknown - test first")
+    print("\n⚠️  phase dynamics (test failures):")
+    print("  # phase dynamics has test failures - use with caution")
     print("  # run_emergence_simulation() - status unknown")
-    print("  # PhaseDynamicsEngine() - status unknown")
+    print("  # phasedynamicsengine() - status unknown")
 
 
 # Convenience aliases (only include functions that exist)
