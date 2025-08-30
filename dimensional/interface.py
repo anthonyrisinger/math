@@ -13,6 +13,7 @@ Provides seamless access to dimensional mathematics, phase dynamics,
 and interactive research tools through a single unified interface.
 """
 
+import numpy as np
 
 # Direct imports - no defensive fallbacks
 # Consolidated imports
@@ -180,6 +181,123 @@ class UnifiedInterface:
         print("   emerge naturally from dimensional analysis!")
 
         return True
+
+    # CONTROL SEMANTICS ORCHESTRATION (Stream 3)
+    
+    def control_additive(self, spatial_extent: float = 1.0, domain_scale: float = 1.0):
+        """
+        Orchestrate additive control semantics across the platform.
+        
+        Controls WHERE we measure: spatial extent, domain scale, grid resolution.
+        """
+        # Apply to phase dynamics engine
+        self.phase_engine.apply_additive_control(spatial_extent, domain_scale)
+        
+        # Update pregeometry framework if needed
+        if hasattr(self.pregeometry, 'set_domain_scale'):
+            self.pregeometry.set_domain_scale(domain_scale)
+            
+        return {
+            'type': 'additive',
+            'spatial_extent': spatial_extent,
+            'domain_scale': domain_scale,
+            'description': 'Spatial extent and domain scaling applied',
+            'affected_modules': ['phase_engine', 'pregeometry']
+        }
+        
+    def control_multiplicative(self, phase_coupling: complex = 1.0, twist_factor: float = 1.0):
+        """
+        Orchestrate multiplicative control semantics across the platform.
+        
+        Controls WHAT we measure: phase coupling, twist parameters, holonomy.
+        """
+        # Apply to phase dynamics engine
+        self.phase_engine.apply_multiplicative_control(phase_coupling, twist_factor)
+        
+        # Apply to morphic mathematics if available
+        try:
+            from .morphic import apply_morphic_twist
+            apply_morphic_twist(twist_factor)
+        except ImportError:
+            pass
+            
+        return {
+            'type': 'multiplicative',
+            'phase_coupling': phase_coupling,
+            'twist_factor': twist_factor,
+            'description': 'Phase coupling and twist operations applied',
+            'affected_modules': ['phase_engine', 'morphic']
+        }
+        
+    def control_boundary(self, edge_phase: float = 0.0, domain_wall: bool = False):
+        """
+        Orchestrate boundary control semantics across the platform.
+        
+        Controls boundary physics: edge conditions, domain walls, APS terms.
+        """
+        # Apply to phase dynamics engine
+        self.phase_engine.apply_boundary_control(edge_phase, domain_wall)
+        
+        # Apply to geometric analysis if available
+        if hasattr(self.pregeometry, 'set_boundary_conditions'):
+            self.pregeometry.set_boundary_conditions(edge_phase, domain_wall)
+            
+        return {
+            'type': 'boundary',
+            'edge_phase': edge_phase,
+            'domain_wall': domain_wall,
+            'description': 'Boundary conditions and edge physics applied',
+            'affected_modules': ['phase_engine', 'pregeometry']
+        }
+        
+    def get_control_semantic_state(self):
+        """Get comprehensive control semantic state across all modules."""
+        from visualization.backends.base_backend import ControlSemantics
+        
+        state = {
+            'phase_engine': self.phase_engine.get_control_state(),
+            'semantic_taxonomy': {
+                'additive': ControlSemantics.get_semantic_description(ControlSemantics.ADDITIVE),
+                'multiplicative': ControlSemantics.get_semantic_description(ControlSemantics.MULTIPLICATIVE),
+                'boundary': ControlSemantics.get_semantic_description(ControlSemantics.BOUNDARY)
+            },
+            'visual_cues': {
+                'additive': ControlSemantics.get_visual_cue(ControlSemantics.ADDITIVE),
+                'multiplicative': ControlSemantics.get_visual_cue(ControlSemantics.MULTIPLICATIVE),
+                'boundary': ControlSemantics.get_visual_cue(ControlSemantics.BOUNDARY)
+            }
+        }
+        
+        return state
+        
+    def control_semantic_demo(self):
+        """Demonstrate control semantic operations."""
+        print("🎛️  CONTROL SEMANTICS DEMONSTRATION")
+        print("=" * 40)
+        
+        print("\n📐 ADDITIVE CONTROL (extent/WHERE):")
+        result_add = self.control_additive(spatial_extent=2.0, domain_scale=1.5)
+        print(f"  Applied: {result_add['description']}")
+        
+        print("\n🌀 MULTIPLICATIVE CONTROL (twist/WHAT):")
+        result_mult = self.control_multiplicative(phase_coupling=1.0+0.5j, twist_factor=1.618)
+        print(f"  Applied: {result_mult['description']}")
+        
+        print("\n🔲 BOUNDARY CONTROL (edge/APS):")
+        result_bound = self.control_boundary(edge_phase=np.pi/4, domain_wall=True)
+        print(f"  Applied: {result_bound['description']}")
+        
+        print("\n📊 CONTROL STATE:")
+        state = self.get_control_semantic_state()
+        for semantic_type, description in state['semantic_taxonomy'].items():
+            print(f"  {semantic_type.upper()}: {description}")
+            
+        return {
+            'additive': result_add,
+            'multiplicative': result_mult,
+            'boundary': result_bound,
+            'state': state
+        }
 
 
 # Create default interface instance

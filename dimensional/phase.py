@@ -909,6 +909,14 @@ class PhaseDynamicsEngine:
         self.phase_state_history = []  # Store phase densities for temporal analysis
         self.max_history_length = 200  # Limit memory usage
 
+        # Control semantics integration (Stream 3)
+        self.control_state = {
+            'additive': {'spatial_extent': 1.0, 'domain_scale': 1.0},
+            'multiplicative': {'phase_coupling': 1.0, 'twist_factor': 1.0},
+            'boundary': {'edge_phase': 0.0, 'domain_wall': False}
+        }
+        self.control_history = []  # Track control semantic operations
+
     def step(self, dt):
         """Advance simulation by one time step."""
         if self.use_adaptive:
@@ -1221,6 +1229,123 @@ class PhaseDynamicsEngine:
         # Update emerged dimensions set if energy exceeds threshold
         if new_magnitude > 1e-6:
             self.emerged.add(dim_index)
+
+    # CONTROL SEMANTICS INTEGRATION (Stream 3)
+    
+    def apply_additive_control(self, spatial_extent: float = 1.0, domain_scale: float = 1.0):
+        """
+        Apply additive control semantics (extent/WHERE operations).
+        
+        Controls spatial domain size, grid resolution, measurement extent.
+        """
+        from visualization.backends.base_backend import ControlSemantics
+        
+        if not ControlSemantics.validate_control(ControlSemantics.ADDITIVE, spatial_extent):
+            raise ValueError(f"Invalid spatial_extent: {spatial_extent}")
+        if not ControlSemantics.validate_control(ControlSemantics.ADDITIVE, domain_scale):
+            raise ValueError(f"Invalid domain_scale: {domain_scale}")
+            
+        # Apply spatial scaling to phase densities (WHERE we measure)
+        self.control_state['additive']['spatial_extent'] = spatial_extent
+        self.control_state['additive']['domain_scale'] = domain_scale
+        
+        # Scale the phase density magnitudes by domain scale
+        magnitudes = np.abs(self.phase_density) * domain_scale
+        phases = np.angle(self.phase_density)
+        self.phase_density = magnitudes * np.exp(1j * phases)
+        
+        self.control_history.append({
+            'type': 'additive',
+            'time': self.time,
+            'spatial_extent': spatial_extent,
+            'domain_scale': domain_scale
+        })
+        
+    def apply_multiplicative_control(self, phase_coupling: complex = 1.0, twist_factor: float = 1.0):
+        """
+        Apply multiplicative control semantics (twist/WHAT operations).
+        
+        Controls phase coupling, twist parameters, holonomy operations.
+        """
+        from visualization.backends.base_backend import ControlSemantics
+        
+        if not ControlSemantics.validate_control(ControlSemantics.MULTIPLICATIVE, phase_coupling):
+            raise ValueError(f"Invalid phase_coupling: {phase_coupling}")
+        if not ControlSemantics.validate_control(ControlSemantics.MULTIPLICATIVE, twist_factor):
+            raise ValueError(f"Invalid twist_factor: {twist_factor}")
+            
+        # Apply multiplicative operations to phase densities (WHAT we measure)
+        self.control_state['multiplicative']['phase_coupling'] = phase_coupling
+        self.control_state['multiplicative']['twist_factor'] = twist_factor
+        
+        # Apply phase coupling and twist to all active dimensions
+        for d in self.emerged:
+            if d < len(self.phase_density):
+                # Apply phase coupling (complex multiplication)
+                self.phase_density[d] *= phase_coupling
+                # Apply twist factor to phase angle
+                magnitude = np.abs(self.phase_density[d])
+                phase = np.angle(self.phase_density[d]) * twist_factor
+                self.phase_density[d] = magnitude * np.exp(1j * phase)
+                
+        self.control_history.append({
+            'type': 'multiplicative',
+            'time': self.time,
+            'phase_coupling': phase_coupling,
+            'twist_factor': twist_factor
+        })
+        
+    def apply_boundary_control(self, edge_phase: float = 0.0, domain_wall: bool = False):
+        """
+        Apply boundary control semantics (edge/APS operations).
+        
+        Controls edge conditions, domain walls, boundary phase offsets.
+        """
+        from visualization.backends.base_backend import ControlSemantics
+        
+        if not ControlSemantics.validate_control(ControlSemantics.BOUNDARY, edge_phase):
+            raise ValueError(f"Invalid edge_phase: {edge_phase}")
+        if not ControlSemantics.validate_control(ControlSemantics.BOUNDARY, domain_wall):
+            raise ValueError(f"Invalid domain_wall: {domain_wall}")
+            
+        # Apply boundary conditions to phase evolution
+        self.control_state['boundary']['edge_phase'] = edge_phase
+        self.control_state['boundary']['domain_wall'] = domain_wall
+        
+        # Apply edge phase offset to boundary dimensions
+        if domain_wall:
+            # Create phase discontinuity at boundaries
+            for d in range(self.max_dim):
+                if d == 0 or d == self.max_dim - 1:  # Boundary dimensions
+                    magnitude = np.abs(self.phase_density[d])
+                    self.phase_density[d] = magnitude * np.exp(1j * edge_phase)
+        else:
+            # Apply smooth edge phase transition
+            for d in range(self.max_dim):
+                edge_weight = 1.0 - (d / (self.max_dim - 1))  # Stronger at edges
+                magnitude = np.abs(self.phase_density[d])
+                current_phase = np.angle(self.phase_density[d])
+                blended_phase = current_phase + edge_phase * edge_weight
+                self.phase_density[d] = magnitude * np.exp(1j * blended_phase)
+                
+        self.control_history.append({
+            'type': 'boundary',
+            'time': self.time,
+            'edge_phase': edge_phase,
+            'domain_wall': domain_wall
+        })
+        
+    def get_control_state(self):
+        """Get current control semantic state."""
+        return {
+            'current_state': self.control_state.copy(),
+            'history': self.control_history.copy(),
+            'semantic_descriptions': {
+                'additive': "Spatial extent and domain scaling (WHERE)",
+                'multiplicative': "Phase coupling and twist operations (WHAT)",
+                'boundary': "Edge conditions and domain walls (boundary physics)"
+            }
+        }
 
 
 # ENHANCED ANALYSIS TOOLS (previously in dimensional/phase.py)
