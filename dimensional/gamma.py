@@ -755,24 +755,27 @@ def peaks():
 
 
 def lab(start_d=4.0):
-    """Launch enhanced interactive gamma function laboratory.
+    """Launch gamma function laboratory analysis.
 
-    This function now redirects to the enhanced research CLI for
-    full interactive capabilities with session persistence.
+    Returns analysis data for dimension without interactive mode.
+    For interactive lab, use CLI: python -m dimensional lab
 
     Args:
         start_d: Starting dimension for exploration
 
     Returns:
-        ResearchSession: Interactive research session
+        dict: Analysis results with dimensional data
     """
-    try:
-        from .research_cli import enhanced_lab
-        return enhanced_lab(start_d)
-    except ImportError:
-        # Fallback to basic exploration if enhanced CLI unavailable
-        print(f"Enhanced lab unavailable. Running basic exploration at dimension {start_d}")
-        return explore(start_d)
+    # Non-interactive lab returns analysis data
+    exploration_data = explore(start_d)
+    peaks_data = peaks()
+    
+    return {
+        "dimension": start_d,
+        "exploration": exploration_data,
+        "peaks_analysis": peaks_data,
+        "note": "For interactive lab, use: python -m dimensional lab"
+    }
 
 
 def demo():
