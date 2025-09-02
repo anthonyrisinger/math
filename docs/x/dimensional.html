@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimensional Emergence Through Roots of Unity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            background: #000;
+            color: #e0e0e0;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .container {
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto auto auto 1fr;
+            gap: 2px;
+            padding: 2px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, rgba(10, 10, 20, 0.95), rgba(20, 10, 30, 0.95));
+            border-radius: 2px;
+            padding: 4px 8px;
+        }
+        
+        h1 {
+            font-size: 0.85em;
+            color: #4ecdc4;
+            margin-bottom: 2px;
+        }
+        
+        .equations {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.6em;
+            color: rgba(255, 215, 0, 0.9);
+        }
+        
+        .equations .key {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .controls {
+            background: linear-gradient(135deg, rgba(10, 10, 20, 0.95), rgba(20, 10, 30, 0.95));
+            border-radius: 2px;
+            padding: 4px;
+        }
+        
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6em;
+            color: #4ecdc4;
+        }
+        
+        .control-value {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1px 4px;
+            border-radius: 2px;
+            color: #ffd700;
+            font-size: 0.8em;
+            min-width: 45px;
+            text-align: right;
+        }
+        
+        .control-value.resonant {
+            color: #ff00ff;
+            font-weight: bold;
+            text-shadow: 0 0 3px #ff00ff;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 3px;
+            background: rgba(78, 205, 196, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #6eddd5;
+            transform: scale(1.2);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 2px 6px;
+            background: #4ecdc4;
+            color: #000;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.55em;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        
+        button:hover {
+            background: #3ba99c;
+            transform: translateY(-1px);
+        }
+        
+        button.active {
+            background: #ff6b6b;
+        }
+        
+        button.golden {
+            background: #ffd700;
+        }
+        
+        button.power2 {
+            background: #ff00ff;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 2px;
+            padding: 4px;
+            background: linear-gradient(135deg, rgba(10, 10, 20, 0.95), rgba(20, 10, 30, 0.95));
+            border-radius: 2px;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 2px;
+            transition: all 0.3s;
+        }
+        
+        .metric.highlight {
+            background: rgba(255, 0, 255, 0.15);
+            border-radius: 2px;
+        }
+        
+        .metric-label {
+            font-size: 0.5em;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 0.7em;
+            color: #4ecdc4;
+            font-weight: 600;
+        }
+        
+        .viz-container {
+            display: grid;
+            grid-template-rows: 1fr 180px;
+            gap: 2px;
+            min-height: 0;
+        }
+        
+        .viz-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2px;
+            min-height: 0;
+        }
+        
+        .viz-panel {
+            background: linear-gradient(135deg, rgba(10, 10, 20, 0.95), rgba(20, 10, 30, 0.95));
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+        }
+        
+        canvas:active {
+            cursor: grabbing;
+        }
+        
+        .viz-label {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 0.5em;
+            color: #aaa;
+            pointer-events: none;
+        }
+        
+        .projection-mode {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: rgba(255, 0, 255, 0.3);
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 0.5em;
+            color: #ff00ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dimensional Emergence Through Roots of Unity</h1>
+            <div class="equations">
+                <span>ω_n^k = e^(2πik/n)</span>
+                <span class="key">Dimension = Time</span>
+                <span>θ_d(n) = 2πnd (mod 2π)</span>
+                <span>Birth Loop: [d-1, d] → 2π</span>
+                <span class="key">Origin: (1,0)</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Dimension n</span>
+                        <span class="control-value" id="dimValue">3.000</span>
+                    </div>
+                    <input type="range" id="dimSlider" min="0" max="25.132" step="0.001" value="3">
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Speed</span>
+                        <span class="control-value" id="speedValue">0.25</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="-1" max="1" step="0.01" value="0.25">
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Inner Radius</span>
+                        <span class="control-value" id="innerRadiusValue">0.50</span>
+                    </div>
+                    <input type="range" id="innerRadiusSlider" min="-1" max="1" step="0.01" value="0.5">
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Inner Phase</span>
+                        <span class="control-value" id="innerPhaseValue">0°</span>
+                    </div>
+                    <input type="range" id="innerPhaseSlider" min="-180" max="180" step="1" value="0">
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>View</span>
+                        <span class="control-value" id="viewValue">3D</span>
+                    </div>
+                    <input type="range" id="viewSlider" min="0" max="1" step="0.01" value="0">
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Orbit Size</span>
+                        <span class="control-value" id="orbitValue">0.25</span>
+                    </div>
+                    <input type="range" id="orbitSlider" min="-1" max="1" step="0.01" value="0.25">
+                </div>
+                
+                <div class="control-item">
+                    <div class="control-label">
+                        <span>Traces</span>
+                        <span class="control-value" id="traceValue">40</span>
+                    </div>
+                    <input type="range" id="traceSlider" min="0" max="200" step="5" value="40">
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="animateBtn">Animate</button>
+                <button id="d1Btn" class="power2">n=1</button>
+                <button id="d2Btn" class="power2">n=2</button>
+                <button id="d4Btn" class="power2">n=4</button>
+                <button id="d8Btn" class="power2">n=8</button>
+                <button id="d16Btn" class="power2">n=16</button>
+                <button id="piBtn">π</button>
+                <button id="twoPiBtn">2π</button>
+                <button id="fourPiBtn">4π</button>
+                <button id="eightPiBtn">8π</button>
+                <button id="eBtn">e</button>
+                <button id="phiBtn">φ</button>
+                <button id="sqrt2Btn">√2</button>
+                <button id="orthoBtn">Ortho</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+        </div>
+        
+        <div class="metrics">
+            <div class="metric" id="metricActiveContainer">
+                <div class="metric-label">Active</div>
+                <div class="metric-value" id="metricActive">--</div>
+            </div>
+            <div class="metric" id="metricEmergingContainer">
+                <div class="metric-label">Emerging</div>
+                <div class="metric-value" id="metricEmerging">--</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Birth %</div>
+                <div class="metric-value" id="metricProgress">--</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Root ∠</div>
+                <div class="metric-value" id="metricAngleStep">--</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">f_max</div>
+                <div class="metric-value" id="metricClock">--</div>
+            </div>
+            <div class="metric" id="metricPhaseContainer">
+                <div class="metric-label">Coupling</div>
+                <div class="metric-value" id="metricPhaseLock">--</div>
+            </div>
+            <div class="metric" id="metricResonanceContainer">
+                <div class="metric-label">Resonance</div>
+                <div class="metric-value" id="metricResonance">--</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Cycles</div>
+                <div class="metric-value" id="metricCycles">--</div>
+            </div>
+        </div>
+        
+        <div class="viz-container">
+            <div class="viz-top">
+                <div class="viz-panel">
+                    <canvas id="canvasMain"></canvas>
+                    <div class="viz-label">Dimensional Circle • Each dimension completes ONE rotation at birth</div>
+                    <div class="projection-mode" id="projectionLabel">PERSP</div>
+                </div>
+                <div class="viz-panel">
+                    <canvas id="canvasPhase"></canvas>
+                    <div class="viz-label">Phase Space • Inner/Outer Coupling</div>
+                </div>
+            </div>
+            <div class="viz-panel">
+                <canvas id="canvasFreq"></canvas>
+                <div class="viz-label">Clock Frequencies • f_d = d Hz</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        'use strict';
+        
+        // ============= FUNDAMENTAL CONSTANTS =============
+        const PI = Math.PI;
+        const TWO_PI = 2 * PI;
+        const FOUR_PI = 4 * PI;
+        const EIGHT_PI = 8 * PI;
+        const E = Math.E;
+        const PHI = (1 + Math.sqrt(5)) / 2;
+        const SQRT2 = Math.sqrt(2);
+        const LN2 = Math.log(2);
+        
+        // ============= CORE STATE =============
+        const state = {
+            // Primary dimensional parameter - this IS time itself
+            dimension: 3,
+            
+            // Animation control
+            animationSpeed: 0.1, // Default 0.25 slider = 0.1 speed
+            animating: false,
+            animationId: null,
+            lastTime: 0,
+            
+            // Geometric parameters
+            innerRadius: 0.5,
+            innerPhase: 0,
+            orbitRadius: 0.25,  // Global oscillation radius
+            viewDepth: 0,
+            traceLength: 40,
+            
+            // Camera state
+            camera: {
+                rotX: 0,  // Start face-on (2D appearance)
+                rotY: 0,  // Start face-on (2D appearance)
+                zoom: 1,
+                orthographic: false,
+                dragging: false,
+                lastX: 0,
+                lastY: 0
+            },
+            
+            // Dimensional state arrays
+            dimensions: [],
+            emergingDim: null,
+            emergenceProgress: 0,
+            
+            // Trace history
+            traces: [],
+            innerTraces: []
+        };
+        
+        // ============= CANVAS INITIALIZATION =============
+        const canvasMain = document.getElementById('canvasMain');
+        const ctxMain = canvasMain.getContext('2d', { alpha: false, willReadFrequently: false });
+        const canvasFreq = document.getElementById('canvasFreq');
+        const ctxFreq = canvasFreq.getContext('2d', { alpha: false, willReadFrequently: false });
+        const canvasPhase = document.getElementById('canvasPhase');
+        const ctxPhase = canvasPhase.getContext('2d', { alpha: false, willReadFrequently: false });
+        
+        function resizeCanvases() {
+            const dpr = window.devicePixelRatio || 1;
+            [canvasMain, canvasFreq, canvasPhase].forEach(canvas => {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
+                const ctx = canvas.getContext('2d');
+                ctx.scale(dpr, dpr);
+            });
+        }
+        
+        // ============= MATHEMATICAL UTILITIES =============
+        function smoothStep(x) {
+            return x * x * (3 - 2 * x);
+        }
+        
+        function easeInOutSine(x) {
+            return -(Math.cos(PI * x) - 1) / 2;
+        }
+        
+        function normalizeAngle(angle) {
+            angle = angle % TWO_PI;
+            if (angle < 0) angle += TWO_PI;
+            return angle;
+        }
+        
+        function angleDifference(from, to) {
+            let diff = to - from;
+            while (diff > PI) diff -= TWO_PI;
+            while (diff < -PI) diff += TWO_PI;
+            return diff;
+        }
+        
+        // ============= DIMENSIONAL EMERGENCE CORE =============
+        function updateDimensions() {
+            const n = state.dimension;
+            const intDim = Math.floor(n);
+            const fracDim = n - intDim;
+            
+            state.dimensions = [];
+            
+            if (intDim === 0) {
+                state.emergingDim = null;
+                state.emergenceProgress = 0;
+                return;
+            }
+            
+            // Each established dimension has completed its birth rotation
+            // and now oscillates at its characteristic frequency
+            for (let d = 1; d <= intDim; d++) {
+                let angle;
+                
+                // Dimensional positioning follows roots of unity
+                // During emergence, all dimensions shift counterclockwise
+                if (fracDim < 0.001) {
+                    // Integer dimension: perfect roots of unity
+                    // Most recent at origin, oldest furthest
+                    angle = normalizeAngle(TWO_PI * (intDim - d) / intDim);
+                } else {
+                    // Fractional dimension: smooth shifting
+                    if (d === intDim) {
+                        // Most recent dimension starts at origin, moves out
+                        const targetAngle = TWO_PI / (intDim + 1);
+                        angle = targetAngle * easeInOutSine(fracDim);
+                    } else {
+                        // Older dimensions shift to accommodate
+                        const currentAngle = TWO_PI * (intDim - d) / intDim;
+                        const targetAngle = TWO_PI * (intDim - d + 1) / (intDim + 1);
+                        const diff = angleDifference(currentAngle, targetAngle);
+                        angle = normalizeAngle(currentAngle + diff * easeInOutSine(fracDim));
+                    }
+                }
+                
+                // Phase encodes the complete history
+                // Each dimension oscillates at frequency d
+                // The global dimension value drives all phases
+                const phase = (n * d * TWO_PI) % TWO_PI;
+                
+                // Compression reflects how many dimensions came after
+                const compressionFactor = Math.exp(-(intDim - d) * 0.1);
+                
+                state.dimensions.push({
+                    index: d,
+                    angle: angle,
+                    frequency: d,
+                    phase: phase,
+                    amplitude: 1,
+                    established: true,
+                    lifetime: n - d,
+                    compressionFactor: compressionFactor,
+                    birthComplete: true
+                });
+            }
+            
+            // Emerging dimension - the one currently being born
+            if (fracDim > 0.001 && intDim < 25) {
+                const nextDim = intDim + 1;
+                
+                // Birth rotation: completes exactly 2π as fracDim goes 0→1
+                const birthPhase = fracDim * TWO_PI;
+                
+                state.dimensions.push({
+                    index: nextDim,
+                    angle: 0, // Fixed at origin during birth
+                    frequency: nextDim,
+                    phase: birthPhase,
+                    amplitude: smoothStep(fracDim),
+                    established: false,
+                    emerging: true,
+                    lifetime: fracDim,
+                    compressionFactor: 1,
+                    birthComplete: false
+                });
+                
+                state.emergingDim = nextDim;
+                state.emergenceProgress = fracDim;
+            } else {
+                state.emergingDim = null;
+                state.emergenceProgress = 0;
+            }
+        }
+        
+        // ============= RESONANCE DETECTION =============
+        function detectResonances() {
+            const resonances = [];
+            const n = state.dimension;
+            
+            // Harmonic resonances between dimension frequencies
+            for (let i = 0; i < state.dimensions.length; i++) {
+                for (let j = i + 1; j < state.dimensions.length; j++) {
+                    const d1 = state.dimensions[i];
+                    const d2 = state.dimensions[j];
+                    const ratio = d2.frequency / d1.frequency;
+                    
+                    // Check for simple integer ratios
+                    const nearestInt = Math.round(ratio);
+                    const distance = Math.abs(ratio - nearestInt);
+                    
+                    if (distance < 0.05 && nearestInt <= 8) {
+                        resonances.push({
+                            type: 'harmonic',
+                            dims: [d1.index, d2.index],
+                            ratio: nearestInt,
+                            strength: 1 - distance / 0.05
+                        });
+                    }
+                }
+            }
+            
+            // Transcendental resonances
+            const specials = [
+                { value: PI, name: 'π' },
+                { value: TWO_PI, name: '2π' },
+                { value: FOUR_PI, name: '4π' },
+                { value: EIGHT_PI, name: '8π' },
+                { value: E, name: 'e' },
+                { value: E * E, name: 'e²' },
+                { value: PHI, name: 'φ' },
+                { value: PHI * PHI, name: 'φ²' },
+                { value: SQRT2, name: '√2' },
+                { value: Math.sqrt(3), name: '√3' },
+                { value: Math.sqrt(5), name: '√5' }
+            ];
+            
+            for (let special of specials) {
+                const distance = Math.abs(n - special.value);
+                if (distance < 0.05) {
+                    resonances.push({
+                        type: 'transcendental',
+                        name: special.name,
+                        value: special.value,
+                        strength: 1 - distance / 0.05
+                    });
+                }
+            }
+            
+            // Powers of 2 resonance
+            const log2n = Math.log2(n);
+            if (Math.abs(log2n - Math.round(log2n)) < 0.05) {
+                resonances.push({
+                    type: 'power2',
+                    value: Math.pow(2, Math.round(log2n)),
+                    strength: 1 - Math.abs(log2n - Math.round(log2n)) / 0.05
+                });
+            }
+            
+            resonances.sort((a, b) => b.strength - a.strength);
+            return resonances;
+        }
+        
+        // ============= MAIN VISUALIZATION =============
+        function drawMain() {
+            const canvas = canvasMain;
+            const ctx = ctxMain;
+            const width = canvas.width / (window.devicePixelRatio || 1);
+            const height = canvas.height / (window.devicePixelRatio || 1);
+            
+            // Deep space background
+            const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height)/2);
+            gradient.addColorStop(0, 'rgba(10, 0, 20, 1)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+            
+            // 3D transformation matrix
+            const depthFactor = 1 - state.viewDepth;
+            const rotX = state.camera.rotX * depthFactor;
+            const rotY = state.camera.rotY * depthFactor;
+            const cosX = Math.cos(rotX);
+            const sinX = Math.sin(rotX);
+            const cosY = Math.cos(rotY);
+            const sinY = Math.sin(rotY);
+            
+            const transform3D = (x, y, z) => {
+                const y1 = y * cosX - z * sinX;
+                const z1 = y * sinX + z * cosX;
+                const x1 = x * cosY - z1 * sinY;
+                const z2 = x * sinY + z1 * cosY;
+                
+                let scale = 1;
+                if (!state.camera.orthographic && depthFactor > 0.01) {
+                    const focalLength = 3;
+                    scale = focalLength / (focalLength + z2 * depthFactor);
+                }
+                
+                return {
+                    x: centerX + x1 * radius * state.camera.zoom * scale,
+                    y: centerY + y1 * radius * state.camera.zoom * scale,
+                    z: z2,
+                    scale: scale
+                };
+            };
+            
+            // Draw orbital guide circles (3D aware)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 6]);
+            
+            // Draw circles at different z-planes for 3D effect
+            for (let zLevel = -0.3; zLevel <= 0.3; zLevel += 0.3) {
+                ctx.globalAlpha = 0.3 + (0.3 - Math.abs(zLevel));
+                
+                // Outer circle
+                ctx.beginPath();
+                for (let theta = 0; theta <= TWO_PI; theta += 0.05) {
+                    const x = Math.cos(theta);
+                    const y = Math.sin(theta);
+                    const p = transform3D(x, y, zLevel);
+                    if (theta === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.closePath();
+                ctx.stroke();
+                
+                // Inner circle
+                const innerR = Math.abs(state.innerRadius);
+                if (innerR > 0.01) {
+                    ctx.beginPath();
+                    for (let theta = 0; theta <= TWO_PI; theta += 0.05) {
+                        const x = Math.cos(theta) * innerR;
+                        const y = Math.sin(theta) * innerR;
+                        const p = transform3D(x, y, zLevel);
+                        if (theta === 0) ctx.moveTo(p.x, p.y);
+                        else ctx.lineTo(p.x, p.y);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
+            
+            ctx.globalAlpha = 1;
+            ctx.setLineDash([]);
+            ctx.restore();
+            
+            // Mark emergence origin
+            const originPoint = transform3D(1, 0, 0);
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.25)';
+            ctx.beginPath();
+            ctx.arc(originPoint.x, originPoint.y, 3, 0, TWO_PI);
+            ctx.fill();
+            
+            // Draw roots of unity at integer dimensions
+            const intDim = Math.floor(state.dimension);
+            const fracDim = state.dimension - intDim;
+            if (intDim > 0 && fracDim < 0.05) {
+                ctx.strokeStyle = `rgba(100, 100, 100, ${0.03 * (1 - fracDim / 0.05)})`;
+                ctx.lineWidth = 0.5;
+                for (let k = 0; k < intDim; k++) {
+                    const angle = TWO_PI * k / intDim;
+                    const p1 = transform3D(0, 0, 0);
+                    const p2 = transform3D(Math.cos(angle), Math.sin(angle), 0);
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                }
+            }
+            
+            // Collect current state for traces
+            const currentOuter = {};
+            const currentInner = {};
+            
+            // Sort dimensions for proper layering
+            const sortedDims = [...state.dimensions].sort((a, b) => {
+                if (a.emerging) return 1;
+                if (b.emerging) return -1;
+                return a.index - b.index;
+            });
+            
+            // Draw each dimension
+            sortedDims.forEach(dim => {
+                // Use global orbit radius for all dimensions
+                const oscRadius = state.orbitRadius;
+                const osc = Math.sin(dim.phase) * oscRadius * dim.amplitude;
+                
+                // Position on circles
+                const outerR = 1 + osc;
+                const outerX = Math.cos(dim.angle) * outerR;
+                const outerY = Math.sin(dim.angle) * outerR;
+                const outerZ = Math.cos(dim.phase) * oscRadius * dim.amplitude * depthFactor;
+                
+                const innerPhaseOffset = (state.innerPhase / 180) * PI;
+                const innerOsc = Math.sin(dim.phase + innerPhaseOffset) * oscRadius * dim.amplitude;
+                const innerSign = state.innerRadius < 0 ? -1 : 1;
+                const innerR = Math.abs(state.innerRadius);
+                const innerRFinal = innerR * (1 + innerOsc);
+                const innerX = Math.cos(dim.angle) * innerRFinal * innerSign;
+                const innerY = Math.sin(dim.angle) * innerRFinal * innerSign;
+                const innerZ = Math.cos(dim.phase + innerPhaseOffset) * oscRadius * dim.amplitude * innerR * depthFactor;
+                
+                currentOuter[dim.index] = { x: outerX, y: outerY, z: outerZ };
+                currentInner[dim.index] = { x: innerX, y: innerY, z: innerZ };
+                
+                const outerPoint = transform3D(outerX, outerY, outerZ);
+                const innerPoint = transform3D(innerX, innerY, innerZ);
+                
+                // Color using golden angle distribution
+                const hue = (dim.index * 137.507764) % 360;
+                const saturation = 60 + dim.amplitude * 20;
+                const lightness = 40 + dim.amplitude * 15;
+                const alpha = dim.established ? 0.8 : 0.3 + dim.amplitude * 0.5;
+                
+                // Connection line
+                if (innerR > 0.01) {
+                    const grad = ctx.createLinearGradient(innerPoint.x, innerPoint.y, outerPoint.x, outerPoint.y);
+                    grad.addColorStop(0, `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.15})`);
+                    grad.addColorStop(0.5, `hsla(${hue}, ${saturation}%, ${lightness + 5}%, ${alpha * 0.2})`);
+                    grad.addColorStop(1, `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.15})`);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath();
+                    ctx.moveTo(innerPoint.x, innerPoint.y);
+                    ctx.lineTo(outerPoint.x, outerPoint.y);
+                    ctx.stroke();
+                }
+                
+                // Draw dimensional points
+                ctx.shadowBlur = dim.emerging ? 10 : 5;
+                ctx.shadowColor = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.3)`;
+                
+                // Outer point
+                let outerSize;
+                if (dim.emerging) {
+                    const pulse = (Math.sin(dim.phase * 3) + 1) / 2;
+                    outerSize = 4 + dim.amplitude * 3 + pulse;
+                    
+                    ctx.strokeStyle = `hsla(60, 100%, 50%, ${0.2 + pulse * 0.2})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(outerPoint.x, outerPoint.y, outerSize + 4, 0, TWO_PI);
+                    ctx.stroke();
+                } else {
+                    outerSize = 3.5 + dim.compressionFactor * 1.5;
+                }
+                
+                ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(outerPoint.x, outerPoint.y, outerSize, 0, TWO_PI);
+                ctx.fill();
+                
+                // Inner point
+                if (innerR > 0.01) {
+                    ctx.fillStyle = `hsla(${hue}, ${saturation + 10}%, ${lightness + 10}%, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(innerPoint.x, innerPoint.y, 2.5, 0, TWO_PI);
+                    ctx.fill();
+                }
+                
+                ctx.shadowBlur = 0;
+                
+                // Dimension label
+                ctx.font = '8px monospace';
+                ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness + 20}%, ${alpha})`;
+                ctx.fillText(`d${dim.index}`, outerPoint.x + 8, outerPoint.y - 4);
+                
+                // Show emergence progress near origin
+                if (dim.emerging) {
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+                    ctx.font = 'bold 10px monospace';
+                    const progress = (state.emergenceProgress * 100).toFixed(0);
+                    ctx.fillText(`${progress}%`, originPoint.x - 15, originPoint.y + 20);
+                }
+            });
+            
+            // Update and draw traces
+            state.traces.push(currentOuter);
+            state.innerTraces.push(currentInner);
+            
+            while (state.traces.length > state.traceLength) {
+                state.traces.shift();
+                state.innerTraces.shift();
+            }
+            
+            if (state.traceLength > 0 && state.traces.length > 1) {
+                const innerR = Math.abs(state.innerRadius);
+                
+                state.dimensions.forEach(dim => {
+                    const hue = (dim.index * 137.507764) % 360;
+                    
+                    // Darker trails as requested
+                    ctx.strokeStyle = `hsla(${hue}, 50%, 40%, 0.25)`;
+                    ctx.lineWidth = 1;
+                    
+                    // Outer trace
+                    ctx.beginPath();
+                    state.traces.forEach((trace, i) => {
+                        if (trace[dim.index]) {
+                            const point = transform3D(trace[dim.index].x, trace[dim.index].y, trace[dim.index].z);
+                            if (i === 0) ctx.moveTo(point.x, point.y);
+                            else ctx.lineTo(point.x, point.y);
+                        }
+                    });
+                    ctx.stroke();
+                    
+                    // Inner trace
+                    if (innerR > 0.01) {
+                        ctx.strokeStyle = `hsla(${hue}, 50%, 45%, 0.20)`;
+                        ctx.beginPath();
+                        state.innerTraces.forEach((trace, i) => {
+                            if (trace[dim.index]) {
+                                const point = transform3D(trace[dim.index].x, trace[dim.index].y, trace[dim.index].z);
+                                if (i === 0) ctx.moveTo(point.x, point.y);
+                                else ctx.lineTo(point.x, point.y);
+                            }
+                        });
+                        ctx.stroke();
+                    }
+                });
+            }
+            
+            document.getElementById('projectionLabel').textContent = 
+                state.camera.orthographic ? 'ORTHO' : 'PERSP';
+        }
+        
+        // ============= FREQUENCY SPECTRUM =============
+        function drawFrequency() {
+            const canvas = canvasFreq;
+            const ctx = ctxFreq;
+            const width = canvas.width / (window.devicePixelRatio || 1);
+            const height = canvas.height / (window.devicePixelRatio || 1);
+            
+            ctx.fillStyle = 'rgba(0, 0, 10, 1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            if (state.dimensions.length === 0) return;
+            
+            const padding = 15;
+            const availableWidth = width - 2 * padding;
+            const maxBars = 30; // Maximum number of bars to display nicely
+            const barWidth = Math.min(availableWidth / state.dimensions.length, availableWidth / maxBars);
+            const totalWidth = barWidth * state.dimensions.length;
+            const startX = (width - totalWidth) / 2; // Center the bars
+            const maxHeight = height - padding - 20; // Leave room for labels
+            
+            state.dimensions.forEach((dim, idx) => {
+                const x = startX + idx * barWidth;
+                const amplitude = (Math.sin(dim.phase) + 1) / 2;
+                const barHeight = amplitude * maxHeight * 0.8 * dim.amplitude;
+                
+                const hue = (dim.index * 137.507764) % 360;
+                
+                // Background guide
+                ctx.fillStyle = `hsla(${hue}, 50%, 20%, 0.15)`;
+                ctx.fillRect(x + barWidth * 0.2, padding, barWidth * 0.6, maxHeight);
+                
+                // Active frequency bar
+                const grad = ctx.createLinearGradient(0, height - 20, 0, height - 20 - barHeight);
+                grad.addColorStop(0, `hsla(${hue}, 65%, 45%, 0.7)`);
+                grad.addColorStop(1, `hsla(${hue}, 65%, 55%, 0.8)`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(x + barWidth * 0.2, height - 20 - barHeight, barWidth * 0.6, barHeight);
+                
+                // Frequency label (only for every few bars when crowded)
+                const showLabel = state.dimensions.length <= 10 || idx % Math.ceil(state.dimensions.length / 10) === 0;
+                if (showLabel) {
+                    ctx.fillStyle = '#666';
+                    ctx.font = '6px monospace';
+                    ctx.fillText(`${dim.frequency}`, x + barWidth/2 - 3, height - 5);
+                }
+                
+                // Phase marker
+                const phaseY = height - 20 - (dim.phase / TWO_PI) * maxHeight;
+                ctx.strokeStyle = `hsla(${hue}, 65%, 65%, 0.3)`;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(x + barWidth * 0.15, phaseY);
+                ctx.lineTo(x + barWidth * 0.85, phaseY);
+                ctx.stroke();
+            });
+            
+            // Label
+            ctx.fillStyle = '#888';
+            ctx.font = '7px monospace';
+            ctx.fillText('Hz', 10, height - 5);
+        }
+        
+        // ============= PHASE SPACE =============
+        function drawPhase() {
+            const canvas = canvasPhase;
+            const ctx = ctxPhase;
+            const width = canvas.width / (window.devicePixelRatio || 1);
+            const height = canvas.height / (window.devicePixelRatio || 1);
+            
+            ctx.fillStyle = 'rgba(0, 0, 10, 1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.38;
+            
+            // Phase space circles
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 6]);
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, TWO_PI);
+            ctx.stroke();
+            
+            const innerR = Math.abs(state.innerRadius);
+            if (innerR > 0.01) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius * innerR, 0, TWO_PI);
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            // Phase coupling visualization
+            const innerPhaseOffset = (state.innerPhase / 180) * PI;
+            const innerSign = state.innerRadius < 0 ? -1 : 1;
+            
+            // Draw phase trajectories
+            state.dimensions.forEach(dim => {
+                const hue = (dim.index * 137.507764) % 360;
+                const oscRadius = state.orbitRadius;  // Use global orbit radius
+                
+                // Phase positions
+                const outerPhase = dim.phase;
+                const innerPhase = dim.phase + innerPhaseOffset;
+                
+                // Calculate positions
+                const outerR = radius * dim.amplitude * (1 + Math.sin(outerPhase) * oscRadius * 0.15);
+                const outerX = centerX + Math.cos(outerPhase) * outerR;
+                const outerY = centerY + Math.sin(outerPhase) * outerR;
+                
+                const innerRFinal = radius * innerR * dim.amplitude * (1 + Math.sin(innerPhase) * oscRadius * 0.15) * innerSign;
+                const innerX = centerX + Math.cos(innerPhase) * innerRFinal;
+                const innerY = centerY + Math.sin(innerPhase) * innerRFinal;
+                
+                // Connection
+                if (innerR > 0.01) {
+                    ctx.strokeStyle = `hsla(${hue}, 55%, 45%, 0.25)`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(innerX, innerY);
+                    ctx.lineTo(outerX, outerY);
+                    ctx.stroke();
+                }
+                
+                // Phase vector
+                ctx.strokeStyle = `hsla(${hue}, 55%, 45%, 0.15)`;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(outerX, outerY);
+                ctx.stroke();
+                
+                // Points
+                ctx.fillStyle = `hsla(${hue}, 65%, 50%, 0.85)`;
+                ctx.beginPath();
+                ctx.arc(outerX, outerY, dim.emerging ? 3.5 : 2.5, 0, TWO_PI);
+                ctx.fill();
+                
+                if (innerR > 0.01) {
+                    ctx.fillStyle = `hsla(${hue}, 65%, 55%, 0.85)`;
+                    ctx.beginPath();
+                    ctx.arc(innerX, innerY, 2, 0, TWO_PI);
+                    ctx.fill();
+                }
+            });
+            
+            // Phase lock indicator
+            const phaseDiff = Math.abs(innerPhaseOffset);
+            if (phaseDiff < 0.1 || Math.abs(phaseDiff - PI) < 0.1) {
+                ctx.fillStyle = '#ff00ff';
+                ctx.font = 'bold 9px monospace';
+                const lockType = phaseDiff < 0.1 ? 'PHASE LOCK' : 'ANTI-PHASE';
+                ctx.fillText(lockType, centerX - 30, 18);
+            }
+        }
+        
+        // ============= METRICS UPDATE =============
+        function updateMetrics() {
+            const intDim = Math.floor(state.dimension);
+            const fracDim = state.dimension - intDim;
+            
+            document.getElementById('metricActive').textContent = intDim;
+            
+            if (state.emergingDim) {
+                document.getElementById('metricEmerging').textContent = state.emergingDim;
+                document.getElementById('metricEmergingContainer').classList.add('highlight');
+                document.getElementById('metricProgress').textContent = 
+                    (state.emergenceProgress * 100).toFixed(0) + '%';
+            } else {
+                document.getElementById('metricEmerging').textContent = '--';
+                document.getElementById('metricEmergingContainer').classList.remove('highlight');
+                document.getElementById('metricProgress').textContent = '--';
+            }
+            
+            if (intDim > 0) {
+                document.getElementById('metricAngleStep').textContent = 
+                    (360 / intDim).toFixed(1) + '°';
+            } else {
+                document.getElementById('metricAngleStep').textContent = '--';
+            }
+            
+            const maxFreq = state.dimensions.length > 0 ? 
+                Math.max(...state.dimensions.map(d => d.frequency)) : 0;
+            document.getElementById('metricClock').textContent = 
+                maxFreq > 0 ? maxFreq + ' Hz' : '--';
+            
+            // Phase coupling
+            const phaseDiff = Math.abs((state.innerPhase / 180) * PI);
+            if (phaseDiff < 0.15) {
+                document.getElementById('metricPhaseLock').textContent = 'IN-PHASE';
+                document.getElementById('metricPhaseContainer').classList.add('highlight');
+            } else if (Math.abs(phaseDiff - PI) < 0.15) {
+                document.getElementById('metricPhaseLock').textContent = 'ANTI';
+                document.getElementById('metricPhaseContainer').classList.add('highlight');
+            } else {
+                document.getElementById('metricPhaseLock').textContent = '--';
+                document.getElementById('metricPhaseContainer').classList.remove('highlight');
+            }
+            
+            // Resonance detection
+            const resonances = detectResonances();
+            if (resonances.length > 0) {
+                const res = resonances[0];
+                if (res.type === 'transcendental') {
+                    document.getElementById('metricResonance').textContent = res.name;
+                    document.getElementById('dimValue').classList.add('resonant');
+                } else if (res.type === 'harmonic' && res.dims) {
+                    document.getElementById('metricResonance').textContent = 
+                        `${res.dims[0]}:${res.dims[1]}`;
+                } else if (res.type === 'power2') {
+                    document.getElementById('metricResonance').textContent = 
+                        `2^${Math.round(Math.log2(res.value))}`;
+                } else {
+                    document.getElementById('metricResonance').textContent = '--';
+                }
+                document.getElementById('metricResonanceContainer').classList.add('highlight');
+            } else {
+                document.getElementById('metricResonance').textContent = '--';
+                document.getElementById('dimValue').classList.remove('resonant');
+                document.getElementById('metricResonanceContainer').classList.remove('highlight');
+            }
+            
+            // Birth cycles completed
+            document.getElementById('metricCycles').textContent = intDim;
+        }
+        
+        // ============= MASTER UPDATE =============
+        function updateAll() {
+            updateDimensions();
+            updateMetrics();
+            drawMain();
+            drawFrequency();
+            drawPhase();
+            
+            // Update control values
+            document.getElementById('dimValue').textContent = state.dimension.toFixed(3);
+            // Display the slider value directly, not the actual speed
+            const sliderValue = document.getElementById('speedSlider').value;
+            document.getElementById('speedValue').textContent = parseFloat(sliderValue).toFixed(2);
+            document.getElementById('innerRadiusValue').textContent = state.innerRadius.toFixed(2);
+            document.getElementById('innerPhaseValue').textContent = state.innerPhase.toFixed(0) + '°';
+            document.getElementById('orbitValue').textContent = state.orbitRadius.toFixed(2);
+            document.getElementById('viewValue').textContent = state.viewDepth > 0.5 ? '2D' : '3D';
+            document.getElementById('traceValue').textContent = state.traceLength;
+        }
+        
+        // ============= ANIMATION ENGINE =============
+        function animate(timestamp) {
+            if (!state.animating) return;
+            
+            const dt = Math.min((timestamp - state.lastTime) / 1000, 0.1);
+            state.lastTime = timestamp;
+            
+            state.dimension += dt * state.animationSpeed;
+            
+            if (state.dimension > EIGHT_PI) state.dimension = 0;
+            if (state.dimension < 0) state.dimension = EIGHT_PI;
+            
+            document.getElementById('dimSlider').value = state.dimension;
+            updateAll();
+            
+            state.animationId = requestAnimationFrame(animate);
+        }
+        
+        // ============= EVENT LISTENERS =============
+        document.getElementById('dimSlider').addEventListener('input', (e) => {
+            state.dimension = parseFloat(e.target.value);
+            updateAll();
+        });
+        
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            // Map -1 to 1 → -0.4 to 0.4 for actual speed
+            state.animationSpeed = value * 0.4;
+            // But display the slider value directly
+            document.getElementById('speedValue').textContent = value.toFixed(2);
+        });
+        
+        document.getElementById('innerRadiusSlider').addEventListener('input', (e) => {
+            state.innerRadius = parseFloat(e.target.value);
+            updateAll();
+        });
+        
+        document.getElementById('innerPhaseSlider').addEventListener('input', (e) => {
+            state.innerPhase = parseFloat(e.target.value);
+            updateAll();
+        });
+        
+        document.getElementById('orbitSlider').addEventListener('input', (e) => {
+            state.orbitRadius = parseFloat(e.target.value);
+            updateAll();
+        });
+        
+        document.getElementById('viewSlider').addEventListener('input', (e) => {
+            state.viewDepth = parseFloat(e.target.value);
+            updateAll();
+        });
+        
+        document.getElementById('traceSlider').addEventListener('input', (e) => {
+            state.traceLength = parseInt(e.target.value);
+            while (state.traces.length > state.traceLength) {
+                state.traces.shift();
+                state.innerTraces.shift();
+            }
+            updateAll();
+        });
+        
+        document.getElementById('animateBtn').addEventListener('click', () => {
+            state.animating = !state.animating;
+            const btn = document.getElementById('animateBtn');
+            btn.textContent = state.animating ? 'Stop' : 'Animate';
+            btn.classList.toggle('active', state.animating);
+            
+            if (state.animating) {
+                state.lastTime = performance.now();
+                animate(performance.now());
+            } else if (state.animationId) {
+                cancelAnimationFrame(state.animationId);
+            }
+        });
+        
+        // Dimension presets
+        const presets = [
+            { id: 'd1Btn', value: 1 },
+            { id: 'd2Btn', value: 2 },
+            { id: 'd4Btn', value: 4 },
+            { id: 'd8Btn', value: 8 },
+            { id: 'd16Btn', value: 16 },
+            { id: 'piBtn', value: PI },
+            { id: 'twoPiBtn', value: TWO_PI },
+            { id: 'fourPiBtn', value: FOUR_PI },
+            { id: 'eightPiBtn', value: EIGHT_PI },
+            { id: 'eBtn', value: E },
+            { id: 'phiBtn', value: PHI },
+            { id: 'sqrt2Btn', value: SQRT2 }
+        ];
+        
+        presets.forEach(preset => {
+            document.getElementById(preset.id).addEventListener('click', () => {
+                state.dimension = preset.value;
+                document.getElementById('dimSlider').value = preset.value;
+                updateAll();
+            });
+        });
+        
+        document.getElementById('orthoBtn').addEventListener('click', () => {
+            state.camera.orthographic = !state.camera.orthographic;
+            const btn = document.getElementById('orthoBtn');
+            btn.textContent = state.camera.orthographic ? 'Persp' : 'Ortho';
+            updateAll();
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (state.animationId) {
+                cancelAnimationFrame(state.animationId);
+            }
+            
+            state.dimension = 3;
+            state.animationSpeed = 0.1;
+            state.innerRadius = 0.5;
+            state.innerPhase = 0;
+            state.orbitRadius = 0.25;
+            state.viewDepth = 0;
+            state.traceLength = 40;
+            state.animating = false;
+            state.camera = { rotX: 0, rotY: 0, zoom: 1, orthographic: false };
+            state.traces = [];
+            state.innerTraces = [];
+            
+            document.getElementById('dimSlider').value = 3;
+            document.getElementById('speedSlider').value = 0.25;
+            document.getElementById('innerRadiusSlider').value = 0.5;
+            document.getElementById('innerPhaseSlider').value = 0;
+            document.getElementById('orbitSlider').value = 0.25;
+            document.getElementById('viewSlider').value = 0;
+            document.getElementById('traceSlider').value = 40;
+            document.getElementById('animateBtn').textContent = 'Animate';
+            document.getElementById('animateBtn').classList.remove('active');
+            document.getElementById('orthoBtn').textContent = 'Ortho';
+            
+            updateAll();
+        });
+        
+        // Mouse controls
+        canvasMain.addEventListener('mousedown', (e) => {
+            state.camera.dragging = true;
+            state.camera.lastX = e.clientX;
+            state.camera.lastY = e.clientY;
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+            if (state.camera.dragging) {
+                const dx = e.clientX - state.camera.lastX;
+                const dy = e.clientY - state.camera.lastY;
+                
+                state.camera.rotY += dx * 0.01;
+                state.camera.rotX = Math.max(-PI/2, Math.min(PI/2, state.camera.rotX + dy * 0.01));
+                
+                state.camera.lastX = e.clientX;
+                state.camera.lastY = e.clientY;
+                
+                if (!state.animating) {
+                    drawMain();
+                }
+            }
+        });
+        
+        window.addEventListener('mouseup', () => {
+            state.camera.dragging = false;
+        });
+        
+        canvasMain.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            state.camera.zoom *= (1 - e.deltaY * 0.001);
+            state.camera.zoom = Math.max(0.3, Math.min(5, state.camera.zoom));
+            
+            if (!state.animating) {
+                drawMain();
+            }
+        });
+        
+        // Touch support
+        let touchStart = null;
+        canvasMain.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        });
+        
+        canvasMain.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!touchStart) return;
+            
+            const dx = e.touches[0].clientX - touchStart.x;
+            const dy = e.touches[0].clientY - touchStart.y;
+            
+            state.camera.rotY += dx * 0.01;
+            state.camera.rotX = Math.max(-PI/2, Math.min(PI/2, state.camera.rotX + dy * 0.01));
+            
+            touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            
+            if (!state.animating) {
+                drawMain();
+            }
+        });
+        
+        canvasMain.addEventListener('touchend', () => {
+            touchStart = null;
+        });
+        
+        // Initialize
+        window.addEventListener('resize', () => {
+            resizeCanvases();
+            updateAll();
+        });
+        
+        resizeCanvases();
+        updateAll();
+    </script>
+</body>
+</html>
