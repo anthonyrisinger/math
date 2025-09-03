@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dimensional-mathematics"
+name = "dimensional"
 version = "1.0.0"
 authors = [
     {name = "Advanced Mathematics Research", email = "research@dimensional.math"},
@@ -29,8 +29,11 @@ keywords = ["mathematics", "spectral-analysis", "algebra", "phase-dynamics", "di
 
 dependencies = [
     "numpy>=1.20.0",
-    "scipy>=1.7.0", 
+    "scipy>=1.7.0",
     "matplotlib>=3.5.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+    "pydantic>=2.0.0",
 ]
 
 [project.optional-dependencies]
@@ -52,6 +55,7 @@ demo = [
 "Documentation" = "https://dimensional-math.readthedocs.io/"
 
 [project.scripts]
+dimensional = "dimensional.cli:main"
 dimensional-demo = "demo.__main__:main"
 
 [tool.setuptools.packages.find]

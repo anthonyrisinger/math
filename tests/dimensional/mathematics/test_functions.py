@@ -5,7 +5,7 @@ Tests for mathematical functions module.
 
 import pytest
 
-from .functions import gamma_safe, gammaln_safe
+from dimensional.mathematics.functions import gamma_safe, gammaln_safe
 
 
 class TestMathematicalFunctions:

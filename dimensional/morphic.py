@@ -1,143 +1,29 @@
 #!/usr/bin/env python3
-"""
-Morphic Mathematics - Unified Implementation
-============================================
-
-Comprehensive morphic polynomials, golden ratio operations, geometric algebra
-transformations, and stability calculations. Implements polynomial families
-that create stable reference frames for fractional dimensions.
-
-Core polynomial families:
-- "shifted": τ³ - (2-k)τ - 1 = 0 (primary family)
-- "simple":  τ³ - kτ - 1 = 0 (alternative family)
-
-The golden ratio φ and its conjugate ψ = 1/φ create stability through:
-φ² = φ + 1
-ψ² = 1 - ψ
-
-Includes conformal geometric algebra (CGA) support for advanced transformations.
-"""
+"""Morphic polynomials and golden ratio operations for dimensional stability."""
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
+from numpy.typing import NDArray
 
 # Core constants
+# Mathematical constants
 PHI = (1 + np.sqrt(5)) / 2  # Golden ratio ≈ 1.618
 PSI = 1 / PHI  # Golden ratio conjugate ≈ 0.618
 NUMERICAL_EPSILON = 1e-12
 
-# ========================
-# GEOMETRIC ALGEBRA SETUP
-# ========================
-
-# Direct geometric algebra using numpy - no external dependencies
-
-
-class SimpleGA:
-    """Simple geometric algebra using pure numpy."""
-
-    def __init__(self, val=0):
-        self.val = np.array(val) if not isinstance(val, np.ndarray) else val
-
-    def __mul__(self, other):
-        return SimpleGA(
-            self.val * (other.val if hasattr(other, "val") else other)
-        )
-
-    def __add__(self, other):
-        return SimpleGA(
-            self.val + (other.val if hasattr(other, "val") else other)
-        )
-
-    def __sub__(self, other):
-        return SimpleGA(
-            self.val - (other.val if hasattr(other, "val") else other)
-        )
-
-    def __rmul__(self, other):
-        return SimpleGA(other * self.val)
-
-    def __invert__(self):
-        return SimpleGA(1.0 / (self.val + 1e-12))
-
-
-# Mock GA for fallback cases
-
-
-class MockGA:
-    """Mock geometric algebra object for fallback."""
-
-    def __init__(self, val=0):
-        self.val = val
-
-    def __mul__(self, other):
-        return MockGA(0)
-
-    def __add__(self, other):
-        return MockGA(0)
-
-    def __sub__(self, other):
-        return MockGA(0)
-
-
-# Simple CGA implementation
-
-
-class SimpleCGA:
-    """Simple conformal geometric algebra."""
-
-    def multivector(self, components):
-        return SimpleGA(1.0)  # Return identity elemen
-
-
-# Basis vectors using simple geometric algebra
-e1, e2, e3 = SimpleGA([1, 0, 0]), SimpleGA([0, 1, 0]), SimpleGA([0, 0, 1])
-eo, einf = SimpleGA([0, 0, 0]), SimpleGA([1, 1, 1])
-cga = SimpleCGA()
-GA_AVAILABLE = "simple"
-
-
-def up(point_3d):
-    """Transform 3D point to conformal space."""
-    x, y, z = point_3d
-    return SimpleGA([x, y, z])
-
-
-def down(point_cga):
-    """Project conformal point back to 3D."""
-    return (
-        point_cga.val
-        if hasattr(point_cga, "val")
-        else np.array([0.0, 0.0, 0.0])
-    )  # ========================
+# Note: Geometric algebra functionality removed
+# This module now focuses solely on morphic polynomials and golden ratio operations
 
 
 # CORE POLYNOMIAL FUNCTIONS
 # ========================
 
 
-def morphic_polynomial_roots(k: float, mode: str = "shifted") -> np.ndarray:
-    """
-    Find real roots of morphic polynomial families.
-
-    "shifted": τ³ - (2-k)τ - 1 = 0
-    "simple":  τ³ - kτ - 1 = 0
-
-    Parameters
-    ----------
-    k : floa
-        Parameter value
-    mode : str
-        Polynomial family ("shifted" or "simple")
-
-    Returns
-    -------
-    array
-        Real roots in descending order
-    """
+def morphic_polynomial_roots(k: float, mode: str = "shifted") -> NDArray[np.float64]:
+    """Find real roots of morphic polynomial families."""
     if mode == "shifted":
         coeffs = [1.0, 0.0, -(2.0 - k), -1.0]  # τ³ + 0τ² - (2-k)τ - 1
     elif mode == "simple":
@@ -156,33 +42,13 @@ def morphic_polynomial_roots(k: float, mode: str = "shifted") -> np.ndarray:
 
 
 # Alias for backward compatibility
-def real_roots(k: float, mode: str = "shifted") -> np.ndarray:
+def real_roots(k: float, mode: str = "shifted") -> NDArray[np.float64]:
     """Alias for morphic_polynomial_roots."""
     return morphic_polynomial_roots(k, mode)
 
 
 def discriminant(k: float, mode: str = "shifted") -> float:
-    """
-    Discriminant of morphic polynomial.
-
-    For cubic ax³ + bx² + cx + d, discriminant is:
-    Δ = 18abcd - 4b³d + b²c² - 4ac³ - 27a²d²
-
-    For our forms with b = 0:
-    Δ = -4ac³ - 27a²d²
-
-    Parameters
-    ----------
-    k : floa
-        Parameter value
-    mode : str
-        Polynomial family
-
-    Returns
-    -------
-    floa
-        Discriminant value
-    """
+    """Discriminant of morphic polynomial."""
     if mode == "shifted":
         # τ³ - (2-k)τ - 1 = 0
         # a = 1, b = 0, c = -(2-k), d = -1
@@ -198,19 +64,7 @@ def discriminant(k: float, mode: str = "shifted") -> float:
 
 
 def k_perfect_circle(mode: str = "shifted") -> float:
-    """
-    Parameter value where τ = 1 is a root (perfect circle case).
-
-    Parameters
-    ----------
-    mode : str
-        Polynomial family
-
-    Returns
-    -------
-    floa
-        Critical k value
-    """
+    """Parameter value where τ = 1 is a root (perfect circle case)."""
     if mode == "shifted":
         # 1³ - (2-k)·1 - 1 = 0  =>  1 - (2-k) - 1 = 0  =>  k = 2
         return 2.0
@@ -222,19 +76,7 @@ def k_perfect_circle(mode: str = "shifted") -> float:
 
 
 def k_discriminant_zero(mode: str = "shifted") -> float:
-    """
-    Parameter value where discriminant equals zero.
-
-    Parameters
-    ----------
-    mode : str
-        Polynomial family
-
-    Returns
-    -------
-    floa
-        Critical k value where discriminant vanishes
-    """
+    """Parameter value where discriminant equals zero."""
     if mode == "shifted":
         # Solve: -4(-(2-k))³ - 27 = 0
         # 4(2-k)³ = 27
@@ -258,14 +100,7 @@ def k_discriminant_zero(mode: str = "shifted") -> float:
 
 
 def golden_ratio_properties() -> dict[str, Any]:
-    """
-    Verify and return golden ratio properties.
-
-    Returns
-    -------
-    dic
-        Golden ratio mathematical properties
-    """
+    """Verify and return golden ratio properties."""
     phi = PHI
     psi = PSI
 
@@ -290,44 +125,12 @@ def golden_ratio_properties() -> dict[str, Any]:
 
 
 def morphic_scaling_factor(phi: float = PHI) -> float:
-    """
-    Calculate morphic scaling factor.
-
-    The golden ratio creates self-similar scaling essential for
-    fractional dimensional stability.
-
-    Parameters
-    ----------
-    phi : floa
-        Golden ratio value
-
-    Returns
-    -------
-    floa
-        Scaling factor φ^(1/φ) ≈ 1.465
-    """
+    """Calculate morphic scaling factor φ^(1/φ) ≈ 1.465."""
     return phi ** (1 / phi)
 
 
-def generate_morphic_sequence(n_terms: int, phi: float = PHI) -> np.ndarray:
-    """
-    Generate morphic number sequence.
-
-    Based on golden ratio recurrence relation:
-    F(n) = φF(n-1) + ψF(n-2)
-
-    Parameters
-    ----------
-    n_terms : in
-        Number of terms to generate
-    phi : floa
-        Golden ratio
-
-    Returns
-    -------
-    array
-        Morphic sequence
-    """
+def generate_morphic_sequence(n_terms: int, phi: float = PHI) -> NDArray[np.float64]:
+    """Generate morphic number sequence using golden ratio recurrence."""
     if n_terms <= 0:
         return np.array([])
     elif n_terms == 1:
@@ -348,98 +151,12 @@ def generate_morphic_sequence(n_terms: int, phi: float = PHI) -> np.ndarray:
 
 
 # ========================
-# CONFORMAL GEOMETRIC ALGEBRA
+# MORPHIC CIRCLE TRANSFORMATIONS
 # ========================
 
 
-def make_rotor(tau: float):
-    """
-    Conformal rotor: translate by (tau,0,0), then dilate by tau.
-    Uses proper Kingdon geometric algebra operations.
-
-    Parameters
-    ----------
-    tau : floa
-        Transformation parameter
-
-    Returns
-    -------
-    Rotor object (Kingdon multivector)
-    """
-    if GA_AVAILABLE == "mock":
-        return MockGA()
-
-    # Translation rotor: T = 1 - 0.5 * t * einf where t is translation vector
-    t = tau * e1  # Translate along x-axis by tau
-    T = cga.multivector({"e": 1}) - 0.5 * (t * einf)
-
-    # Dilation rotor: D = exp(0.5 * ln(s) * (einf * eo))
-    # Clamp tau to avoid log-domain errors
-    s = float(np.clip(abs(tau), 1e-12, None))
-    ln_s = np.log(s)
-    D = cga.multivector({"e": 1}) + 0.5 * ln_s * (einf * eo)
-
-    # Combined rotor: R = T * D
-    return T * D
-
-
-def sample_loop_xyz(tau: float, theta: np.ndarray) -> np.ndarray:
-    """
-    Map the unit circle through the conformal transformation.
-    Uses proper Kingdon geometric algebra operations.
-
-    Parameters
-    ----------
-    tau : floa
-        Transformation parameter
-    theta : array
-        Angular values
-
-    Returns
-    -------
-    array
-        (N,3) array of transformed coordinates
-    """
-    if GA_AVAILABLE == "mock":
-        # Fallback implementation using standard transformations
-        return morphic_circle_transform(tau, theta)
-
-    R = make_rotor(tau)
-    xyz = []
-
-    for th in theta:
-        # Create point on unit circle
-        x, y = np.cos(th), np.sin(th)
-
-        # Lift to conformal space
-        P = up(np.array([x, y, 0.0]))
-
-        # Apply conformal transformation: R * P * ~R
-        R * P * (~R)
-
-        # Project back to 3D (simplified extraction)
-        # In full CGA, this would involve proper null space projection
-        xyz.append([x * tau, y * tau, 0.0])  # Simplified for now
-
-    return np.array(xyz)
-
-
-def morphic_circle_transform(tau: float, theta: np.ndarray) -> np.ndarray:
-    """
-    Fallback morphic transformation for unit circle when GA not available.
-
-    Parameters
-    ----------
-    tau : floa
-        Transformation parameter
-    theta : array
-        Angular values
-
-    Returns
-    -------
-    array
-        (N,3) array of transformed coordinates
-    """
+def morphic_circle_transform(tau: float, theta: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Fallback morphic transformation for unit circle."""
     x_circle = np.cos(theta)
     y_circle = np.sin(theta)
     z_circle = np.zeros_like(theta)
@@ -462,22 +179,8 @@ def morphic_circle_transform(tau: float, theta: np.ndarray) -> np.ndarray:
 # ========================
 
 
-def morphic_transformation_matrix(tau: float, phi: float = PHI) -> np.ndarray:
-    """
-    Generate 2D transformation matrix for morphic scaling.
-
-    Parameters
-    ----------
-    tau : floa
-        Root parameter
-    phi : floa
-        Golden ratio
-
-    Returns
-    -------
-    array
-        2x2 transformation matrix
-    """
+def morphic_transformation_matrix(tau: float, phi: float = PHI) -> NDArray[np.float64]:
+    """Generate 2D transformation matrix for morphic scaling."""
     # Morphic transformation combining scaling and rotation
     scale = tau * morphic_scaling_factor(phi)
     angle = np.pi / phi  # Golden angle related rotation
@@ -487,23 +190,8 @@ def morphic_transformation_matrix(tau: float, phi: float = PHI) -> np.ndarray:
     return scale * np.array([[cos_a, -sin_a], [sin_a, cos_a]])
 
 
-def curvature_peak(xy: np.ndarray, dtheta: float = 0.1) -> float:
-    """
-    Peak curvature |κ| for a closed polyline in XY.
-    Guards against divide-by-zero and NaNs.
-
-    Parameters
-    ----------
-    xy : array
-        (N,2) array of x,y coordinates
-    dtheta : floa
-        Angular step size
-
-    Returns
-    -------
-    floa
-        Maximum absolute curvature
-    """
+def curvature_peak(xy: NDArray[np.float64], dtheta: float = 0.1) -> float:
+    """Peak curvature |κ| for a closed polyline in XY."""
     x = xy[:, 0]
     y = xy[:, 1]
 
@@ -520,21 +208,7 @@ def curvature_peak(xy: np.ndarray, dtheta: float = 0.1) -> float:
 
 
 def curvature_peak_estimate(tau: float, dtheta: float = 0.1) -> float:
-    """
-    Estimate peak curvature for morphic transformation.
-
-    Parameters
-    ----------
-    tau : floa
-        Transformation parameter
-    dtheta : floa
-        Angular resolution
-
-    Returns
-    -------
-    floa
-        Estimated peak curvature
-    """
+    """Estimate peak curvature for morphic transformation."""
     # Generate unit circle points
     theta = np.arange(0, 2 * np.pi, dtheta)
     x_circle = np.cos(theta)
@@ -560,23 +234,7 @@ def stability_regions(
     k_max: float = 5,
     num_points: int = 1000,
 ) -> dict[str, Any]:
-    """
-    Find stability regions in parameter space.
-
-    Parameters
-    ----------
-    mode : str
-        Polynomial family
-    k_min, k_max : floa
-        Parameter range
-    num_points : in
-        Number of sample points
-
-    Returns
-    -------
-    dic
-        Stability analysis results
-    """
+    """Find stability regions in parameter space."""
     k_values = np.linspace(k_min, k_max, num_points)
 
     results = {
@@ -614,14 +272,9 @@ def stability_regions(
 
 
 class MorphicAnalyzer:
-    """
-    Complete morphic mathematics analyzer.
+    """Morphic mathematics analyzer for polynomial families and stability."""
 
-    Provides comprehensive analysis of morphic polynomial families,
-    stability regions, and geometric transformations.
-    """
-
-    def __init__(self, mode: str = "shifted"):
+    def __init__(self, mode: str = "shifted") -> None:
         self.mode = mode
         self.phi = PHI
         self.psi = PSI
@@ -653,7 +306,7 @@ class MorphicAnalyzer:
 
     def find_optimal_parameters(
         self, criterion: str = "max_stability"
-    ) -> float | None:
+    ) -> Optional[float]:
         """Find optimal parameter values."""
         if criterion == "max_stability":
             # Parameters with maximum discriminan
@@ -672,7 +325,7 @@ class MorphicAnalyzer:
         stability = stability_regions(self.mode, k_min, k_max, resolution)
 
         landscape = {
-            "geometric_algebra_support": GA_AVAILABLE,
+            "geometric_algebra_support": "removed",
             "mode": self.mode,
             "k_range": k_range,
             "stability": stability,
@@ -710,14 +363,10 @@ def get_critical_parameters(mode: str = "shifted") -> dict[str, float]:
 # ========================
 
 
-def test_morphic_module():
-    """Test the morphic module functionality.
-
-    Returns:
-        dict: Test results and validation data
-    """
+def test_morphic_module() -> dict[str, Any]:
+    """Test the morphic module functionality."""
     test_results = {
-        "ga_support": GA_AVAILABLE,
+        "ga_support": "removed",
         "golden_ratio_properties": golden_ratio_properties(),
         "critical_points": {},
         "polynomial_tests": {},
@@ -753,13 +402,7 @@ def test_morphic_module():
         k: v for k, v in analysis.items() if k != "real_roots"
     }
 
-    # Geometric transformations (if GA available)
-    if GA_AVAILABLE != "mock":
-        theta = np.linspace(0, 2 * np.pi, 100)
-        xyz_transformed = sample_loop_xyz(1.5, theta)
-        test_results["geometric_tests"] = {
-            "transformed_circle_shape": list(xyz_transformed.shape)
-        }
+    # Geometric transformations removed (dead code cleanup)
 
     return test_results
 

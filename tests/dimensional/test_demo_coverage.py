@@ -12,8 +12,8 @@ performance systems, and reproducibility framework.
 import numpy as np
 import pytest
 
-from .demo_performance import DemoPerformanceOptimizer
-from .gamma import (
+from dimensional.demo_performance import DemoPerformanceOptimizer
+from dimensional.gamma import (
     c_peak,
     explore,
     factorial_extension,
@@ -24,7 +24,7 @@ from .gamma import (
 )
 
 # Import modules to test
-from .mathematics import (
+from dimensional.mathematics import (
     CRITICAL_DIMENSIONS,
     NUMERICAL_EPSILON,
     PHI,
@@ -37,12 +37,12 @@ from .mathematics import (
     gammaln_safe,
     sphere_surface,
 )
-from .performance import BenchmarkResult, PerformanceProfiler
-from .reproducibility import (
+from dimensional.performance import BenchmarkResult, PerformanceProfiler
+from dimensional.reproducibility import (
     ComputationalEnvironment,
     ReproducibilityFramework,
 )
-from .research_cli import (
+from dimensional.research_cli import (
     ParameterSweep,
     PublicationExporter,
     ResearchPoint,

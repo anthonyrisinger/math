@@ -10,19 +10,22 @@ numerical stability and convergence validation.
 import numpy as np
 import pytest
 
-from .gamma import (
+from dimensional.gamma import (
     convergence_diagnostics,
     factorial_extension,
     fractional_domain_validation,
     gamma_safe,
 )
-from .mathematics import (
+from dimensional.mathematics import (
     NUMERICAL_EPSILON,
     ball_volume,
     complexity_measure,
     sphere_surface,
 )
-from .mathematics.validation import ConvergenceDiagnostics, NumericalStabilityTester
+from dimensional.mathematics.validation import (
+    ConvergenceDiagnostics,
+    NumericalStabilityTester,
+)
 
 
 class TestFractionalGammaEnhancements:
@@ -329,7 +332,7 @@ class TestMathematicalConsistency:
 
     def test_beta_function_fractional_consistency(self):
         """Test beta function for fractional values."""
-        from .gamma import beta_function
+        from dimensional.gamma import beta_function
 
         fractional_pairs = [(0.5, 1.5), (0.25, 0.75), (1.25, 2.75)]
 

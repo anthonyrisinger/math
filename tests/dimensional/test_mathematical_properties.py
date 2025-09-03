@@ -10,8 +10,8 @@ and theoretical relationships in dimensional mathematics.
 import numpy as np
 import pytest
 
-from .gamma import beta_function, digamma_safe, gamma_safe, gammaln_safe
-from .mathematics import (
+from dimensional.gamma import beta_function, digamma_safe, gamma_safe, gammaln_safe
+from dimensional.mathematics import (
     CRITICAL_DIMENSIONS,
     NUMERICAL_EPSILON,
     PHI,
@@ -21,14 +21,14 @@ from .mathematics import (
     find_peak,
     sphere_surface,
 )
-from .morphic import (
+from dimensional.morphic import (
     discriminant,
     golden_ratio_properties,
     k_discriminant_zero,
     morphic_polynomial_roots,
     morphic_scaling_factor,
 )
-from .phase import PhaseDynamicsEngine, total_phase_energy
+from dimensional.phase import PhaseDynamicsEngine, total_phase_energy
 
 
 class TestMathematicalInvariants:

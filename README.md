@@ -1,7 +1,7 @@
 # Dimensional Mathematics Framework  
 ## Unified Mathematical Package with Modern Architecture
 
-[![Tests](https://img.shields.io/badge/tests-267%2F267%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-271%2F271%20passing-brightgreen)]()
 [![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)]()
 
 **Production-ready mathematical framework for dimensional analysis, gamma functions, and numerical computation. Complete API with verified functionality and comprehensive test coverage.**
@@ -10,18 +10,33 @@
 
 ## 🚀 Quick Start
 
+### Installation
+
 ```bash
-# Install the framework
+# Install from source (development mode)
 pip install -e .
 
+# Install from source (production)
+pip install .
+
+# Install with development dependencies
+pip install -e ".[dev]"
+
+# Install with demo/visualization extras
+pip install -e ".[demo]"
+```
+
+### Basic Usage
+
+```bash
 # Test basic functionality
 python -c "import dimensional; print(dimensional.v(4.0))"  # Should output: 4.934802...
 
 # Basic mathematical functions (VERIFIED WORKING)
 python -c "import dimensional as d; print(f'V(4)={d.v(4):.3f}, S(4)={d.s(4):.3f}')"
 
-# CLI interface (basic functionality)
-python -m dimensional --help
+# CLI interface
+dimensional --help  # or python -m dimensional --help
 
 # ✅ ALL FEATURES VERIFIED WORKING: enhanced_lab, visualizations, full API
 ```
@@ -179,13 +194,49 @@ pip install -e ".[viz]"     # Include advanced visualization
 pip install -e ".[dev]"     # Include development dependencies  
 ```
 
-**Requirements**:
+## 📦 Installation & Development
+
+### Requirements
+
 - Python 3.9+
-- NumPy, SciPy (mathematical computing)
-- Plotly (interactive visualization)
-- Typer, Rich (modern CLI)
-- Pydantic (type safety)
-- Pytest (testing)
+- Modern packaging via `pyproject.toml` (no `setup.py` needed)
+
+### Core Dependencies
+
+Automatically installed:
+- NumPy ≥1.20.0 (numerical computing)
+- SciPy ≥1.7.0 (scientific functions)
+- Matplotlib ≥3.5.0 (plotting)
+- Rich ≥13.0.0 (beautiful terminal output)
+- Typer ≥0.9.0 (modern CLI framework)
+- Pydantic ≥2.0.0 (data validation)
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd dimensional-mathematics
+
+# Install in development mode with all dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Check code quality
+ruff check .
+
+# Format code
+black .
+```
+
+### Project Structure
+
+- All configuration in `pyproject.toml` (PEP 517/518 compliant)
+- Tests in `tests/` directory (traditional structure)
+- Source code in `dimensional/` package
+- No legacy `setup.py` or `requirements.txt` files
 
 ---
 

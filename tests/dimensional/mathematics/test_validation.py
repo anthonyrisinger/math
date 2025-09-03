@@ -3,7 +3,7 @@
 Tests for validation module.
 """
 
-from .validation import PropertyValidator
+from dimensional.mathematics.validation import PropertyValidator
 
 
 class TestValidation:

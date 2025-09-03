@@ -26,7 +26,7 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import hilbert
 
 # Import from consolidated mathematics
-from .mathematics import (
+from ..mathematics import (
     NUMERICAL_EPSILON,
     PI,
     ball_volume,
@@ -34,7 +34,7 @@ from .mathematics import (
 )
 
 # Import phase dynamics
-from .phase import PhaseDynamicsEngine, phase_evolution_step, total_phase_energy
+from ..phase import PhaseDynamicsEngine, phase_evolution_step, total_phase_energy
 
 # =============================================================================
 # OPERATOR SPECTRAL ANALYSIS
@@ -687,7 +687,7 @@ def analyze_dimensional_transitions(
         Comprehensive transition analysis with spectral signatures
     """
     if phase_engine is None:
-        from .phase import PhaseDynamicsEngine
+        from ..phase import PhaseDynamicsEngine
         phase_engine = PhaseDynamicsEngine(max_dimensions=8, enable_advanced_detection=True)
 
     # Collect phase evolution data
@@ -1004,7 +1004,7 @@ def analyze_emergence_spectrum(
     """Comprehensive spectral analysis of dimensional emergence with transition detection."""
 
     # Create phase engine with advanced detection
-    from .phase import PhaseDynamicsEngine
+    from ..phase import PhaseDynamicsEngine
     engine = PhaseDynamicsEngine(max_dimensions, enable_advanced_detection=True)
 
     # Resonance detection

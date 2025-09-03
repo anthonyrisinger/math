@@ -10,8 +10,8 @@ and error propagation in dimensional mathematics computations.
 import numpy as np
 import pytest
 
-from .gamma import gamma_safe, gammaln_safe
-from .mathematics import (
+from dimensional.gamma import gamma_safe, gammaln_safe
+from dimensional.mathematics import (
     NUMERICAL_EPSILON,
     ball_volume,
     complexity_measure,
@@ -19,7 +19,7 @@ from .mathematics import (
 )
 
 # from .mathematics.validation import ConvergenceDiagnostics, NumericalStabilityTester
-from .phase import PhaseDynamicsEngine, total_phase_energy
+from dimensional.phase import PhaseDynamicsEngine, total_phase_energy
 
 
 class TestAdvancedConvergenceAnalysis:
