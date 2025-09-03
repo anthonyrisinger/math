@@ -125,6 +125,11 @@ Thumbs.db
 *.html
 !docs/**/*.html
 !examples/**/*.html
+
+# Research exports and data outputs
+exports/
+exports/**
+!exports/.gitkeep
 .tox/
 .nox/
 .coverage
