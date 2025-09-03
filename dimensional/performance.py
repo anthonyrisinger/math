@@ -11,15 +11,9 @@ from typing import Any, Callable, Optional
 import numpy as np
 from numpy.typing import NDArray
 
-from .gamma import factorial_extension
-from .mathematics import (
-    DimensionalError,
-    NumericalInstabilityError,
-    ball_volume,
-    complexity_measure,
-    gamma_safe,
-    sphere_surface,
-)
+from .core import DimensionalError, NumericalInstabilityError
+from .gamma import factorial_extension, gamma
+from .measures import ball_volume, complexity_measure, sphere_surface
 
 logger = logging.getLogger(__name__)
 
@@ -120,9 +114,9 @@ class PerformanceProfiler:
         critical_inputs = [0.5, 1.0, 2.0, 3.0, 4.0, 5.256, 6.0, 7.256, 8.0, 10.0]
 
         benchmark_configs = [
-            (gamma_safe, linear_inputs, "gamma_safe_linear"),
-            (gamma_safe, log_inputs, "gamma_safe_log"),
-            (gamma_safe, critical_inputs, "gamma_safe_critical"),
+            (gamma, linear_inputs, "gamma_linear"),
+            (gamma, log_inputs, "gamma_log"),
+            (gamma, critical_inputs, "gamma_critical"),
             (ball_volume, linear_inputs, "ball_volume_linear"),
             (ball_volume, log_inputs, "ball_volume_log"),
             (sphere_surface, linear_inputs, "sphere_surface_linear"),
@@ -173,8 +167,8 @@ class PropertyValidator:
         # Test Γ(z+1) = z·Γ(z)
         errors = []
         for z in test_range[test_range > 0]:
-            gamma_z = gamma_safe(z)
-            gamma_z_plus_1 = gamma_safe(z + 1)
+            gamma_z = gamma(z)
+            gamma_z_plus_1 = gamma(z + 1)
             expected = z * gamma_z
             error = abs(gamma_z_plus_1 - expected) / max(abs(expected), 1e-10)
 
@@ -198,7 +192,7 @@ class PropertyValidator:
         logger.debug("Testing gamma factorial identity")
         errors = []
         for n in range(1, 11):
-            gamma_n = gamma_safe(n)
+            gamma_n = gamma(n)
             factorial_n_minus_1 = factorial_extension(n - 1)
             error = abs(gamma_n - factorial_n_minus_1) / max(abs(factorial_n_minus_1), 1e-10)
 
@@ -219,7 +213,7 @@ class PropertyValidator:
         ))
 
         # Test Γ(1/2) = √π
-        gamma_half = gamma_safe(0.5)
+        gamma_half = gamma(0.5)
         sqrt_pi = math.sqrt(math.pi)
         error = abs(gamma_half - sqrt_pi) / sqrt_pi
 

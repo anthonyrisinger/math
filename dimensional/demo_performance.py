@@ -20,13 +20,8 @@ from typing import Callable
 import numpy as np
 
 # Import core mathematical functions
-from .mathematics import (
-    ball_volume,
-    complexity_measure,
-    gamma_safe,
-    gammaln_safe,
-    sphere_surface,
-)
+from .gamma import gamma, gammaln
+from .measures import ball_volume, complexity_measure, sphere_surface
 from .performance import PerformanceProfiler
 
 
@@ -115,8 +110,8 @@ class DemoPerformanceOptimizer:
         gamma_args = [d/2 + 1 for d in self.demo_dimensions]
 
         gamma_functions = [
-            (gamma_safe, "Safe Gamma Γ(x)"),
-            (gammaln_safe, "Log-Gamma ln(Γ(x))")
+            (gamma, "Gamma Γ(x)"),
+            (gammaln, "Log-Gamma ln(Γ(x))")
         ]
 
         for func, name in gamma_functions:
@@ -301,7 +296,7 @@ class DemoPerformanceOptimizer:
                 ball_volume(dim)
                 sphere_surface(dim)
                 complexity_measure(dim)
-                gamma_safe(dim/2 + 1)
+                gamma(dim/2 + 1)
             except:
                 pass
         optimizations["cache_warming"] = "Complete"

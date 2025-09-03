@@ -11,7 +11,7 @@ from typing import Optional
 import numpy as np
 from scipy import linalg
 
-from ..mathematics import NUMERICAL_EPSILON, PI
+from ..core import NUMERICAL_EPSILON, PI
 
 
 class LieAlgebra:

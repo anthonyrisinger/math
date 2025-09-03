@@ -12,8 +12,9 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
-from dimensional.mathematics.constants import NUMERICAL_EPSILON
-from dimensional.mathematics.functions import phase_evolution_step, sap_rate
+from dimensional.core.constants import NUMERICAL_EPSILON
+from dimensional.core.core import sap_rate
+from dimensional.core.functions import phase_evolution_step
 
 
 class TestSapRateProperties:

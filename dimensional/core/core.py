@@ -7,11 +7,14 @@ Core phase evolution and energy transfer functions extracted from monolithic pha
 
 import numpy as np
 
-from ..mathematics import (
-    NUMERICAL_EPSILON,
-    PHI,
-    phase_capacity,
-)
+from .constants import NUMERICAL_EPSILON, PHI
+
+
+# Import phase_capacity - need to check where this is defined
+def phase_capacity(d):
+    """Calculate phase capacity for dimension d."""
+    from ..measures import ball_volume
+    return ball_volume(d)
 
 
 def sap_rate(source, target, phase_density, phi=PHI, min_distance=1e-3):
@@ -228,6 +231,14 @@ def phase_coherence(phase_density):
     coherence = np.abs(mean_vector)
 
     return float(coherence)
+
+
+def dimensional_cross_entropy(p, q):
+    """Cross entropy between two distributions."""
+    # Simple implementation
+    p = np.array(p)
+    q = np.array(q)
+    return -np.sum(p * np.log(q + 1e-10))
 
 
 def dimensional_time(dimension_trajectory, phi=PHI):

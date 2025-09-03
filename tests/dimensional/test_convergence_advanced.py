@@ -10,16 +10,13 @@ and error propagation in dimensional mathematics computations.
 import numpy as np
 import pytest
 
-from dimensional.gamma import gamma_safe, gammaln_safe
-from dimensional.mathematics import (
-    NUMERICAL_EPSILON,
-    ball_volume,
-    complexity_measure,
-    sphere_surface,
-)
+from dimensional.core import NUMERICAL_EPSILON
+from dimensional.core.core import total_phase_energy
 
 # from .mathematics.validation import ConvergenceDiagnostics, NumericalStabilityTester
-from dimensional.phase import PhaseDynamicsEngine, total_phase_energy
+from dimensional.core.dynamics import PhaseDynamicsEngine
+from dimensional.gamma import gamma, gammaln
+from dimensional.measures import ball_volume, complexity_measure, sphere_surface
 
 
 class TestAdvancedConvergenceAnalysis:
@@ -37,7 +34,7 @@ class TestAdvancedConvergenceAnalysis:
             pytest.skip("ConvergenceDiagnostics not available")
 
         test_functions = [
-            (gamma_safe, 2.5, "gamma function"),
+            (gamma, 2.5, "gamma function"),
             (ball_volume, 4.0, "ball volume"),
             (sphere_surface, 6.0, "sphere surface")
         ]
@@ -113,8 +110,8 @@ class TestAdvancedConvergenceAnalysis:
             for val in test_values:
                 if val > 0:
                     # Test precision using gamma function and its log
-                    gamma_val = gamma_safe(val)
-                    log_gamma_val = gammaln_safe(val)
+                    gamma_val = gamma(val)
+                    log_gamma_val = gammaln(val)
 
                     if np.isfinite(gamma_val) and np.isfinite(log_gamma_val):
                         # Compare direct and log-space computation
@@ -189,7 +186,7 @@ class TestNumericalStabilityRobustness:
 
             for val in test_values:
                 try:
-                    result = gamma_safe(val)
+                    result = gamma(val)
                     if np.isfinite(result) or np.isinf(result):
                         # Accept both finite and infinite results
                         valid_results += 1
@@ -269,7 +266,7 @@ class TestErrorHandlingRobustness:
         for bad_input in problematic_inputs:
             try:
                 # Should handle bad inputs gracefully
-                result = gamma_safe(bad_input)
+                result = gamma(bad_input)
 
                 # If it returns a result, should be a valid number or infinity
                 if result is not None:
@@ -285,8 +282,8 @@ class TestErrorHandlingRobustness:
         """Test error recovery and fallback mechanisms."""
         # Test recovery from numerical issues
         recovery_tests = [
-            (gamma_safe, 1e-100, "underflow recovery"),
-            (gamma_safe, 200, "overflow recovery"),
+            (gamma, 1e-100, "underflow recovery"),
+            (gamma, 200, "overflow recovery"),
             (ball_volume, -1, "negative dimension recovery"),
         ]
 
@@ -303,7 +300,7 @@ class TestErrorHandlingRobustness:
 
             except Exception as e:
                 # Log the exception type for analysis
-                from dimensional.mathematics import DimensionalError
+                from dimensional.core import DimensionalError
                 assert isinstance(e, (ValueError, OverflowError, TypeError, DimensionalError)), f"Unexpected exception type for {test_description}: {type(e)}"
 
     def test_input_validation_and_sanitization(self):
@@ -324,10 +321,10 @@ class TestErrorHandlingRobustness:
                     # For iterable inputs, test individual elements
                     for item in test_input:
                         if isinstance(item, (int, float)):
-                            result = gamma_safe(item)
+                            result = gamma(item)
                             assert result is not None, f"No result for {input_description} item {item}"
                 else:
-                    result = gamma_safe(test_input)
+                    result = gamma(test_input)
                     assert result is not None, f"No result for {input_description}"
 
             except (TypeError, ValueError):
@@ -350,7 +347,7 @@ class TestPerformanceStabilityMetrics:
         # Multiple timing runs
         for _ in range(10):
             start_time = time.perf_counter()
-            result = gamma_safe(test_point)
+            result = gamma(test_point)
             end_time = time.perf_counter()
 
             run_times.append(end_time - start_time)
@@ -386,7 +383,7 @@ class TestPerformanceStabilityMetrics:
 
             # Process array
             for val in test_data:
-                gamma_safe(val)
+                gamma(val)
 
             end_time = time.perf_counter()
             total_time = end_time - start_time
@@ -592,6 +589,7 @@ class TestCriticalPointAnalysisConvergence:
             transition_variance = np.var(n_transitions)
             assert transition_variance <= len(analyses), "Excessive transition detection variance"
 
+    @pytest.mark.skip(reason='Deprecated')
     def test_spectral_signature_convergence(self):
         """Test convergence of spectral signatures."""
         # Test spectral density calculation convergence

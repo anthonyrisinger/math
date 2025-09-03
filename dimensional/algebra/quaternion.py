@@ -10,7 +10,8 @@ from typing import Union
 
 import numpy as np
 
-from ..mathematics import NUMERICAL_EPSILON, DimensionalError
+from ..core import NUMERICAL_EPSILON
+from ..errors import DimensionalError
 
 
 class Quaternion:

@@ -142,14 +142,8 @@ class VisualizationBackend(ABC):
             "failure_message": "Creating folders for save path… done. Saved with DPI and orthographic camera."
         }
 
-        # ENSURE save directory exists (never fail per STYLE.md)
-        try:
-            save_config["base_path"].mkdir(parents=True, exist_ok=True)
-            print(f"💾 Save system initialized: {save_config['base_path']}")
-        except Exception as e:
-            # Fallback to current directory if needed
-            save_config["base_path"] = Path(".")
-            print(f"⚠️  Save path fallback to current directory: {e}")
+        # Don't create directory on init - only when actually saving
+        # Directory will be created in save() method if needed
 
         return save_config
 

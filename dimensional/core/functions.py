@@ -18,23 +18,81 @@ Provides:
 """
 
 import warnings
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 from scipy import linalg
 from scipy.fft import fft, fftfreq
 from scipy.signal import hilbert
+from scipy.special import digamma as scipy_digamma
+from scipy.special import gamma as scipy_gamma
+from scipy.special import gammaln as scipy_gammaln
 
-# Import from consolidated mathematics
-from ..mathematics import (
-    NUMERICAL_EPSILON,
-    PI,
-    ball_volume,
-    complexity_measure,
-)
 
-# Import phase dynamics
-from ..phase import PhaseDynamicsEngine, phase_evolution_step, total_phase_energy
+def gamma_safe(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
+    """Safe gamma function wrapper."""
+    return scipy_gamma(z)
+
+
+def gammaln_safe(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
+    """Safe log-gamma function wrapper."""
+    return scipy_gammaln(z)
+
+
+def digamma_safe(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
+    """Safe digamma (psi) function wrapper."""
+    return scipy_digamma(z)
+
+
+def ball_volume(d: float, r: float = 1.0) -> float:
+    """Volume of d-dimensional ball."""
+    return (np.pi ** (d / 2) / scipy_gamma(d / 2 + 1)) * (r ** d)
+
+
+def sphere_surface(d: float, r: float = 1.0) -> float:
+    """Surface area of d-dimensional sphere."""
+    return 2 * np.pi ** (d / 2) / scipy_gamma(d / 2) * (r ** (d - 1))
+
+
+def complexity_measure(d: float) -> float:
+    """Complexity measure C(d) = V(d) * S(d)."""
+    return ball_volume(d) * sphere_surface(d)
+
+
+def ratio_measure(d: float) -> float:
+    """Ratio measure R(d) = S(d) / V(d)."""
+    v = ball_volume(d)
+    return sphere_surface(d) / v if v != 0 else float('inf')
+
+
+def factorial_extension(n: float) -> float:
+    """Factorial extension using gamma: n! = Γ(n+1)."""
+    return scipy_gamma(n + 1)
+
+
+def find_peak(func, start: float = 0.1, end: float = 10.0, num_points: int = 1000):
+    """Find peak of a function in given range."""
+    x = np.linspace(start, end, num_points)
+    y = [func(xi) for xi in x]
+    idx = np.argmax(y)
+    return x[idx], y[idx]
+
+
+def find_all_peaks(func, start: float = 0.1, end: float = 20.0, num_points: int = 2000):
+    """Find all peaks of a function."""
+    from scipy.signal import find_peaks as scipy_find_peaks
+    x = np.linspace(start, end, num_points)
+    y = np.array([func(xi) for xi in x])
+    peaks, _ = scipy_find_peaks(y)
+    return [(x[i], y[i]) for i in peaks]
+
+# Import from local core modules
+from .constants import NUMERICAL_EPSILON, PI
+from .core import phase_evolution_step, total_phase_energy
+
+# Import phase dynamics from core modules
+from .dynamics import PhaseDynamicsEngine
 
 # =============================================================================
 # OPERATOR SPECTRAL ANALYSIS

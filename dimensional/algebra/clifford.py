@@ -10,7 +10,7 @@ from itertools import combinations
 
 import numpy as np
 
-from ..mathematics import NUMERICAL_EPSILON
+from ..core import NUMERICAL_EPSILON
 
 
 class CliffordAlgebra:

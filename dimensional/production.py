@@ -17,7 +17,7 @@ from typing import Any, Optional, Union
 import numpy as np
 
 # Import core mathematical functions and standardized exceptions
-from .mathematics import (
+from .core import (
     NUMERICAL_EPSILON,
     PI,
     DimensionalError,

@@ -11,19 +11,40 @@ from typing import Any
 
 import numpy as np
 
+from ..gamma import gamma as gamma_safe
+
+# Import from parent module to avoid circular imports
+from ..measures import ball_volume, complexity_measure, ratio_measure, sphere_surface
 from .constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PI
-from .functions import (
-    PhaseDynamicsEngine,
-    ball_volume,
-    beta_function,
-    complexity_measure,
-    gamma_safe,
-    golden_ratio_properties,
-    morphic_polynomial_roots,
-    ratio_measure,
-    sphere_surface,
-    total_phase_energy,
-)
+from .core import total_phase_energy
+
+# Import phase dynamics from core modules
+from .dynamics import PhaseDynamicsEngine
+
+
+# Need to define or import these functions
+def beta_function(a, b):
+    """Beta function B(a,b) = Γ(a)Γ(b)/Γ(a+b)."""
+    return gamma_safe(a) * gamma_safe(b) / gamma_safe(a + b)
+
+def golden_ratio_properties():
+    """Return golden ratio mathematical properties."""
+    PHI = (1 + np.sqrt(5)) / 2
+    return {
+        "phi_squared_minus_phi": abs(PHI**2 - PHI - 1) < NUMERICAL_EPSILON,
+        "inverse_property": abs(1/PHI - (PHI - 1)) < NUMERICAL_EPSILON,
+    }
+
+def morphic_polynomial_roots(k, variant="shifted"):
+    """Find roots of morphic polynomials."""
+    if variant == "shifted":
+        # x^3 - (2-k)x - 1 = 0
+        coeffs = [1, 0, -(2-k), -1]
+    else:  # simple
+        # x^3 - x - k = 0
+        coeffs = [1, 0, -1, -k]
+    roots = np.roots(coeffs)
+    return roots[np.isreal(roots)].real
 
 
 class PropertyValidator:
@@ -217,7 +238,7 @@ class PropertyValidator:
             results[f"{name}_is_positive"] = value >= 0
 
         # Volume peak should be near the stored critical value
-        from .functions import find_peak
+        from ..measures import find_peak
 
         v_peak_d, v_peak_val = find_peak(ball_volume)
         stored_v_peak = CRITICAL_DIMENSIONS["volume_peak"]

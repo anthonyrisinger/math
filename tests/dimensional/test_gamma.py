@@ -12,13 +12,8 @@ from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
-from dimensional.mathematics.constants import NUMERICAL_EPSILON
-from dimensional.mathematics.functions import (
-    beta_function,
-    factorial_extension,
-    gamma_safe,
-    gammaln_safe,
-)
+from dimensional.core.constants import NUMERICAL_EPSILON
+from dimensional.gamma import beta_function, factorial_extension, gamma, gammaln
 
 
 class TestGammaRecurrenceRelations:
@@ -30,8 +25,8 @@ class TestGammaRecurrenceRelations:
     @settings(max_examples=1000)
     def test_gamma_recurrence_positive(self, z):
         """Test Γ(z+1) = z·Γ(z) for positive z"""
-        gamma_z = gamma_safe(z)
-        gamma_z_plus_1 = gamma_safe(z + 1)
+        gamma_z = gamma(z)
+        gamma_z_plus_1 = gamma(z + 1)
 
         # Skip if either value is infinite (overflow case)
         assume(np.isfinite(gamma_z) and np.isfinite(gamma_z_plus_1))
@@ -56,8 +51,8 @@ class TestGammaRecurrenceRelations:
         # Avoid negative integers (poles)
         assume(abs(z - np.round(z)) > 0.1)
 
-        gamma_z = gamma_safe(z)
-        gamma_z_plus_1 = gamma_safe(z + 1)
+        gamma_z = gamma(z)
+        gamma_z_plus_1 = gamma(z + 1)
 
         # Skip if either value is infinite
         assume(np.isfinite(gamma_z) and np.isfinite(gamma_z_plus_1))
@@ -84,8 +79,8 @@ class TestGammaRecurrenceRelations:
     @settings(max_examples=200)
     def test_gamma_recurrence_vectorized(self, z_array):
         """Test recurrence relation holds for vectorized inputs"""
-        gamma_z = gamma_safe(z_array)
-        gamma_z_plus_1 = gamma_safe(z_array + 1)
+        gamma_z = gamma(z_array)
+        gamma_z_plus_1 = gamma(z_array + 1)
 
         # Filter out infinite values
         finite_mask = np.isfinite(gamma_z) & np.isfinite(gamma_z_plus_1)
@@ -114,8 +109,8 @@ class TestGammaSymmetryProperties:
     @settings(max_examples=500)
     def test_reflection_formula(self, z):
         """Test Γ(z)Γ(1-z) = π/sin(πz) for 0 < z < 1"""
-        gamma_z = gamma_safe(z)
-        gamma_1_minus_z = gamma_safe(1 - z)
+        gamma_z = gamma(z)
+        gamma_1_minus_z = gamma(1 - z)
 
         assume(np.isfinite(gamma_z) and np.isfinite(gamma_1_minus_z))
 
@@ -131,7 +126,7 @@ class TestGammaSymmetryProperties:
     @settings(max_examples=50)
     def test_integer_factorial_property(self, n):
         """Test Γ(n+1) = n! for positive integers"""
-        gamma_result = gamma_safe(n + 1)
+        gamma_result = gamma(n + 1)
         factorial_result = factorial_extension(n)
 
         # Direct factorial calculation for verification
@@ -156,8 +151,8 @@ class TestGammaLogSpace:
     @settings(max_examples=500)
     def test_log_gamma_consistency(self, z):
         """Test log(Γ(z)) = gammaln(z) consistency"""
-        gamma_z = gamma_safe(z)
-        log_gamma_z = gammaln_safe(z)
+        gamma_z = gamma(z)
+        log_gamma_z = gammaln(z)
 
         if np.isfinite(gamma_z) and gamma_z > 0:
             expected_log = np.log(gamma_z)
@@ -172,8 +167,8 @@ class TestGammaLogSpace:
     @settings(max_examples=500)
     def test_log_gamma_recurrence(self, z):
         """Test log(Γ(z+1)) = log(z) + log(Γ(z))"""
-        log_gamma_z = gammaln_safe(z)
-        log_gamma_z_plus_1 = gammaln_safe(z + 1)
+        log_gamma_z = gammaln(z)
+        log_gamma_z_plus_1 = gammaln(z + 1)
 
         assume(np.isfinite(log_gamma_z) and np.isfinite(log_gamma_z_plus_1))
         assume(z > NUMERICAL_EPSILON)  # Avoid log(0)
@@ -212,9 +207,9 @@ class TestBetaFunctionProperties:
         """Test B(a,b) = Γ(a)Γ(b)/Γ(a+b)"""
         beta_ab = beta_function(a, b)
 
-        gamma_a = gamma_safe(a)
-        gamma_b = gamma_safe(b)
-        gamma_a_plus_b = gamma_safe(a + b)
+        gamma_a = gamma(a)
+        gamma_b = gamma(b)
+        gamma_a_plus_b = gamma(a + b)
 
         assume(
             np.isfinite(gamma_a)

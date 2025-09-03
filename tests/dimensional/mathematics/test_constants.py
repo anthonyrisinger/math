@@ -3,7 +3,7 @@
 Tests for mathematical constants module.
 """
 
-from dimensional.mathematics.constants import NUMERICAL_EPSILON
+from dimensional.core.constants import NUMERICAL_EPSILON
 
 
 class TestConstants:

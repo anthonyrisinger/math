@@ -15,7 +15,7 @@ import warnings
 import numpy as np
 from scipy.special import gamma
 
-from .mathematics import PHI, PI
+from .core import PHI, PI
 
 
 # Mock matplotlib components for deprecated code

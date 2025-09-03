@@ -12,7 +12,7 @@ import numpy as np
 from scipy import linalg
 from scipy.spatial.transform import Rotation
 
-from ..mathematics import NUMERICAL_EPSILON
+from ..core import NUMERICAL_EPSILON
 from .lie_algebra import LieAlgebra, SLnLieAlgebra, SO3LieAlgebra
 from .quaternion import Quaternion
 

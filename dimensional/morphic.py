@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -306,7 +306,7 @@ class MorphicAnalyzer:
 
     def find_optimal_parameters(
         self, criterion: str = "max_stability"
-    ) -> Optional[float]:
+    ) -> float | None:
         """Find optimal parameter values."""
         if criterion == "max_stability":
             # Parameters with maximum discriminan

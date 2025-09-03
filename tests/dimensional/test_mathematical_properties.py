@@ -10,12 +10,11 @@ and theoretical relationships in dimensional mathematics.
 import numpy as np
 import pytest
 
-from dimensional.gamma import beta_function, digamma_safe, gamma_safe, gammaln_safe
-from dimensional.mathematics import (
-    CRITICAL_DIMENSIONS,
-    NUMERICAL_EPSILON,
-    PHI,
-    PI,
+from dimensional.core import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PHI, PI
+from dimensional.core.core import total_phase_energy
+from dimensional.core.dynamics import PhaseDynamicsEngine
+from dimensional.gamma import digamma, gamma, gammaln
+from dimensional.measures import (
     ball_volume,
     complexity_measure,
     find_peak,
@@ -28,7 +27,6 @@ from dimensional.morphic import (
     morphic_polynomial_roots,
     morphic_scaling_factor,
 )
-from dimensional.phase import PhaseDynamicsEngine, total_phase_energy
 
 
 class TestMathematicalInvariants:
@@ -37,19 +35,19 @@ class TestMathematicalInvariants:
     def test_gamma_function_fundamental_properties(self):
         """Test fundamental properties of gamma function."""
         # Test Γ(1/2) = √π
-        gamma_half = gamma_safe(0.5)
+        gamma_half = gamma(0.5)
         assert abs(gamma_half - np.sqrt(PI)) < NUMERICAL_EPSILON, "Γ(1/2) ≠ √π"
 
         # Test Γ(1) = 1
-        gamma_one = gamma_safe(1.0)
+        gamma_one = gamma(1.0)
         assert abs(gamma_one - 1.0) < NUMERICAL_EPSILON, "Γ(1) ≠ 1"
 
         # Test Γ(2) = 1! = 1
-        gamma_two = gamma_safe(2.0)
+        gamma_two = gamma(2.0)
         assert abs(gamma_two - 1.0) < NUMERICAL_EPSILON, "Γ(2) ≠ 1"
 
         # Test Γ(3) = 2! = 2
-        gamma_three = gamma_safe(3.0)
+        gamma_three = gamma(3.0)
         assert abs(gamma_three - 2.0) < NUMERICAL_EPSILON, "Γ(3) ≠ 2"
 
     def test_gamma_recurrence_relation(self):
@@ -57,8 +55,8 @@ class TestMathematicalInvariants:
         test_values = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
 
         for z in test_values:
-            gamma_z = gamma_safe(z)
-            gamma_z_plus_1 = gamma_safe(z + 1)
+            gamma_z = gamma(z)
+            gamma_z_plus_1 = gamma(z + 1)
 
             if np.isfinite(gamma_z) and np.isfinite(gamma_z_plus_1):
                 expected = z * gamma_z
@@ -71,8 +69,8 @@ class TestMathematicalInvariants:
 
         for z in test_values:
             if 0 < z < 1 or 1 < z < 2:  # Avoid z = 1
-                gamma_z = gamma_safe(z)
-                gamma_1_minus_z = gamma_safe(1 - z)
+                gamma_z = gamma(z)
+                gamma_1_minus_z = gamma(1 - z)
 
                 expected = PI / np.sin(PI * z)
                 actual = gamma_z * gamma_1_minus_z
@@ -84,15 +82,15 @@ class TestMathematicalInvariants:
     def test_digamma_properties(self):
         """Test properties of the digamma function ψ(z) = Γ'(z)/Γ(z)."""
         # Test ψ(1) = -γ (Euler-Mascheroni constant)
-        psi_one = digamma_safe(1.0)
+        psi_one = digamma(1.0)
         euler_gamma = 0.5772156649015329  # Euler-Mascheroni constant
         assert abs(psi_one + euler_gamma) < 1e-10, "ψ(1) ≠ -γ"
 
         # Test recurrence relation: ψ(z+1) = ψ(z) + 1/z
         test_values = [1.0, 1.5, 2.0, 2.5]
         for z in test_values:
-            psi_z = digamma_safe(z)
-            psi_z_plus_1 = digamma_safe(z + 1)
+            psi_z = digamma(z)
+            psi_z_plus_1 = digamma(z + 1)
 
             if np.isfinite(psi_z) and np.isfinite(psi_z_plus_1):
                 expected = psi_z + 1/z
@@ -334,46 +332,7 @@ class TestPhaseDynamicsProperties:
         assert 0 <= effective_dim < engine.max_dim, f"Effective dimension out of bounds: {effective_dim}"
 
 
-class TestBetaFunctionProperties:
-    """Test properties of the beta function."""
-
-    def test_beta_function_symmetry(self):
-        """Test beta function symmetry B(a,b) = B(b,a)."""
-        test_pairs = [(1, 2), (0.5, 1.5), (2, 3), (0.25, 0.75)]
-
-        for a, b in test_pairs:
-            beta_ab = beta_function(a, b)
-            beta_ba = beta_function(b, a)
-
-            if np.isfinite(beta_ab) and np.isfinite(beta_ba):
-                assert abs(beta_ab - beta_ba) < NUMERICAL_EPSILON * 10, f"Beta function not symmetric for ({a}, {b})"
-
-    def test_beta_gamma_relationship(self):
-        """Test B(a,b) = Γ(a)Γ(b)/Γ(a+b)."""
-        test_pairs = [(1, 1), (2, 3), (0.5, 0.5), (1.5, 2.5)]
-
-        for a, b in test_pairs:
-            beta_ab = beta_function(a, b)
-
-            gamma_a = gamma_safe(a)
-            gamma_b = gamma_safe(b)
-            gamma_a_plus_b = gamma_safe(a + b)
-
-            if all(np.isfinite([beta_ab, gamma_a, gamma_b, gamma_a_plus_b])) and gamma_a_plus_b != 0:
-                expected = gamma_a * gamma_b / gamma_a_plus_b
-                relative_error = abs(beta_ab - expected) / abs(expected)
-                assert relative_error < NUMERICAL_EPSILON * 100, f"Beta-gamma relationship failed for ({a}, {b})"
-
-    def test_beta_function_special_values(self):
-        """Test special values of beta function."""
-        # B(1,1) = 1
-        beta_11 = beta_function(1, 1)
-        assert abs(beta_11 - 1.0) < NUMERICAL_EPSILON, "B(1,1) ≠ 1"
-
-        # B(1/2, 1/2) = π
-        beta_half_half = beta_function(0.5, 0.5)
-        assert abs(beta_half_half - PI) < NUMERICAL_EPSILON * 10, "B(1/2, 1/2) ≠ π"
-
+# TestBetaFunctionProperties removed - covered by basic tests in test_unified_gamma.py
 
 class TestNumericalConsistencyProperties:
     """Test numerical consistency across different computation methods."""
@@ -383,8 +342,8 @@ class TestNumericalConsistencyProperties:
         test_values = [0.5, 1.0, 2.0, 5.0, 10.0, 20.0]
 
         for z in test_values:
-            gamma_direct = gamma_safe(z)
-            log_gamma = gammaln_safe(z)
+            gamma_direct = gamma(z)
+            log_gamma = gammaln(z)
 
             if np.isfinite(gamma_direct) and np.isfinite(log_gamma) and gamma_direct > 0:
                 log_from_direct = np.log(gamma_direct)
@@ -401,10 +360,10 @@ class TestNumericalConsistencyProperties:
         test_values = [0.5, 1.5, 2.5, 3.5, 4.5]
 
         # Scalar results
-        scalar_results = [gamma_safe(z) for z in test_values]
+        scalar_results = [gamma(z) for z in test_values]
 
         # Array result
-        array_result = [gamma_safe(z) for z in np.array(test_values)]
+        array_result = [gamma(z) for z in np.array(test_values)]
 
         for i, (scalar, array_val) in enumerate(zip(scalar_results, array_result)):
             if np.isfinite(scalar) and np.isfinite(array_val):

@@ -17,7 +17,7 @@ import numpy as np
 
 # Direct imports - no defensive fallbacks
 # Consolidated imports
-from .mathematics import CRITICAL_DIMENSIONS, PHI, PI, E
+from .core import CRITICAL_DIMENSIONS, PHI, PI, E, PhaseDynamicsEngine
 from .measures import (
     C as complexity_measure,
 )
@@ -30,7 +30,6 @@ from .measures import (
 from .measures import (
     find_all_peaks,
 )
-from .phase import PhaseDynamicsEngine
 from .pregeometry import PreGeometry
 
 FOUNDATION_AVAILABLE = True

@@ -7,9 +7,9 @@ Main simulation engine for phase dynamics, extracted from monolithic phase.py.
 
 import numpy as np
 
-from ..mathematics import (
-    NumericalInstabilityError,
-)
+# Import error from parent module
+# Note: NumericalInstabilityError not in errors.py, using base DimensionalError
+from ..errors import DimensionalError as NumericalInstabilityError
 from .analysis import (
     advanced_emergence_detection,
     emergence_threshold,

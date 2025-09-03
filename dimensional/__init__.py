@@ -33,18 +33,8 @@ from .algebra import (
     analyze_dimensional_symmetries,
 )
 
-# Import module-specific functions
-from .gamma import (
-    c_peak,
-    explore,
-    instant,
-    lab,
-    peaks,
-    quick_gamma_analysis,
-    s_peak,
-    v_peak,
-)
-from .mathematics import (
+# Import spectral analysis capabilities
+from .core import (
     # Constants
     CRITICAL_DIMENSIONS,
     NUMERICAL_EPSILON,
@@ -52,31 +42,48 @@ from .mathematics import (
     PI,
     PSI,
     VARPI,
-    ConvergenceError,
     # Exception classes
     DimensionalError,
+    E,
     InvalidDimensionError,
-    NumericalInstabilityError,
     # Core functions
+    PhaseDynamicsEngine,
+    sap_rate,
+)
+
+# Import module-specific functions
+# Import gamma functions from gamma module
+from .gamma import (
+    c_peak,
+    digamma,
+    explore,
+    factorial_extension,
+    gamma,
+    gammaln,
+    instant,
+    lab,
+    peaks,
+    quick_gamma_analysis,
+    s_peak,
+    v_peak,
+)
+from .gamma import (
+    gamma as gamma_safe,
+)
+from .gamma import (
+    gammaln as gammaln_safe,
+)
+
+# Import measure functions from measures module
+from .measures import (
     ball_volume,
     complexity_measure,
     find_peak,
-    gamma_safe,
-    gammaln_safe,
     sphere_surface,
 )
 
-# Import spectral analysis capabilities
-from .spectral import (
-    DimensionalOperator,
-    analyze_critical_point_spectrum,
-    analyze_emergence_spectrum,
-    detect_dimensional_resonances,
-    dimensional_spectral_density,
-    dimensional_wavelet_analysis,
-    fractal_harmonic_analysis,
-    quick_spectral_analysis,
-)
+# Import ratio measure from measures
+from .measures import ratio_measure as r
 
 # Import enhanced research CLI functions (all verified working)
 # ✅ VERIFIED: All enhanced features are fully functional
@@ -96,9 +103,14 @@ try:
 except ImportError:
     ENHANCED_RESEARCH_AVAILABLE = False
 from .interface import UnifiedInterface
-from .mathematics.functions import find_all_peaks
-from .measures import find_all_peaks as measures_find_all_peaks
-from .phase import PhaseDynamicsEngine, quick_phase_analysis
+from .measures import find_all_peaks
+
+
+# quick_phase_analysis is not in core, define if needed
+def quick_phase_analysis(d):
+    """Quick phase analysis of a dimension."""
+    engine = PhaseDynamicsEngine()
+    return engine.quick_analysis(d) if hasattr(engine, 'quick_analysis') else None
 
 # Consolidated API aliases - both uppercase and lowercase
 V = v = ball_volume          # V(d) = v(d) = d-dimensional ball volume

@@ -8,13 +8,28 @@ Analysis and emergence detection functions extracted from phase.py.
 import numpy as np
 from scipy.fft import fft
 
-from ..mathematics import (
-    NUMERICAL_EPSILON,
-    phase_capacity,
-)
-from .core import (
-    phase_coherence,
-)
+from .constants import NUMERICAL_EPSILON
+from .core import phase_capacity, phase_coherence
+
+
+def analytical_continuation(func, z):
+    """Analytical continuation of a function."""
+    # Simple placeholder implementation
+    return func(z)
+
+
+def pole_structure(func, z_range):
+    """Analyze pole structure of a function."""
+    # Simple placeholder implementation
+    poles = []
+    for z in z_range:
+        try:
+            val = func(z)
+            if abs(val) > 1e10:
+                poles.append(z)
+        except:
+            poles.append(z)
+    return poles
 
 
 def emergence_threshold(dimension, phase_density):

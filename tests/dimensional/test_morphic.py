@@ -11,8 +11,8 @@ import pytest
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from dimensional.mathematics.constants import NUMERICAL_EPSILON, PHI, PSI
-from dimensional.mathematics.functions import discriminant, morphic_polynomial_roots
+from dimensional.core.constants import NUMERICAL_EPSILON, PHI, PSI
+from dimensional.morphic import discriminant, morphic_polynomial_roots
 
 
 class TestGoldenRatioProperties:

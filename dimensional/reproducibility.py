@@ -27,14 +27,9 @@ from typing import Any, Optional
 import numpy as np
 
 # Import core mathematical functions for validation
-from .mathematics import (
-    NUMERICAL_EPSILON,
-    PHI,
-    ball_volume,
-    complexity_measure,
-    gamma_safe,
-    sphere_surface,
-)
+from .core import NUMERICAL_EPSILON, PHI
+from .gamma import gamma
+from .measures import ball_volume, complexity_measure, sphere_surface
 
 
 @dataclass
@@ -82,7 +77,7 @@ class ReproducibilityFramework:
 
     def __init__(self, base_path: Path = None, tolerance: float = 1e-12):
         self.base_path = base_path or Path.cwd() / "reproducibility"
-        self.base_path.mkdir(parents=True, exist_ok=True)
+        # Don't create directory on init - only when actually writing files
 
         self.tolerance = tolerance
         self.random_seed = 42  # Default reproducible seed
@@ -130,6 +125,8 @@ class ReproducibilityFramework:
             "reproduction_instructions": self._generate_reproduction_instructions(),
         }
 
+        # Create directory only when actually writing files
+        self.base_path.mkdir(parents=True, exist_ok=True)
         manifest_path = self.base_path / f"manifest_{self.environment.hash()}.json"
 
         with open(manifest_path, 'w') as f:
@@ -150,7 +147,7 @@ class ReproducibilityFramework:
             vol = ball_volume(dim)
             surf = sphere_surface(dim)
             comp = complexity_measure(dim)
-            gamma_val = gamma_safe(dim/2 + 1)
+            gamma_val = gamma(dim/2 + 1)
 
             # Create reproducible string representation
             values_str = f"{vol:.15e}|{surf:.15e}|{comp:.15e}|{gamma_val:.15e}"
@@ -239,7 +236,7 @@ class ReproducibilityFramework:
                 (ball_volume, "ball_volume"),
                 (sphere_surface, "sphere_surface"),
                 (complexity_measure, "complexity_measure"),
-                (lambda d: gamma_safe(d/2 + 1), "gamma_function"),
+                (lambda d: gamma(d/2 + 1), "gamma_function"),
             ]
 
             for func, func_name in functions_to_test:
@@ -326,10 +323,10 @@ class ReproducibilityFramework:
         test_val = 5.5
 
         # Method 1: Direct gamma computation
-        gamma_direct = gamma_safe(test_val)
+        gamma_direct = gamma(test_val)
 
         # Method 2: Using gamma identity Γ(x+1) = x*Γ(x)
-        gamma_identity = test_val * gamma_safe(test_val - 1)
+        gamma_identity = test_val * gamma(test_val - 1)
 
         abs_diff = abs(gamma_direct - gamma_identity)
         rel_diff = abs_diff / max(abs(gamma_direct), 1e-15)
@@ -436,6 +433,8 @@ All mathematical computations can be independently verified and reproduced.
 *Reproducibility Framework v1.0.0*
         '''
 
+        # Create directory only when actually writing files
+        self.base_path.mkdir(parents=True, exist_ok=True)
         cert_path = self.base_path / f"certificate_{research_session_id}.md"
 
         with open(cert_path, 'w') as f:

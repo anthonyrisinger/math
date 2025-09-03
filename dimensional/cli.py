@@ -43,6 +43,7 @@ except ImportError:
         return None
 
 # Consolidated dimensional imports
+from .core import PhaseDynamicsEngine
 from .gamma import (
     demo,
     explore,
@@ -54,7 +55,6 @@ from .gamma import (
     qplot,
 )
 from .measures import c, s, v
-from .phase import PhaseDynamicsEngine
 
 # Import visualization modules - make optional to avoid import errors
 try:

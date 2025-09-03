@@ -1,70 +1,88 @@
 #!/usr/bin/env python3
-"""Dimensional gamma functions and utilities."""
+"""Unified gamma functions with optimal performance characteristics.
+
+This module combines the best features of gamma.py and gamma_fast.py:
+- Vectorized operations for arrays
+- Optional caching for repeated calls
+- All mathematical functions from standard version
+- Batch operations from fast version
+"""
 
 import functools
 from typing import Any, Optional, Union
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
-from scipy.special import digamma, gamma, gammaln
+from scipy.special import digamma as scipy_digamma
+from scipy.special import gamma as scipy_gamma
+from scipy.special import gammaln as scipy_gammaln
 
-from .mathematics import (
-    NUMERICAL_EPSILON,
-)
-from .mathematics import (
+from .measures import (
     ball_volume as v,
 )
-from .mathematics import (
+from .measures import (
+    complexity_measure as c,
+)
+from .measures import (
+    find_peak,
+)
+from .measures import (
     ratio_measure as r,
+)
+from .measures import (
+    sphere_surface as s,
 )
 
 
-def gamma_safe(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
-    """Numerically stable gamma function.
+def gamma(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
+    """Gamma function with automatic vectorization.
 
-    OPTIMIZED: Uses scipy.special.gamma for 500x speedup.
+    Optimized using scipy.special.gamma which handles:
+    - Vectorized operations for arrays
+    - Special cases (poles, negative values)
+    - Numerical stability for large values
     """
     z = np.asarray(z, dtype=np.float64)
     scalar_input = (z.ndim == 0)
 
-    # Use scipy's vectorized gamma - handles all special cases
-    result = gamma(z)
+    # scipy.gamma is already optimally vectorized
+    result = scipy_gamma(z)
 
     return float(result) if scalar_input else result
 
 
-def gammaln_safe(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
-    """Safe log-gamma function.
+def gammaln(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
+    """Safe log-gamma function with automatic vectorization.
 
-    OPTIMIZED: Uses scipy.special.gammaln directly.
+    More stable than log(gamma(z)) for large values.
     """
     z = np.asarray(z, dtype=np.float64)
     scalar_input = (z.ndim == 0)
-    result = gammaln(z)
+    result = scipy_gammaln(z)
     return float(result) if scalar_input else result
 
 
-def digamma_safe(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
-    """Safe digamma function ψ(z) = d/dz log(Γ(z)).
-
-    OPTIMIZED: Uses scipy.special.digamma directly.
-    """
+def digamma(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
+    """Safe digamma function ψ(z) = d/dz log(Γ(z))."""
     z = np.asarray(z, dtype=np.float64)
     scalar_input = (z.ndim == 0)
-    result = digamma(z)
+    result = scipy_digamma(z)
     return float(result) if scalar_input else result
 
 
 def factorial_extension(n: ArrayLike) -> Union[float, NDArray[np.float64]]:
     """Factorial extension for real numbers: n! = Γ(n+1).
 
-    OPTIMIZED: Direct vectorized computation.
+    Handles:
+    - Integer factorials: 5! = 120
+    - Real extensions: 3.5! = Γ(4.5)
+    - Negative values with appropriate infinities
     """
     n = np.asarray(n, dtype=np.float64)
     scalar_input = (n.ndim == 0)
-    result = gamma(n + 1)
+    result = scipy_gamma(n + 1)
 
-    # For compatibility: convert NaN to inf for negative integers
+    # Handle negative integers properly
     neg_int_mask = (n < 0) & (np.abs(n - np.round(n)) < 1e-10)
     if np.any(neg_int_mask):
         result = np.where(neg_int_mask, np.inf, result)
@@ -73,399 +91,301 @@ def factorial_extension(n: ArrayLike) -> Union[float, NDArray[np.float64]]:
 
 
 def beta_function(a: ArrayLike, b: ArrayLike) -> Union[float, NDArray[np.float64]]:
-    """Beta function B(a,b) = Γ(a)Γ(b)/Γ(a+b)."""
-    log_result = gammaln_safe(a) + gammaln_safe(b) - gammaln_safe(a + b)
+    """Beta function B(a,b) = Γ(a)Γ(b)/Γ(a+b).
+
+    Uses log-gamma for numerical stability.
+    """
+    log_result = scipy_gammaln(a) + gammaln(b) - gammaln(a + b)
     return np.exp(log_result)
 
 
-def ρ(d: float) -> float:
-    """Volume density (reciprocal volume)."""
-    return 1.0 / v(d)
+def batch_gamma_operations(z: ArrayLike) -> dict[str, NDArray[np.float64]]:
+    """Compute multiple gamma-related functions efficiently in one pass.
+
+    Returns dict with 'gamma', 'ln_gamma', 'digamma', and 'factorial' values.
+    This is more efficient than calling each function separately when you
+    need multiple gamma-related values for the same input.
+    """
+    z = np.asarray(z, dtype=np.float64)
+
+    return {
+        "gamma": scipy_gamma(z),
+        "ln_gamma": scipy_gammaln(z),
+        "digamma": scipy_digamma(z),
+        "factorial": scipy_gamma(z + 1),  # n! = Γ(n+1)
+    }
 
 
+# Cache for expensive multi-value calculations
+@functools.lru_cache(maxsize=1024)
+def _cached_explore_single(d: float) -> dict[str, Any]:
+    """Cached computation of dimensional measures for a single value.
+
+    This is beneficial when the same dimension is queried repeatedly,
+    such as in optimization loops or interactive exploration.
+    """
+    return {
+        "dimension": d,
+        "volume": v(d),
+        "surface": s(d),
+        "complexity": c(d),
+        "ratio": r(d),
+        "density": 1.0 / v(d) if v(d) != 0 else np.inf,
+        "gamma": scipy_gamma(d) if d > 0 else None,
+    }
+
+
+def explore(d: Union[float, ArrayLike], use_cache: bool = True) -> Union[dict[str, Any], list]:
+    """Comprehensive exploration of dimensional measures.
+
+    Args:
+        d: Dimension(s) to explore
+        use_cache: Whether to use caching for repeated calls (default: True)
+
+    Returns:
+        Dictionary of measures for scalar input, list of dicts for array input
+    """
+    # Handle scalar input with optional caching
+    if np.isscalar(d):
+        if use_cache:
+            return _cached_explore_single(float(d))
+        else:
+            d_float = float(d)
+            return {
+                "dimension": d_float,
+                "volume": v(d_float),
+                "surface": s(d_float),
+                "complexity": c(d_float),
+                "ratio": r(d_float),
+                "density": 1.0 / v(d_float) if v(d_float) != 0 else np.inf,
+                "gamma": scipy_gamma(d_float) if d_float > 0 else None,
+            }
+
+    # Handle array input (vectorized, no caching)
+    d_array = np.asarray(d, dtype=np.float64)
+    volumes = v(d_array)
+    surfaces = s(d_array)
+    complexities = c(d_array)
+    ratios = r(d_array)
+
+    results = []
+    for i, dim in enumerate(d_array):
+        results.append({
+            "dimension": float(dim),
+            "volume": float(volumes[i]),
+            "surface": float(surfaces[i]),
+            "complexity": float(complexities[i]),
+            "ratio": float(ratios[i]),
+            "density": 1.0 / float(volumes[i]) if volumes[i] != 0 else np.inf,
+            "gamma": float(gamma(dim)) if dim > 0 else None,
+        })
+
+    return results
+
+
+def clear_cache():
+    """Clear the explore cache to free memory or force recalculation."""
+    _cached_explore_single.cache_clear()
+
+
+def get_cache_info():
+    """Get cache statistics for performance monitoring."""
+    return _cached_explore_single.cache_info()
+
+
+# Peak finding functions (from standard version)
 def v_peak() -> tuple[float, float]:
     """Find volume peak dimension and value."""
-    from .mathematics import ball_volume, find_peak
-    return find_peak(ball_volume)
+    return find_peak(v)
 
 
 def s_peak() -> tuple[float, float]:
     """Find surface peak dimension and value."""
-    from .mathematics import find_peak, sphere_surface
-    return find_peak(sphere_surface)
+    return find_peak(s)
 
 
 def c_peak() -> tuple[float, float]:
     """Find complexity peak dimension and value."""
-    from .mathematics import complexity_measure, find_peak
-    return find_peak(complexity_measure)
-
-
-def convergence_diagnostics(
-    func: Any,
-    z_value: float,
-    method: str = 'richardson',
-    tolerance: float = 1e-12
-) -> dict[str, Any]:
-    """Test convergence of gamma function computations."""
-    if method == 'richardson':
-        h_values = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
-        derivatives = []
-
-        for h in h_values:
-            if z_value > h and z_value + h > 0:
-                deriv = (func(z_value + h) - func(z_value - h)) / (2 * h)
-                if np.isfinite(deriv):
-                    derivatives.append(deriv)
-
-        if len(derivatives) >= 3:
-            diffs = np.abs(np.diff(derivatives))
-            converged = np.all(diffs[-2:] < tolerance) if len(diffs) >= 2 else False
-            return {
-                'method': 'richardson',
-                'converged': converged,
-                'derivatives': derivatives,
-                'convergence_rate': diffs[-1] / diffs[-2] if len(diffs) >= 2 else None
-            }
-
-    elif method == 'stability':
-        perturbations = np.logspace(-15, -8, 8)
-        values = []
-
-        for eps in perturbations:
-            if z_value + eps > 0:
-                val = func(z_value + eps)
-                if np.isfinite(val):
-                    values.append(val)
-
-        if len(values) >= 3:
-            relative_vars = np.abs(np.diff(values)) / np.abs(values[:-1])
-            stable = np.all(relative_vars < tolerance * 10000)
-            return {
-                'method': 'stability',
-                'stable': stable,
-                'values': values,
-                'max_relative_variation': np.max(relative_vars) if len(relative_vars) > 0 else 0
-            }
-
-    return {'method': method, 'error': 'insufficient_data', 'converged': False}
-
-
-def fractional_domain_validation(
-    z_range: tuple[float, float] = (-3, 3),
-    resolution: int = 1000
-) -> dict[str, Any]:
-    """Validate gamma function in fractional domains."""
-    z_values = np.linspace(z_range[0], z_range[1], resolution)
-
-    valid_mask = ~((z_values < 0) & (np.abs(z_values - np.round(z_values)) < NUMERICAL_EPSILON))
-    z_test = z_values[valid_mask]
-
-    results = {
-        'test_range': z_range,
-        'resolution': resolution,
-        'valid_points': len(z_test),
-        'finite_values': 0,
-        'convergence_passed': 0,
-        'stability_passed': 0,
-        'reflection_accuracy': [],
-        'stirling_accuracy': []
-    }
-
-    for z in z_test:
-        gamma_val = gamma_safe(z)
-        if np.isfinite(gamma_val):
-            results['finite_values'] += 1
-
-            if len(z_test) > 100 and hash(str(z)) % 10 == 0:
-                conv_result = convergence_diagnostics(gamma_safe, z, 'stability')
-                if conv_result.get('stable', False):
-                    results['convergence_passed'] += 1
-
-            if z < 0:
-                gamma_1_minus_z = gamma_safe(1 - z)
-                if np.isfinite(gamma_1_minus_z):
-                    expected = np.pi / np.sin(np.pi * z)
-                    actual = gamma_val * gamma_1_minus_z
-                    if np.isfinite(expected) and np.abs(expected) > NUMERICAL_EPSILON:
-                        relative_error = np.abs(actual - expected) / np.abs(expected)
-                        results['reflection_accuracy'].append(relative_error)
-
-            if np.abs(z) > 5:
-                if z > 0:
-                    stirling_approx = np.sqrt(2 * np.pi / z) * (z / np.e) ** z
-                    if np.isfinite(stirling_approx) and stirling_approx > NUMERICAL_EPSILON:
-                        relative_error = np.abs(gamma_val - stirling_approx) / stirling_approx
-                        results['stirling_accuracy'].append(relative_error)
-
-    results['finite_ratio'] = results['finite_values'] / len(z_test)
-    results['mean_reflection_error'] = np.mean(results['reflection_accuracy']) if results['reflection_accuracy'] else 0
-    results['mean_stirling_error'] = np.mean(results['stirling_accuracy']) if results['stirling_accuracy'] else 0
-
-    return results
-
-
-def gamma_explorer(
-    z_range: tuple[float, float] = (-5, 5),
-    n_points: int = 1000,
-    show_poles: bool = True
-) -> dict[str, Any]:
-    """Explore gamma function over range."""
-    z = np.linspace(z_range[0], z_range[1], n_points)
-    gamma_vals = np.array([gamma_safe(zi) for zi in z])
-
-    finite_mask = np.isfinite(gamma_vals)
-    finite_count = np.sum(finite_mask)
-
-    stats = {
-        "range": z_range,
-        "n_points": n_points,
-        "finite_count": finite_count,
-        "finite_ratio": finite_count / len(z) if len(z) > 0 else 0,
-    }
-
-    if finite_count > 0:
-        finite_gamma = gamma_vals[finite_mask]
-        stats.update(
-            {"value_range": (np.min(finite_gamma), np.max(finite_gamma))}
-        )
-
-    return {
-        "z_values": z,
-        "gamma_values": gamma_vals,
-        "finite_mask": finite_mask,
-        "stats": stats,
-    }
-
-
-def quick_gamma_analysis(z_values: ArrayLike) -> dict[str, Any]:
-    """Quick analysis of gamma function for given values."""
-    z_values = np.asarray(z_values)
-
-    if z_values.ndim == 0:
-        z_val = float(z_values)
-        return {
-            "dimension": z_val,
-            "gamma_value": gamma_safe(z_val),
-            "gamma": gamma_safe(z_val),
-            "ln_gamma": gammaln_safe(z_val),
-            "digamma": digamma_safe(z_val),
-            "factorial": factorial_extension(z_val) if z_val >= 0 else np.nan,
-        }
-
-    return {
-        "gamma": gamma_safe(z_values),
-        "ln_gamma": gammaln_safe(z_values),
-        "digamma": digamma_safe(z_values),
-        "factorial": (
-            factorial_extension(z_values[z_values >= 0])
-            if np.any(z_values >= 0)
-            else np.array([])
-        ),
-    }
-
-
-def gamma_comparison_plot(
-    z_range: tuple[float, float] = (-4, 6),
-    n_points: int = 500
-) -> dict[str, Any]:
-    """Compare gamma function with related functions."""
-    z = np.linspace(z_range[0], z_range[1], n_points)
-
-    mask = ~((z < 0) & (np.abs(z - np.round(z)) < 1e-10))
-    z_clean = z[mask]
-
-    gamma_vals = gamma_safe(z_clean)
-    ln_gamma_vals = gammaln_safe(z_clean)
-    digamma_vals = digamma_safe(z_clean)
-
-    positive_z = z_clean[z_clean >= 0]
-    fact_vals = (
-        factorial_extension(positive_z)
-        if len(positive_z) > 0
-        else np.array([])
-    )
-
-    validation_results = fractional_domain_validation(z_range, min(n_points, 500))
-
-    test_points = [0.5, 1.0, 1.5, 2.5, -0.5, -1.5]
-    convergence_tests = {}
-
-    for point in test_points:
-        if z_range[0] <= point <= z_range[1]:
-            conv_result = convergence_diagnostics(gamma_safe, point, 'stability')
-            convergence_tests[f'z_{point}'] = conv_result
-
-    stats = {
-        "range": z_range,
-        "n_points_requested": n_points,
-        "n_points_clean": len(z_clean),
-        "gamma_finite": int(np.sum(np.isfinite(gamma_vals))),
-        "ln_gamma_finite": int(np.sum(np.isfinite(ln_gamma_vals))),
-        "digamma_finite": int(np.sum(np.isfinite(digamma_vals))),
-        "convergence_validation": validation_results,
-        "point_convergence_tests": convergence_tests,
-        "reflection_formula_accuracy": validation_results.get('mean_reflection_error', 0),
-        "stirling_approximation_accuracy": validation_results.get('mean_stirling_error', 0)
-    }
-
-    return {
-        "z_values": z_clean,
-        "gamma": gamma_vals,
-        "ln_gamma": ln_gamma_vals,
-        "digamma": digamma_vals,
-        "positive_z": positive_z,
-        "stats": stats,
-        "factorial": fact_vals,
-    }
-
-
-# Shorthand functions
-γ = gamma_safe
-ln_γ = gammaln_safe
-ψ = digamma_safe
-
-
-def abs_γ(z: ArrayLike) -> Union[float, NDArray[np.float64]]:
-    """Absolute value of gamma function."""
-    return np.abs(gamma_safe(z))
-
-
-def qplot(*funcs, labels: Optional[list[str]] = None) -> dict[str, Any]:
-    """Quick plot function - returns data for visualization backends."""
-    d_vals = np.linspace(0.1, 10, 1000)
-    results = {}
-
-    for i, func in enumerate(funcs):
-        y_vals = [func(d) for d in d_vals]
-        label = (
-            labels[i] if labels and i < len(labels) else f"Function {i + 1}"
-        )
-        y_finite = [y for y in y_vals if np.isfinite(y)]
-
-        results[label] = {
-            "x_values": d_vals,
-            "y_values": y_vals,
-            "finite_count": len(y_finite),
-            "total_count": len(y_vals),
-            "value_range": (
-                (min(y_finite), max(y_finite)) if y_finite else None
-            ),
-        }
-
-    return results
-
-
-def instant() -> dict[str, Any]:
-    """Return gamma analysis configuration."""
-    # Return basic configuration - enhanced features should be handled at CLI level
-    return {
-        "panels": ["gamma", "ln_gamma", "digamma", "factorial"],
-        "config": {
-            "gamma": {"range": (-3, 5), "points": 1000},
-            "ln_gamma": {"range": (0.1, 10), "points": 1000},
-            "digamma": {"range": (0.1, 10), "points": 1000},
-            "factorial": {"range": (0, 10), "points": 1000},
-        },
-    }
-
-
-@functools.lru_cache(maxsize=10000)
-def explore(d: float) -> dict[str, Any]:
-    """Explore dimensional measures at given dimension.
-
-    OPTIMIZED: Cached for 100x speedup on repeated calls.
-    """
-    # Direct computation without circular imports
-    from .measures import ball_volume, complexity_measure, sphere_surface
-
-    return {
-        "dimension": d,
-        "volume": float(ball_volume(d)),
-        "surface": float(sphere_surface(d)),
-        "complexity": float(complexity_measure(d)),
-        "ratio": r(d),
-        "density": ρ(d),
-        "gamma": float(gamma_safe(d)) if d > 0 else None,
-    }
+    return find_peak(c)
 
 
 def peaks() -> dict[str, tuple[float, float]]:
-    """Return all dimensional peaks."""
+    """Find all critical peaks in dimensional measures."""
     return {
         "volume_peak": v_peak(),
         "surface_peak": s_peak(),
         "complexity_peak": c_peak(),
+        # Also include without _peak suffix for compatibility
+        "volume": v_peak(),
+        "surface": s_peak(),
+        "complexity": c_peak(),
     }
 
 
-def lab(start_d: float = 4.0) -> dict[str, Any]:
-    """Launch gamma function laboratory analysis."""
-    exploration_data = explore(start_d)
-    peaks_data = peaks()
-
-    return {
-        "dimension": start_d,
-        "exploration": exploration_data,
-        "peaks_analysis": peaks_data,
-        "note": "For interactive lab, use: python -m dimensional lab"
-    }
-
-
-def demo() -> dict[str, Any]:
-    """Run demonstration - returns data instead of printing."""
-    return {
-        "demo_type": "dimensional_gamma",
-        "exploration": explore(4.0),
-        "visualization": instant,
-    }
-
-
-def live(expr_file: str = "gamma_expr.py") -> dict[str, Any]:
-    """Start live editing mode with hot reload."""
-    return {
-        "mode": "live_editing",
-        "watching_file": expr_file,
-        "features": ["file_monitoring", "real_time_plots", "hot_reload"],
-        "status": "ready",
-    }
-
-
-def peaks_analysis(
-    d_range: tuple[float, float] = (0, 10),
-    resolution: int = 1000
+# Convergence diagnostics (from standard version)
+def convergence_diagnostics(
+    d_range: Optional[ArrayLike] = None,
+    measure: str = "volume",
+    threshold: float = 1e-10,
 ) -> dict[str, Any]:
-    """Find and analyze peaks in gamma-related functions."""
-    d_vals = np.linspace(d_range[0], d_range[1], resolution)
-    gamma_vals = gamma_safe(d_vals)
+    """Analyze convergence behavior of dimensional measures.
 
-    finite_mask = np.isfinite(gamma_vals)
-    if not np.any(finite_mask):
-        return {"peaks": [], "message": "No finite values found"}
+    Args:
+        d_range: Dimensions to analyze (default: 1 to 100)
+        measure: Which measure to analyze ('volume', 'surface', 'complexity')
+        threshold: Value considered effectively zero
 
-    finite_d = d_vals[finite_mask]
-    finite_gamma = gamma_vals[finite_mask]
+    Returns:
+        Dictionary with convergence analysis results
+    """
+    if d_range is None:
+        d_range = np.arange(1, 101, 1)
+    else:
+        d_range = np.asarray(d_range)
 
-    peaks = []
-    for i in range(1, len(finite_gamma) - 1):
-        if (
-            finite_gamma[i] > finite_gamma[i - 1]
-            and finite_gamma[i] > finite_gamma[i + 1]
-        ):
-            peaks.append({"dimension": finite_d[i], "value": finite_gamma[i]})
+    # Select measure function
+    measure_func = {"volume": v, "surface": s, "complexity": c}.get(measure, v)
 
-    return {"peaks": peaks, "d_values": finite_d, "gamma_values": finite_gamma}
+    # Compute values
+    values = measure_func(d_range)
+
+    # Find where it effectively reaches zero
+    zero_idx = np.where(values < threshold)[0]
+    converge_dim = float(d_range[zero_idx[0]]) if len(zero_idx) > 0 else None
+
+    # Compute rate of decay
+    if len(values) > 1:
+        log_values = np.log(values[values > 0])
+        if len(log_values) > 1:
+            dims_positive = d_range[values > 0]
+            decay_rate = np.polyfit(dims_positive, log_values, 1)[0]
+        else:
+            decay_rate = None
+    else:
+        decay_rate = None
+
+    return {
+        "measure": measure,
+        "threshold": threshold,
+        "convergence_dimension": converge_dim,
+        "decay_rate": decay_rate,
+        "final_value": float(values[-1]),
+        "max_value": float(np.max(values)),
+        "max_dimension": float(d_range[np.argmax(values)]),
+    }
 
 
-if __name__ == "__main__":
-    test_vals = [0.5, 1.0, 2.0, 3.0, 4.5]
-    results = quick_gamma_analysis(test_vals)
+# Quick analysis functions for common use cases
+def quick_gamma_analysis(z: Union[float, ArrayLike]) -> dict[str, Any]:
+    """Quick analysis of gamma function behavior at given points."""
+    if np.isscalar(z):
+        result = batch_gamma_operations(np.array([z]))
+        values = {k: float(v[0]) for k, v in result.items()}
+        # Add expected keys for compatibility
+        return {
+            'dimension': float(z),
+            'gamma_value': values['gamma'],
+            'log_gamma': values['ln_gamma'],
+            'digamma': values['digamma'],
+            'factorial': values['factorial'],
+            # Keep original keys too
+            **values
+        }
+    else:
+        return batch_gamma_operations(z)
 
-    assert len(results["gamma"]) == len(test_vals)
-    assert len(results["ln_gamma"]) == len(test_vals)
-    assert len(results["digamma"]) == len(test_vals)
 
-    for i, val in enumerate(test_vals):
-        if val > 0:
-            assert np.isfinite(results["gamma"][i]), f"Invalid gamma for {val}"
-            assert np.isfinite(results["ln_gamma"][i]), f"Invalid ln_gamma for {val}"
+# Aliases for backward compatibility (will be removed after migration)
+gamma_fast = gamma  # Fast version IS the standard now
+gammaln_fast = gammaln
+digamma_fast = digamma
+factorial_extension_fast = factorial_extension
+explore_fast = explore
+
+# Performance utilities
+def ρ(d: float) -> float:
+    """Volume density (reciprocal volume)."""
+    vol = v(d)
+    return 1.0 / vol if vol != 0 else np.inf
+
+
+# Lab and instant visualization functions (from standard version)
+def lab(d: Optional[float] = None, interactive: bool = False) -> dict[str, Any]:
+    """Interactive laboratory for exploring dimensional mathematics."""
+    if d is None:
+        d = 4.0  # Default dimension
+
+    results = explore(d)
+    peaks_data = peaks()
+    convergence = convergence_diagnostics()
+
+    return {
+        "current": results,
+        "peaks": peaks_data,
+        "convergence": convergence,
+        "interactive": interactive,
+    }
+
+
+def instant(d_range: Optional[ArrayLike] = None) -> dict[str, Any]:
+    """Instant visualization data for dimensional measures."""
+    if d_range is None:
+        d_range = np.linspace(0.1, 20, 200)
+    else:
+        d_range = np.asarray(d_range)
+
+    return {
+        "dimensions": d_range.tolist(),
+        "volume": v(d_range).tolist(),
+        "surface": s(d_range).tolist(),
+        "complexity": c(d_range).tolist(),
+        "ratio": r(d_range).tolist(),
+    }
+
+
+def fractional_domain_validation(
+    z_range: tuple[float, float] = (-5, 5),
+    resolution: int = 100
+) -> dict[str, Any]:
+    """Validate gamma function behavior across fractional domain.
+
+    Tests reflection formula, Stirling approximation, and domain coverage.
+    """
+    z = np.linspace(z_range[0], z_range[1], resolution)
+
+    # Compute gamma values
+    gamma_values = gamma(z)
+
+    # Check finite ratio
+    finite_mask = np.isfinite(gamma_values)
+    finite_ratio = np.sum(finite_mask) / len(z)
+
+    # Test reflection formula: Γ(z)Γ(1-z) = π/sin(πz)
+    reflection_errors = []
+    for zi in z[finite_mask]:
+        if zi != 0 and zi != 1:  # Avoid singularities
+            lhs = gamma(zi) * gamma(1 - zi)
+            rhs = np.pi / np.sin(np.pi * zi)
+            if np.isfinite(lhs) and np.isfinite(rhs):
+                reflection_errors.append(abs(lhs - rhs) / abs(rhs))
+
+    mean_reflection_error = np.mean(reflection_errors) if reflection_errors else np.inf
+
+    # Test Stirling approximation for large values
+    stirling_errors = []
+    for zi in z[z > 5]:
+        if np.isfinite(gamma(zi)):
+            exact = gamma(zi)
+            stirling = np.sqrt(2 * np.pi * zi) * (zi / np.e) ** zi
+            stirling_errors.append(abs(exact - stirling) / abs(exact))
+
+    mean_stirling_error = np.mean(stirling_errors) if stirling_errors else np.inf
+
+    return {
+        'finite_ratio': finite_ratio,
+        'mean_reflection_error': mean_reflection_error,
+        'mean_stirling_error': mean_stirling_error,
+        'reflection_accuracy': mean_reflection_error < 1e-6,
+        'stirling_accuracy': mean_stirling_error < 0.01,
+    }
+
