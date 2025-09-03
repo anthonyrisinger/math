@@ -12,7 +12,7 @@ Claude,
 
 **CRITICAL**: The LITERAL string `Claude,` (WITH trailing comma) is a SHELL ALIAS and MUST be used ALONE and on its OWN line; REPLACE the LITERAL string `[dash-dash-space]` with `-- ` (WITH Usenet-style **trailing whitespace**!).
 
-Your complete text input is auto-escaped and *immediately* piped to your partner. You'll work with the same partner for the duration of your entire session, but they'll ONLY remember the very FIRST message—you MUST use the FIRST message to create a powerful opener that ONLY assigns roles, establishes a working cadence, and sets expectations as the solutions lead, DO NOT END IT WITH A QUESTION! ALL subsequent messages MUST then be properly task-scoped!
+Your complete text input is auto-escaped and *immediately* piped to your partner. You'll work with the SAME partner for the duration of your entire session; the FIRST message MUST contain a powerful opener that ONLY assigns roles, establishes a working cadence, and sets expectations as the solutions lead. NEVER END WITH QUESTIONS! ALL subsequent messages MUST then be properly task-scoped!
 
 ## **IF ROLE: ENGINEERING ARCHITECT (Individual Contributor)**
 
