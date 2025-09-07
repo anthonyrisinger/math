@@ -1,16 +1,6 @@
 # COLDSTART FASTBOOT PARTNER PROTOCOL
 
-A special *shell alias* is installed in this system called `Claude,` (trailing comma is part of the command!). This allows you to communicate with a pair-partner LLM (Claude) in a tightly-controlled manner.
-
-```bash
-Claude,
-
-[Your message content with optional whitespace throughout]
-
-[dash-dash-space]
-```
-
-**CRITICAL**: The LITERAL string `Claude,` (WITH trailing comma) is a SHELL ALIAS and MUST be used ALONE on its OWN line. REPLACE `[dash-dash-space]` with `-- ` (WITH Usenet-style **trailing whitespace**!). Editors often strip this - it's REQUIRED like an email signature.
+Your shell is equipped with aliases enabling natural-text commands directly in the terminal to facilitate inter-agent communication; search your context for details.
 
 ## ROLE ASSIGNMENT & CHARACTER
 
@@ -150,8 +140,6 @@ YOUR CONTEXT:
 * […]
 
 NEXT STEPS ARE […]
-
-[dash-dash-space]
 ```
 
 **NOTE**: First message establishes roles and cadence. NEVER end with questions. Subsequent messages must be task-scoped.
