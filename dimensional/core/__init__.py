@@ -1,83 +1,36 @@
-"""
-Core Mathematical Functions
-===========================
+"""Core package for backward compatibility."""
 
-Consolidated module containing fundamental mathematical functions,
-constants, and algorithms from mathematics, spectral, and phase modules.
-"""
+# Re-export functions from sibling core.py module
+import importlib.util
+import os
+import sys
 
-# Import everything from submodules
-# Import errors from parent module
-from ..errors import (
-    ArraySizeError,
-    CLIUsageError,
-    DimensionalError,
-    InvalidDimensionError,
-    MathematicalError,
-)
-from .constants import (
-    BOX_ASPECT,
-    CRITICAL_DIMENSIONS,
-    GAMMA_OVERFLOW_THRESHOLD,
-    LOG_SPACE_THRESHOLD,
-    NUMERICAL_EPSILON,
-    PHI,
-    PI,
-    PSI,
-    SQRT_PI,
-    VARPI,
-    VIEW_AZIM,
-    VIEW_ELEV,
-    E,
-)
-from .functions import (
-    ball_volume,
-    complexity_measure,
-    digamma_safe,
-    factorial_extension,
-    find_all_peaks,
-    find_peak,
-    gamma_safe,
-    gammaln_safe,
-    ratio_measure,
-    sphere_surface,
-)
+# Import constants from the constants module
+from .constants import CRITICAL_DIMENSIONS, NUMERICAL_EPSILON, PHI, PI, PSI, VARPI, E
 
-# Create aliases for backward compatibility
-NumericalInstabilityError = DimensionalError
-ConvergenceError = MathematicalError
 
-# Phase dynamics
-from .analysis import analytical_continuation, pole_structure
-from .core import dimensional_cross_entropy, sap_rate
-from .dynamics import PhaseDynamicsEngine
+# Error classes
+class DimensionalError(Exception):
+    """Base exception for dimensional errors."""
+    pass
 
-# Don't import validation here to avoid circular imports
-# Users should import from dimensional.core.validation if needed
+class NumericalInstabilityError(DimensionalError):
+    """Exception for numerical instability."""
+    pass
 
-__all__ = [
-    # Constants
-    'PI', 'PHI', 'PSI', 'VARPI', 'E',
-    'NUMERICAL_EPSILON', 'CRITICAL_DIMENSIONS',
+# Load sibling core.py module
+core_py_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'core.py')
+if os.path.exists(core_py_path):
+    spec = importlib.util.spec_from_file_location("dimensional_core_module", core_py_path)
+    core_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(core_module)
 
-    # Core functions
-    'ball_volume', 'sphere_surface', 'complexity_measure', 'ratio_measure',
-    'gamma_safe', 'gammaln_safe', 'digamma_safe',
-    'find_peak', 'find_all_peaks',
-
-    # Errors
-    'DimensionalError', 'NumericalInstabilityError', 'ConvergenceError',
-    'InvalidDimensionError',
-
-    # Phase dynamics
-    'PhaseDynamicsEngine', 'quick_phase_analysis',
-    'phase_evolution_step', 'sap_rate', 'total_phase_energy',
-    'phase_coherence', 'dimensional_time',
-    'advanced_emergence_detection', 'emergence_threshold',
-
-    # Spectral
-    'DimensionalOperator', 'dimensional_spectral_density',
-    'analyze_critical_point_spectrum', 'analyze_emergence_spectrum',
-    'detect_dimensional_resonances', 'dimensional_wavelet_analysis',
-    'fractal_harmonic_analysis', 'quick_spectral_analysis',
-]
+    # Re-export everything
+    v = core_module.v
+    s = core_module.s
+    c = core_module.c
+    r = core_module.r
+    gamma = core_module.gamma
+    digamma = core_module.digamma
+    Ball = core_module.Ball
+    Sphere = core_module.Sphere
